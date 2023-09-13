@@ -1,10 +1,15 @@
 <script lang="ts">
+  import { defineComponent } from 'vue';
+
+  export default defineComponent ({
+  name: "app",
+  });
 </script>
 
 <template>
-
   <header>
     <nav>
+      <v-btn color="white">TOTO</v-btn>
       <RouterLink to="/">Connexion</RouterLink>
       <RouterLink to="/profil">Profil</RouterLink>
       <RouterLink to="/chat">Chat</RouterLink>
@@ -15,5 +20,4 @@
   <RouterView />
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
