@@ -30,7 +30,7 @@ services:
         condition: service_healthy
 
   frontend:
-    build: front
+    build: frontend
     container_name: frontend
     depends_on:
       - backend
@@ -40,6 +40,8 @@ services:
       - transcendence
     expose:
       - 8080
+    volumes:
+      - ./frontend:/usr/src/app
 
 networks:
   transcendence:

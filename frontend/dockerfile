@@ -1,11 +1,9 @@
 FROM node:18
 
-# WORKDIR /usr/src/todolist
+WORKDIR /usr/src/app
 
-# COPY srcs/package*.json ./
-
-COPY . .
+COPY package.json /
 
 RUN npm install
 
-CMD ["npm", "run", "serve"]
+CMD ["npm", "run", "dev"]
