@@ -1,23 +1,20 @@
 <script lang="ts">
   import { defineComponent } from 'vue';
+  import appHeader from '@/components/AppHeader.vue'
 
   export default defineComponent ({
-  name: "app",
+    components: {
+      appHeader
+    },
+    name: "app",
   });
 </script>
 
 <template>
-  <header>
-    <nav>
-      <v-btn color="white">TOTO</v-btn>
-      <RouterLink to="/">Connexion</RouterLink>
-      <RouterLink to="/profil">Profil</RouterLink>
-      <RouterLink to="/chat">Chat</RouterLink>
-      <!-- <RouterLink to="/pong">Pong</RouterLink> -->
-    </nav>
-  </header>
-
-  <RouterView />
+  <v-app>
+    <appHeader></appHeader>
+    <RouterView />
+  </v-app>
 </template>
 
 <style scoped></style>

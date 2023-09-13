@@ -1,4 +1,4 @@
-<!-- <template>
+<template>
     <main>
         <h2>Key pressed :</h2>
         <h3>{{ key }}</h3>
@@ -6,7 +6,6 @@
   </template>
   
   <script lang="ts">
-  import { RouterLink, RouterView } from 'vue-router'
   import { defineComponent } from 'vue';
   import { io } from 'socket.io-client';
   
@@ -36,4 +35,4 @@
       }
     }
   })
-  </script> -->
+  </script>
