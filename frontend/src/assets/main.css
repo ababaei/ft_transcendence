@@ -1,11 +1,27 @@
 @import './base.css';
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-
+  width: 100%;
   font-weight: normal;
+}
+
+nav {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin: 0 auto;
+  width: 50%;
+}
+
+h1 {
+  margin: 0 auto;
+  text-align: center;
+}
+
+main {
+  display: flex !important;
+  place-items: center;
+  height: 80%;
 }
 
 a,
@@ -24,12 +40,5 @@ a,
 @media (min-width: 1024px) {
   body {
     display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
   }
 }
