@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <main>
         <h2>Key pressed :</h2>
         <h3>{{ key }}</h3>
@@ -36,4 +36,4 @@
       }
     }
   })
-  </script>
+  </script> -->

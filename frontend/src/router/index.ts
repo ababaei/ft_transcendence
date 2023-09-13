@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Connexion from '../views/ConnectView.vue' 
 import Profil from '../views/ProfilView.vue' 
 import Chat from '../views/ChatView.vue' 
-import Pong from '../views/PongView.vue' 
+// import Pong from '../views/PongView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,11 +22,11 @@ const router = createRouter({
       name: 'chat',
       component: Chat
     },    
-    {
-      path: '/pong',
-      name: 'pong',
-      component: Pong
-    },
+    // {
+    //   path: '/pong',
+    //   name: 'pong',
+    //   component: Pong
+    // },
   ]
 })
 
