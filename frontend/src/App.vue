@@ -9,11 +9,10 @@
 <template>
   <header>
     <nav>
-      <v-btn color="white">TOTO</v-btn>
       <RouterLink to="/">Connexion</RouterLink>
       <RouterLink to="/profil">Profil</RouterLink>
       <RouterLink to="/chat">Chat</RouterLink>
-      <!-- <RouterLink to="/pong">Pong</RouterLink> -->
+      <RouterLink to="/pong">Pong</RouterLink>
     </nav>
   </header>
 

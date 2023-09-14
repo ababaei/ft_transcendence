@@ -5,6 +5,22 @@
   font-weight: normal;
 }
 
+main {
+  height: 80%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#loading {
+  margin-top: 1%;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
 nav {
   display: flex;
   width: 100%;

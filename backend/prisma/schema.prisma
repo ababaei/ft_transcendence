@@ -9,3 +9,14 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model PlayersInLine {
+  id      String     @id
+  pos     Int
+}
+
+model Games {
+  id      Int   @id @default(autoincrement())
+  Player1 String
+  Player2 String
+}

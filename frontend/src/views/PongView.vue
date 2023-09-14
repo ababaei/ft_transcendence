@@ -1,7 +1,9 @@
-<!-- <template>
+<template>
     <main>
-        <h2>Key pressed :</h2>
-        <h3>{{ key }}</h3>
+        <v-btn color="success" v-on:click="load">Trouver une partie</v-btn>
+        <div :class="{ invisible: !loading }" id="loading">
+          <iframe src="https://giphy.com/embed/3o7bu3XilJ5BOiSGic" width="30" height="30" frameBorder="0" class="gif"></iframe>
+        </div>
     </main>
   </template>
   
@@ -21,7 +23,8 @@
         position: {
           x: 0,
           y: 0
-        }
+        },
+        loading: false
       }
     },
     mounted() {
@@ -33,7 +36,13 @@
     methods: {
       KeypressEvt(event: KeyboardEvent) {
         this.socket.emit('keypress', event.key);
+      },
+      load() {
+        if (this.loading == false)
+          this.loading = true;
+        else
+          this.loading = false;
       }
     }
   })
-  </script> -->
+  </script>
