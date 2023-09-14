@@ -12,8 +12,8 @@ datasource db {
 }
 
 model PlayersInLine {
-  id      String     @id
-  pos     Int
+  id      Int     @id @default(autoincrement())
+  socket  String? @unique
 }
 
 model Games {

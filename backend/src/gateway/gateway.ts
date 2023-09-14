@@ -13,7 +13,8 @@ export class MyGateway {
     server: Server;
 
     handleConnection(client: Socket) {
-        console.log(`Client connected : ${client.id}`)
+        console.log(`Client connected : ${client.id}`);
+        this.server.emit('socketRef', `${client.id}`)
     }
 
     @SubscribeMessage('keypress')
@@ -23,6 +24,11 @@ export class MyGateway {
             this.server.emit('KeyPressed', 'Up');
         if (data=='ArrowDown')
             this.server.emit('KeyPressed', 'Down');
+    }
+
+    @SubscribeMessage('initGame')
+    InitGame(client: Socket): any {
+        this.server.to
     }
 
     handleDisconnect(client: Socket) {
