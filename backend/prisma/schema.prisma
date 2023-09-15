@@ -1,11 +1,34 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int       @id @unique @default(autoincrement())
+  connexionID String    @unique
+  name        String
+  messages    Message[] @relation("UserMessages")
+  channels    Channel[] @relation("UserChannels")
+}
+
+model Channel {
+  id       Int       @id @unique @default(autoincrement())
+  name     String
+  messages Message[] @relation("ChannelMessages")
+  users    User[]    @relation("UserChannels")
+}
+
+model Message {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  text      String
+  channelID Int
+  userID    Int
+  channel   Channel  @relation("ChannelMessages", fields: [channelID], references: [id])
+  user      User     @relation("UserMessages", fields: [userID], references: [id])
 }
