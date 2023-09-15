@@ -22,7 +22,7 @@ export class AuthService {
                     hash,
                 },
             });
-            return console.log("SIGNED UP && CACA");
+            return console.log("SIGNED UP");
         } catch (error) {
             if (error instanceof PrismaClientKnownRequestError) {
                 if (error.code === 'P2002') {
