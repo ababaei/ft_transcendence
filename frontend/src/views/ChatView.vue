@@ -3,7 +3,7 @@
   <main>
     <h1>Page Chat</h1>
       <input type="text" id="usernameEntry" name="username" v-model="usernameToSend" autocomplete="off">
-      <button @click="sendUsername">send sername</button>
+      <button @click="sendUsername">send cacasername</button>
     <button @click="onClickButton">boutonTry</button>
   </main>
 </template>
