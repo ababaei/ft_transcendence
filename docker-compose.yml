@@ -25,9 +25,14 @@ services:
       - "3000:3000"
     networks:
       - transcendence
+    command: sh -c "npx prisma migrate dev && npm run start:dev"
+    expose:
+      - 3000
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - ./backend:/usr/src/app
 
   frontend:
     build: frontend

@@ -2,5 +2,6 @@
   "dependencies": {
     "@nestjs/cli": "^10.1.17",
     "socket.io-client": "^4.7.2"
-  }
+  },
+  "prisma": {"schema": "/backend/prisma/schema.prisma"}
 }
