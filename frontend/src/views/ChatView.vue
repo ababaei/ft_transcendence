@@ -2,10 +2,8 @@
 <template>
   <main>
     <h1>Page Chat</h1>
-    <form>
-      <input type="text" id="username">
+      <input type="text" id="usernameEntry" name="username" v-model="usernameToSend" autocomplete="off">
       <button @click="sendUsername">send sername</button>
-    </form>
     <button @click="onClickButton">boutonTry</button>
   </main>
 </template>
@@ -19,13 +17,14 @@
     components:({}),
     data() {
       return {
+        usernameToSend: '',
       }
     },
     methods: {
       async onClickButton() {
         console.log('click button');
         try {
-          const response = await axios.post('http://localhost:3000/chat/buttonTest');
+          const response = await axios.post('/api/chat/buttonTest');
           console.log('Réponse du serveur :', response.data);
         } catch (error) {
           console.error('Erreur lors de la requête :', error);
@@ -34,9 +33,11 @@
       async sendUsername() {
         console.log('send username button');
         try {
-          const reponse = await axios.post('http://localhost:3000/chat/')
-        } catch {
-        }
+          const reponse = await axios.post('/api/chat/setUsername', {
+            username: this.usernameToSend,
+          });
+          console.log({ username: this.usernameToSend });
+        } catch { console.error(); }
       }
     }
   })

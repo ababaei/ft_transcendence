@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -16,7 +16,9 @@ export class ChatController {
         return this.chatService.buttonTestReq();
     }
     @Post('setUsername')
-    handleUsername() {
-
+    handleUsername(@Body() data: { username: string }) {
+        console.log('setUsernameRequest');
+        console.log(data.username);
+        return ;
     }
 }
