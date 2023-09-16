@@ -1,7 +1,6 @@
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
-    "connexionID" TEXT NOT NULL,
     "name" TEXT NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -34,9 +33,6 @@ CREATE TABLE "_UserChannels" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_id_key" ON "User"("id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_connexionID_key" ON "User"("connexionID");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Channel_id_key" ON "Channel"("id");

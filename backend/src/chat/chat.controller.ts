@@ -6,19 +6,32 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ChatController {
     constructor(
         private readonly chatService : ChatService,
-        private readonly prismaService : PrismaService
+        private prismaService : PrismaService
     ) {}
     
-
-    @Post('buttonTest') // /chat/test
-    getButtonTest(): string {
-        console.log('je recois une requete');
-        return this.chatService.buttonTestReq();
-    }
     @Post('setUsername')
-    handleUsername(@Body() data: { username: string }) {
+    async handleUsername(@Body() data: { username: string }) {
         console.log('setUsernameRequest');
         console.log(data.username);
+        const foundedUser = await this.prismaService.user.findFirst({
+            where: {
+                name: data.username,
+            },
+        });
+        if (foundedUser) {
+            return { userid: foundedUser.id, username: foundedUser.name };
+        }
+        else {
+            console.log('create new user', data.username)
+            try {
+            const newUser = await this.prismaService.user.create({
+                data: {
+                    name: data.username,
+                },
+            });
+            return {userid: newUser.id, username: newUser.name } 
+        } catch { console.log('error while creating new user')}
+        }
         return ;
     }
 }

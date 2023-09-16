@@ -9,11 +9,10 @@ datasource db {
 }
 
 model User {
-  id          Int       @id @unique @default(autoincrement())
-  connexionID String    @unique
-  name        String
-  messages    Message[] @relation("UserMessages")
-  channels    Channel[] @relation("UserChannels")
+  id       Int       @id @unique @default(autoincrement())
+  name     String
+  messages Message[] @relation("UserMessages")
+  channels Channel[] @relation("UserChannels")
 }
 
 model Channel {
