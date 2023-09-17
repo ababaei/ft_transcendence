@@ -22,6 +22,11 @@ import axios from 'axios';
                 .then((response) => {console.log("Response: ", response)})
                 .catch((error) => {console.error('Error: ', error)})
                 console.log(this.myForm);
+            },
+            schoolLogin() {
+                axios.get('/api/auth/42/login', {})
+                .then((res) => {console.log("Response: ", res.data)})
+                .catch((err) => {console.error('Error: ', err)})
             }
         }
     })
@@ -46,5 +51,6 @@ import axios from 'axios';
             ></v-text-field>
             <v-btn type="submit">login</v-btn>
         </v-form>
+        <v-btn class="mt-5" @click="schoolLogin">Log with 42</v-btn>
     </v-container>
 </template>

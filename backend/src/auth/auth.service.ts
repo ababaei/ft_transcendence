@@ -12,6 +12,10 @@ export class AuthService {
         // private config: ConfigService
     ) {}
 
+    login() {
+        
+    }
+
     async signup(dto: AuthDto) {
         const hash = await argon.hash(dto.password);
         

@@ -12,5 +12,9 @@ export class SchoolStrategy extends PassportStrategy(Strategy, 'SchoolStrategy')
             callbackURL: process.env["42_CALLBACK_URL"]
         });
     }
+
+    function(accesToken, refreshToken, profile, cb) {
+        
+    }
     // async validate(payload: {})
 }
