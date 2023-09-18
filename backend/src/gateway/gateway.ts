@@ -1,3 +1,4 @@
+import { Global } from "@nestjs/common";
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import {Server, Socket} from 'socket.io';
 
@@ -7,14 +8,15 @@ cors: {
         methods: ["GET", "POST"]
     },
 })
+@Global()
 export class MyGateway {
 
     @WebSocketServer()
     server: Server;
 
-    handleConnection(client: Socket) {
-        console.log(`Client connected : ${client.id}`)
-    }
+    // handleConnection(client: Socket) {
+    // //    console.log(`Client connected : ${client.id}`)
+    // }
 
     @SubscribeMessage('keypress')
     handleKeyPress(client: Socket, data: string): any {
@@ -26,7 +28,8 @@ export class MyGateway {
     }
 
     handleDisconnect(client: Socket) {
-        console.log(`Client disconnected : ${client.id}`)
+    //    console.log(`Client disconnected : ${client.id}`)
     }
+
 
 }

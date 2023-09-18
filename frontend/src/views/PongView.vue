@@ -8,7 +8,7 @@
   <script lang="ts">
   import { RouterLink, RouterView } from 'vue-router'
   import { defineComponent } from 'vue';
-  import { io } from 'socket.io-client';
+  import { Socket, io } from 'socket.io-client';
   
   export default defineComponent({
     name: 'PongView',
