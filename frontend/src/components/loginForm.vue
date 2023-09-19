@@ -24,7 +24,9 @@ import axios from 'axios';
                 console.log(this.myForm);
             },
             schoolLogin() {
-                axios.get('/api/auth/42', {})
+                axios.get('/api/auth/42', {
+                    withCredentials: true
+                })
                 .then((res) => {console.log("Response: ", res.data)})
                 .catch((err) => {console.error('Error: ', err)})
             }

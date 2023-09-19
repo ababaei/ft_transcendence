@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Request, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { SchoolAuthGuard } from './auth/guards/42auth.guard';
 
 @Controller()
 export class AppController {
