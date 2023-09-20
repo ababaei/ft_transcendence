@@ -11,13 +11,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model PlayersInLine {
+model Player {
   id      Int     @id @default(autoincrement())
-  socket  String? @unique
+  socket  String?
+  gameID  Int?
+  game    Game?   @relation(fields: [gameID], references: [id])
 }
 
-model Games {
+model Game {
   id      Int   @id @default(autoincrement())
-  Player1 String
-  Player2 String
+  active  Boolean @default(true)
+
+  PlayersID Player[]
 }

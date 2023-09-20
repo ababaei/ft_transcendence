@@ -1,8 +1,7 @@
-import { Prisma } from "@prisma/client";
+// import { Prisma } from "@prisma/client";
 
 
-export class Games implements Prisma.GamesCreateInput{
-    id: number;
-    Player1: string;
-    Player2: string;
-}
+// export class Game implements Prisma.GameCreateInput{
+//     id: number;
+//     PlayersID?: Prisma.PlayerCreateNestedManyWithoutGameInput;
+// }

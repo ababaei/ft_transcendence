@@ -1,6 +1,8 @@
-import { Prisma } from "@prisma/client";
+// import { Prisma } from "@prisma/client";
+// import { Game } from "src/games/games.model";
 
-export class PlayersInLine implements Prisma.PlayersInLineCreateInput{
-    id: number;
-    socket: string;
-}
+// export class Player implements Prisma.PlayerCreateInput{
+//     id: number;
+//     socket: string;
+//     gameID: Game;
+// }

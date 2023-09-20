@@ -1,7 +1,6 @@
 import { PlayersService } from "./players.service";
-// import { PlayersInLine } from "./players.model";
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
-import { PlayersInLine } from "@prisma/client";
+import { Player } from "@prisma/client";
 
 @Controller('pong')
 export class PlayersController {
@@ -9,7 +8,7 @@ export class PlayersController {
     constructor (private readonly playersService: PlayersService){}
 
     @Get()
-    async getAllPlayers():Promise<PlayersInLine[]>{
+    async getAllPlayers():Promise<Player[]>{
         return this.playersService.getAllPlayers()
     }
 
@@ -19,17 +18,17 @@ export class PlayersController {
     }
 
     @Post()
-    async addPlayer(@Body() data: PlayersInLine):Promise<PlayersInLine>{
+    async addPlayer(@Body() data: Player):Promise<Player>{
         return this.playersService.createPlayer(data)
     }
 
-    @Get(':socket')
-    async getPlayer(@Param('socket') socket:string):Promise<PlayersInLine | null>{
-        return this.playersService.getPlayer(socket)
-    }
+    // @Get(':socket')
+    // async getPlayer(@Param('socket') socket:string):Promise<Player | null>{
+    //     return this.playersService.getPlayer(socket)
+    // }
 
-    @Delete(':socket')
-    async deletePlayer(@Param('socket') socket:string):Promise<PlayersInLine>{
-        return this.playersService.deletePlayer(socket)
+    @Delete(':id')
+    async deletePlayer(@Param('id') id:string):Promise<Player>{
+        return this.playersService.deletePlayer(id)
     }
 }

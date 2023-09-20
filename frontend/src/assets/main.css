@@ -14,9 +14,7 @@ main {
 }
 
 #game {
-  height: 200px;
-  width: 400px;
-  border: 1px solid gray;
+  border: 1px solid #00bd7e;
 }
 
 #loading {
