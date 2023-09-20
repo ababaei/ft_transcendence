@@ -11,6 +11,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Waiting {
+  id      Int     @id @default(autoincrement())
+  socket  String? @unique
+}
+
 model Player {
   id      Int     @id @default(autoincrement())
   socket  String?

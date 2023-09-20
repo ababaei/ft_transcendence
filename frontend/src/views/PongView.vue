@@ -5,7 +5,7 @@
         <div :class="{ invisible: !loading }" id="loading">
           <iframe src="https://giphy.com/embed/3o7bu3XilJ5BOiSGic" width="30" height="30" frameBorder="0" class="gif"></iframe>
         </div>
-        <canvas id="game" :class="{ invisible: !game }"></canvas>
+        <canvas id="game" :class="{ invisible: !game }" width="900" height="500"></canvas>
     </main>
   </template>
 
@@ -20,9 +20,9 @@
     components: ({}),
     data() {
       return {
-        socket: io('http://localhost:3000'),
+        socket: io('ws://localhost:3000', { transports : ['websocket'] }),
         key: 'aucune',
-        context: {},
+        context: {},    
         position: {
           x: 0,
           y: 0
@@ -37,21 +37,20 @@
       var c = <HTMLCanvasElement>document.querySelector('canvas');
       if (!c)
         throw new Error('failed to get canvas');
-      c.width = window.innerWidth / 2;
-      c.height = window.innerHeight / 2;
+      // c.width = window.innerWidth / 2;
+      // c.height = c.width / 2;
       var ctx = c.getContext("2d");
       if (!ctx)
         throw new Error('failed to get 2D context');
-      ctx.fillStyle = '#00bd7e';
-      ctx.fillRect(0, (c.height / 2)  - (c.height / 3 / 2) , 10, c.height / 3);
-      ctx.fillRect(c.width - 10, (c.height / 2)  - (c.height / 3 / 2) , 10, c.height / 3);
+      ctx.fillStyle = '#6d4db6';
+      ctx.translate(0.5, 0.5);
+      ctx.fillRect(c.width / 200, (c.height / 2)  - (c.height / 4 / 2) , c.width / 50, c.height / 4);
+      ctx.fillRect(c.width - (c.width / 50) - (c.width / 200), (c.height / 2)  - (c.height / 4 / 2) , c.width / 50, c.height / 4);
+      ctx.imageSmoothingEnabled = false;
       window.addEventListener('keydown', this.KeypressEvt);
       this.socket.on('KeyPressed', (data: string) => {
         this.key = data;
       });
-      // this.socket.on('InitGame', () => {
-      //   this.loading = false;
-      // });
       this.socket.on('socketRef', (data:string) => {
         console.log(data);
         this.socketRef = data;
@@ -59,9 +58,6 @@
       this.socket.on('gameStarted', (data: number) => {
         this.game = true;
         this.loading = false;
-        // this.canvas!.width = window.innerWidth;
-        // this.canvas!.height = window.innerHeight / 2;
-        // this.canvas.style.border = 1px solid blue;
         console.log('gameID = ' + data);
       })
     },
@@ -74,35 +70,28 @@
         {
           this.loading = true;
           console.log(this.socketRef)
-          await axios.post('http://localhost:3000/pong', {
+          await axios.post('api/pong', {
             socket: this.socketRef
           });
-          const nbPlayers = await axios.get('http://localhost:3000/pong/waiting');
-          console.log(nbPlayers.data);
-          const players = await axios.get('http://localhost:3000/pong');
-          console.log(players.data);
-          if (nbPlayers.data >= 2)
+          const players = await axios.get('api/pong');
+          console.log(players.data.length);
+          console.log("players id = ");
+          console.log(players.data[0].id);
+          if (players.data.length >= 2)
           {
-            // await axios.post('http://localhost:3000/games')
-          
-            // , {
-            //   PlayersID : [players.data[0], players.data[1]]
-            //   })
-            // console.log(this.gameID)
-            // console.log('id = ');
-            // console.log(players.data[0].id);
             this.socket.emit('initGame', players.data[0], players.data[1]);
-            await axios.delete('http://localhost:3000/pong/' + players.data[0].id);
-            await axios.delete('http://localhost:3000/pong/' + players.data[1].id);
+            await axios.delete('api/pong/' + players.data[0].id);
+            await axios.delete('api/pong/' + players.data[1].id);
           }
         }
         else
         {
           this.loading = false;
-          const me = await axios.get('http://localhost:3000/pong/' + this.socketRef);
+          const me = await axios.get('api/pong/' + this.socketRef);
           if (me != null)
           {
-            await axios.delete('http://localhost:3000/pong/' + this.socketRef)
+            console.log(me.data.id);
+            await axios.delete('api/pong/' + me.data.id)
           }
         }
       }

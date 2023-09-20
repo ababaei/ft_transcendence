@@ -5,6 +5,10 @@
   font-weight: normal;
 }
 
+body {
+  display: flex;
+}
+
 main {
   height: 80%;
   width: 100%;
@@ -14,7 +18,8 @@ main {
 }
 
 #game {
-  border: 1px solid #00bd7e;
+  /* width: 40%; */
+  border: 1px solid #6d4db6;
 }
 
 #loading {

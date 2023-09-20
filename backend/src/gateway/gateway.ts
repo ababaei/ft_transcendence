@@ -6,7 +6,7 @@ import { PlayersService } from "src/players/players.service";
 
 @WebSocketGateway({
 cors: {
-        origin: ['http://localhost:8080', 'http://localhost:3000/'],
+        origin: '*',
         methods: ["GET", "POST"]
     },
 })
