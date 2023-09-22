@@ -11,8 +11,9 @@ async function bootstrap() {
   
   app.enableCors({
     origin: "http://localhost:8080",
-    credentials: true,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE']
+    // credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    // allowedHeaders: "Content-Type, Authorization",
   });
 
   app.useGlobalPipes(new ValidationPipe({
@@ -20,7 +21,7 @@ async function bootstrap() {
   }));
   
   app.use(session({
-    secret: 'thesecret',
+    secret: process.env["COOKIE_KEY"],
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 3600000}

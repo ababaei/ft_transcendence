@@ -6,6 +6,7 @@ import { UsersModule } from 'src/users/users.module';
 // import { SchoolStrategy } from './strategy/school.strategy';
 import { FortyTwoStrategy } from './strategy/school.strategy'
 import passport from 'passport';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Module({
   imports: [PassportModule.register({
@@ -14,7 +15,7 @@ import passport from 'passport';
   }),
   UsersModule],
   controllers: [AuthController],
-  providers: [AuthService, FortyTwoStrategy],
+  providers: [AuthService, FortyTwoStrategy, PrismaService],
   exports: [PassportModule]
 })
 export class AuthModule {}

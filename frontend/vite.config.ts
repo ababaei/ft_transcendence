@@ -9,7 +9,6 @@ export default defineConfig({
     port: 8080,
     host: true,
     proxy: {
-      'https://signin.intra.42.fr': {},
       "/api": {
         target: "http://backend:3000",
         changeOrigin: true,

@@ -23,13 +23,16 @@ import axios from 'axios';
                 .catch((error) => {console.error('Error: ', error)})
                 console.log(this.myForm);
             },
-            schoolLogin() {
-                axios.get('/api/auth/42', {
-                    withCredentials: true
-                })
-                .then((res) => {console.log("Response: ", res.data)})
-                .catch((err) => {console.error('Error: ', err)})
-            }
+            schoolLogin() {               
+                window.location.href = 'http://localhost:8080/api/auth/42'
+                console.log("_____________________TOTO_____________")
+                // axios.get('')
+                // axios.get('/api/auth/42', {
+                //     // withCredentials: true
+                // })
+                // .then((res) => {console.log("Response: ", res.data)})
+                // .catch((err) => {console.error('Error TOTO: ', err)})
+            },
         }
     })
 

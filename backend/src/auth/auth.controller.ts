@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Next, Post, Req, Request, Res, Response, UseGuards} from '@nestjs/common';
+import { Body, Controller, Get, Header, Headers, Next, Post, Redirect, Req, Request, Res, Response, UseGuards} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 import * as passport from 'passport';
@@ -24,9 +24,11 @@ export class AuthController {
     }
 
     @Get('42/callback')
+    @UseGuards(AuthGuard('42'))
     callback(@Request() req: any, @Response() res: any) {
-        passport.authenticate('42', { failureRedirect: '/' })
-        res.redirect('/success')
+        console.log("_____________________CB__________________")
+        passport.authenticate('42', { failureRedirect: '/fail' })
+        return;
     }
 
     @Get('logout')
@@ -34,14 +36,14 @@ export class AuthController {
         req.logout();
         res.redirect('/');
     }
-    // @UseGuards(SchoolAuthGuard)
+    // @UseGuards(SchoolAuthGuard
     // @Get('42')
     // login(@Request() req: any): any {
     //     console.log(req.user)
     //     return req.user
     // }
   
-    // @Get('42')
+    // @Get('42')l
     // login() {
     //     console.log('authenticate_')
     //     const handler = passport.authenticate('42');
@@ -49,10 +51,10 @@ export class AuthController {
     // }
 
 
-    // @Post('signup')
-    // signup(@Body() dto: AuthDto) {
-    //     return this.authService.signup(dto);
-    // }
+    @Post('signup')
+    signup(@Body() dto: AuthDto) {
+        console.log("SIGNUP:____")
+    }
 
     // @Post('signin')
     // signin(@Body() dto: AuthDto) {

@@ -14,12 +14,22 @@ export class AuthService {
         // private config: ConfigService
     ) {}
 
-    async validateUser(username: string, password: string): Promise< any > {
-        const user = await this.usersService.findOne(username);
-        if (user && user.password === password) {
-            const { password, name, ...rest } = user;
-            return rest;
+    async validateUser(profile: any): Promise< any > {
+        console.log('------------------------validate_USER-----------------')
+        console.log("login: ", profile)
+        const user = await this.prisma.user.upsert({
+            where: { name: profile.username },
+            update: {},
+            create: {
+                name: profile.username,
+                password: profile.id
+            }
+        })
+        if (user) {
+            console.log("User validated")
+            return user;
         }
+        console.log("User not validated")
         return null;
     }
 

@@ -7,6 +7,7 @@ import { GatewayModule } from './gateway/gateway.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
+import { FortyTwoStrategy } from './auth/strategy/school.strategy';
 
 @Module({
   imports: [
