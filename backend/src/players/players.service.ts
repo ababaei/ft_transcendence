@@ -8,9 +8,11 @@ export class PlayersService {
         private prisma: PrismaService,
         ) {}
 
-    // async getAllPlayers(): Promise<Player[]>{
-    //     return this.prisma.player.findMany({})
-    // }
+    async getPlayers(id: number): Promise<Player[]>{
+        return this.prisma.player.findMany({
+            where: {gameID:id}
+        })
+    }
 
     // async getPlayer(socket:string): Promise<Player | null>{
     //     return this.prisma.player.findUnique({where: {socket:socket}})

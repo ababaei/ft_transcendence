@@ -26,12 +26,38 @@ export class MyGateway {
     }
 
     @SubscribeMessage('keypress')
-    handleKeyPress(client: Socket, data: string): any {
-        console.log(data);
-        if (data=='ArrowUp')
-            this.server.to(`${client.id}`).emit('KeyPressed', 'Up');
-        if (data=='ArrowDown')
-            this.server.to(`${client.id}`).emit('KeyPressed', 'Down');
+    async handleKeyPress(client: Socket, data: any): Promise<any> {
+        // console.log(data);
+        const players = await this.playerService.getPlayers(data[1]);
+        console.log(players);
+        if (players[0] != null)
+        {
+            if (`${client.id}` == players[0].socket)
+                var side = "left";
+            else
+                var side = "right";
+            if (data[0]=='ArrowUp')
+            {
+                if (side == "left")
+                    data[2].left.y -=5;
+                else
+                    data[2].left.y -=5;
+                console.log(data[2]);
+                this.server.to(players[0].socket).emit(data[2]);
+                this.server.to(players[1].socket).emit(data[2]);
+            }
+            if (data[0]=='ArrowDown')
+            {
+                if (side == "left")
+                    data[2].left.y +=5;
+                else
+                    data[2].left.y +=5;
+                console.log("data[2] : ");
+                console.log(data[2]);
+                this.server.to(players[0].socket).emit(data[2]);
+                this.server.to(players[1].socket).emit(data[2]);
+            }
+        }
     }
 
     @SubscribeMessage('initGame')
