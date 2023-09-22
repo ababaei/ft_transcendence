@@ -18,7 +18,7 @@ model Waiting {
 
 model Player {
   id      Int     @id @default(autoincrement())
-  socket  String?
+  socket  String? @unique
   gameID  Int?
   game    Game?   @relation(fields: [gameID], references: [id])
 }

@@ -22,7 +22,6 @@
       return {
         socket: io('ws://localhost:3000', { transports : ['websocket'] }),
         key: 'aucune',
-        context: {},    
         position: {
           canvas: {
             width: 700,
@@ -44,34 +43,32 @@
             x: 350,
             y: 150,
             size: 5,
-            direction: 2
+            direction: {
+              x: 2,
+              y: 0
+            }
           }
         },
         loading: false,
         socketRef: '',
         game: false,
         gameID: 0,
-        x:0,
       }
     },
     mounted() {
-      var c = <HTMLCanvasElement>document.querySelector('canvas');
-      if (!c)
-        throw new Error('failed to get canvas');
-      // c.width = window.innerWidth / 2;
-      // c.height = c.width / 2;
-      var ctx = c.getContext("2d");
-      if (!ctx)
-        throw new Error('failed to get 2D context');
       window.addEventListener('keydown', this.KeypressEvt);
       this.socket.on('KeyPressed', (data: any) => {
-        // this.key = data.key;
-        // this.position = data.position;
-        console.log("data position :")
-        console.log(data);
+        this.position = data;
       });
       this.socket.on('socketRef', (data:string) => {
-        console.log(data);
+        const user = localStorage.getItem('user');
+        console.log(user);
+        if (user == null || this.game == false)
+          localStorage.setItem('user', data);
+        else {
+          this.socket.emit('updateSocket', user);
+          localStorage.setItem('user', data);
+        }
         this.socketRef = data;
       });
       this.socket.on('gameStarted', (data: number) => {
@@ -89,14 +86,11 @@
         var c = <HTMLCanvasElement>document.querySelector('canvas');
         if (!c)
           throw new Error('failed to get canvas');
-        // c.width = window.innerWidth / 2;
-        // c.height = c.width / 2;
         var ctx = c.getContext("2d");
         if (!ctx)
           throw new Error('failed to get 2D context');
         ctx.clearRect(0, 0, c.width, c.height);
         ctx.fillStyle = '#6d4db6';
-        // ctx.translate(0.5, 0.5);
         ctx.fillRect(this.position.left.x, this.position.left.y, this.position.paddleSize.width, this.position.paddleSize.height);
         ctx.fillRect(this.position.right.x, this.position.right.y, this.position.paddleSize.width, this.position.paddleSize.height);
         ctx.imageSmoothingEnabled = false;
@@ -104,13 +98,17 @@
         ctx.beginPath();
         ctx.arc(this.position.ball.x, this.position.ball.y, this.position.ball.size, 0, Math.PI * 2, false);
         ctx.fill();
-        // if (this.position.ball.x < this.position.canvas.width - this.position.ball.size)
-        //   this.position.ball.x+=1;
-        if (this.position.ball.x + this.position.ball.size > this.position.canvas.width)
-          this.position.ball.direction *= -1;
-        if (this.position.ball.x - this.position.ball.size < 0)
-          this.position.ball.direction *= -1;
-        this.position.ball.x += this.position.ball.direction;
+        if (this.position.ball.x + this.position.ball.size > this.position.canvas.width
+          || (this.position.ball.y >= this.position.right.y
+            && this.position.ball.y <= this.position.right.y + this.position.paddleSize.height
+              && this.position.ball.x + this.position.ball.size > this.position.right.x))
+          this.position.ball.direction.x *= -1;
+        if (this.position.ball.x - this.position.ball.size < 0
+          || (this.position.ball.y >= this.position.left.y
+              && this.position.ball.y <= this.position.left.y + this.position.paddleSize.height
+                && this.position.ball.x - this.position.ball.size < this.position.left.x + this.position.paddleSize.width))
+          this.position.ball.direction.x *= -1;
+        this.position.ball.x += this.position.ball.direction.x;
       },
       async load() {
         if (this.loading == false)

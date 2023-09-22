@@ -21,15 +21,19 @@ export class MyGateway {
     users: [];
 
     handleConnection(client: Socket) {
-        console.log(`Client connected : ${client.id}`);
-        this.server.to(`${client.id}`).emit('socketRef', `${client.id}`)
+        // console.log(`Client connected : ${client.id}`);
+        this.server.to(`${client.id}`).emit('socketRef', `${client.id}`);
+    }
+
+    @SubscribeMessage('updateSocket')
+    async updateSocket(client: Socket, data: string): Promise<any> {
+        const player = await this.playerService.getPlayer(data);
+        this.playerService.updatePlayer(player, `${client.id}`);
     }
 
     @SubscribeMessage('keypress')
     async handleKeyPress(client: Socket, data: any): Promise<any> {
-        // console.log(data);
         const players = await this.playerService.getPlayers(data[1]);
-        console.log(players);
         if (players[0] != null)
         {
             if (`${client.id}` == players[0].socket)
@@ -39,23 +43,20 @@ export class MyGateway {
             if (data[0]=='ArrowUp')
             {
                 if (side == "left")
-                    data[2].left.y -=5;
+                    data[2].left.y > 7 ? data[2].left.y -= 5 : data[2].left.y = 2;
                 else
-                    data[2].left.y -=5;
-                console.log(data[2]);
-                this.server.to(players[0].socket).emit(data[2]);
-                this.server.to(players[1].socket).emit(data[2]);
+                    data[2].right.y > 7 ? data[2].right.y -=5 : data[2].right.y = 2;
+                this.server.to(players[0].socket).emit('KeyPressed', data[2]);
+                this.server.to(players[1].socket).emit('KeyPressed', data[2]);
             }
             if (data[0]=='ArrowDown')
             {
                 if (side == "left")
-                    data[2].left.y +=5;
+                    data[2].left.y < 227 ? data[2].left.y +=5 : data[2].left.y = 222;
                 else
-                    data[2].left.y +=5;
-                console.log("data[2] : ");
-                console.log(data[2]);
-                this.server.to(players[0].socket).emit(data[2]);
-                this.server.to(players[1].socket).emit(data[2]);
+                    data[2].right.y < 227 ? data[2].right.y +=5 : data[2].right.y = 222;
+                this.server.to(players[0].socket).emit('KeyPressed', data[2]);
+                this.server.to(players[1].socket).emit('KeyPressed', data[2]);
             }
         }
     }
