@@ -16,10 +16,14 @@ model User {
 }
 
 model Channel {
-  id       Int       @id @unique @default(autoincrement())
-  name     String
-  messages Message[] @relation("ChannelMessages")
-  users    User[]    @relation("UserChannels")
+  id          Int       @id @unique @default(autoincrement())
+  name        String
+  messages    Message[] @relation("ChannelMessages")
+  users       User[]    @relation("UserChannels")
+  ownerID     Int       @default(0)
+  adminID     Int[]
+  mode        String @default("public")
+  password    String    @default("")
 }
 
 model Message {

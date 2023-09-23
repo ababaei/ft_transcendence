@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Channel" ALTER COLUMN "mode" SET DEFAULT 'public',
+ALTER COLUMN "mode" SET DATA TYPE TEXT;
