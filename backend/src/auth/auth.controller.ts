@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Header, Headers, Next, Post, Redirect, Req, Request, Res, Response, UseGuards} from '@nestjs/common';
+import { Body, Controller, Get, Header, Headers, Next, Post, Redirect, Req, Res, UseGuards} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 import * as passport from 'passport';
 import { SchoolAuthGuard } from './guards/42auth.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { Request, Response } from 'express';
 // import { SchoolStrategy } from './strategy/school.strategy';
 
 
@@ -25,14 +26,17 @@ export class AuthController {
 
     @Get('42/callback')
     @UseGuards(AuthGuard('42'))
-    callback(@Request() req: any, @Response() res: any) {
-        console.log("_____________________CB__________________")
+    callback(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+        console.log("______________________callback__________________")
         passport.authenticate('42', { failureRedirect: '/fail' })
+        console.log(req.user)
+        // res.cookie('userData', JSON.stringify(req.user), {httpOnly: true})
+        res.status(302).redirect('http://localhost:8080/')
         return;
     }
 
     @Get('logout')
-    logout(@Request() req: any, @Response() res: any) {
+    logout(@Req() req: any, @Res() res: any) {
         req.logout();
         res.redirect('/');
     }

@@ -1,10 +1,6 @@
-import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { AuthModuleOptions, PassportStrategy } from "@nestjs/passport";
-import { User } from "@prisma/client";
-import { Strategy } from "passport-42";
-import { FortyTwoUser } from "../interfaces/42user.interface";
-import { AUTH_MODULE_OPTIONS } from "../auth.constants";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { PassportStrategy } from "@nestjs/passport";
+import { Strategy} from "passport-42";
 import { AuthService } from "../auth.service";
 
 @Injectable()
@@ -17,13 +13,12 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
         });
     }
 
-    async validate(accessToken: string, refreshToken: string, profile: any): Promise<any> {
+    async validate(accessToken: string, refreshToken: string, profile: any, done: Function): Promise<any> {
         console.log("PROFILE: ", profile.id )
-        
         const user = await this.authService.validateUser(profile);
         if (!user) {
             throw new UnauthorizedException();
         }
-        return user;
+        done(null, user);
     }
 }

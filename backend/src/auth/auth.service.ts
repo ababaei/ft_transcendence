@@ -15,8 +15,8 @@ export class AuthService {
     ) {}
 
     async validateUser(profile: any): Promise< any > {
-        console.log('------------------------validate_USER-----------------')
-        console.log("login: ", profile)
+        console.log('______________________validate_USER_____________________')
+        // console.log("login: ", profile)
         const user = await this.prisma.user.upsert({
             where: { name: profile.username },
             update: {},
@@ -31,7 +31,13 @@ export class AuthService {
         }
         console.log("User not validated")
         return null;
-    }
+    };
+
+/**********************************************************************************************/
+/*                                    LOGIN FUNCTIONS                                         */
+/**********************************************************************************************/
+
+    // async login()
 
     // async signup(dto: AuthDto) {
     //     const hash = await argon.hash(dto.password);

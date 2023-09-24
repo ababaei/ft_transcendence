@@ -7,6 +7,7 @@ import { UsersModule } from 'src/users/users.module';
 import { FortyTwoStrategy } from './strategy/school.strategy'
 import passport from 'passport';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { SessionSerializer } from './utils/serializer';
 
 @Module({
   imports: [PassportModule.register({
@@ -15,7 +16,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
   }),
   UsersModule],
   controllers: [AuthController],
-  providers: [AuthService, FortyTwoStrategy, PrismaService],
+  providers: [AuthService, FortyTwoStrategy, PrismaService, SessionSerializer],
   exports: [PassportModule]
 })
 export class AuthModule {}
