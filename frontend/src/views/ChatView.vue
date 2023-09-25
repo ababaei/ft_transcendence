@@ -12,7 +12,7 @@
 
 <!-- partie chatbox                    -->
 
-    <div id="chatboxDiv" v-if="logedUser.id && chatboxOnChannel.id">
+    <div id="chatboxDiv" v-if="logedUser.id && chatboxOnChannel.id && chatboxOnChannelID">
       <h2> ~ Chatbox ~ </h2>
       <h3 id="channelName"> {{ chatboxOnChannel.name }} </h3>
       <button @click="switchChatboxWindow"> {{ switchChatboxButton }}</button>
@@ -20,6 +20,29 @@
       <!-- fenetre d'info channel -->
 
       <div id="channelInfo" v-if="chatboxWindow==0">
+
+    <!-- EDIT CHANNEL PART -->
+    <div v-if="chatboxOnChannel.ownerID===logedUser.id">
+        <input v-if="chatboxOnChannel.ownerID===logedUser.id"
+        v-model="channelNewName">
+
+        <div>
+          <input type="radio" id="public" value="public" v-model="channelTypeEdit">
+          <label for="public">Public</label>
+          
+          <input type="radio" id="private" value="private" v-model="channelTypeEdit">
+          <label for="private">Private</label>
+          
+          <input type="radio" id="protected" value="protected" v-model="channelTypeEdit">
+          <label for="protected">Protected</label>
+        </div>
+        <div  v-if=" channelTypeEdit === 'protected' ">
+          <input type="text" id="password" v-model="passwordChannelEdit" placeholder="Password">
+        </div>
+
+        <button v-if="chatboxOnChannel.ownerID===logedUser.id"
+        @click="editChannel">edit channel</button>
+    </div>
 
         <div id="joinChannel" v-if="!isUserInChannel(logedUser.id, chatboxOnChannel)">
           <input id="passwordJoinEntry" v-model="passwordToJoin"
@@ -35,9 +58,6 @@
         <div id="channelActionList" v-if="channelActionCheckbox">
           <ul>
             <li><button @click="leaveChannel">Leave channel</button></li>
-            <li v-if="chatboxOnChannel.ownerID===logedUser.id"><button>Change channel mode</button></li>
-            <li v-if="chatboxOnChannel.ownerID===logedUser.id"><button>Change channel name</button></li>
-            <li v-if="chatboxOnChannel.ownerID===logedUser.id"><button>Change channel password</button></li>
             <li v-if="chatboxOnChannel.ownerID===logedUser.id">
               <button @click="destroyChannel">Destroy channel</button></li>
           </ul>
@@ -147,13 +167,17 @@
         channelCreationName: '' as string,
         listChannels: [] as Channel[],
         chatboxOnChannel: { id: 0} as Channel,
+        chatboxOnChannelID: 0 as number,
         messageToSend: '' as string,
         channelType: "public",
+        channelTypeEdit: "public",
         passwordChannel: '' as string,
+        passwordChannelEdit: '' as string,
         passwordToJoin: '' as string,
         chatboxWindow: 0,
         switchChatboxButton: 'Infos',
-        channelActionCheckbox: false
+        channelActionCheckbox: false,
+        channelNewName: '' as string
       }
     },
     methods: {
@@ -189,6 +213,10 @@
 
     async selectChannel(channel: Channel) {
       this.chatboxOnChannel = channel;
+      this.chatboxOnChannelID = channel.id;
+      this.channelNewName = channel.name;
+      this.passwordChannelEdit = channel.password;
+      this.channelTypeEdit = channel.mode;
       console.log('methods: selectChannel:', this.chatboxOnChannel);
     },
 
@@ -252,18 +280,68 @@
 
     async leaveChannel() {
       console.log('methods: LeaveChannel');
-      const reponse = await axios.post('/api/chat/leaveChannelRequest', {
-        userID: this.logedUser.id,
+      if (this.chatboxOnChannel.users.length === 1) {
+          const reponse = await axios.post('/api/chat/destroyChannelRequest', {
+          channelID: this.chatboxOnChannel.id,
+        })
+      }
+      else {
+        const reponse = await axios.post('/api/chat/leaveChannelRequest', {
+          userID: this.logedUser.id,
+          channelID: this.chatboxOnChannel.id,
+        });
+      }
+    },
+    async editChannel() {
+      const reponse = await axios.post('/api/chat/changeChannelNameRequest', {
         channelID: this.chatboxOnChannel.id,
-      });
+        newChannelName: this.channelNewName,
+        newChannelType: this.channelTypeEdit,
+        newChannelPassword: this.passwordChannelEdit,
+      })
     }
 
   // Reception sur le socket
   },
   mounted() {
     this.socket.on('updateChannelList', (data) => {
-      this.listChannels = data;
       console.log('Socket.io: updateChanList');
+      this.listChannels = [];
+      this.chatboxOnChannel = { id: 0 } as Channel;
+      let i = 0;
+      while (data[i]) {
+        let channel = {} as Channel;
+        channel.name = data[i].name;
+        channel.id = data[i].id;
+        channel.mode = data[i].mode;
+        channel.ownerID = data[i].ownerID;
+        channel.password = data[i].password;
+        let j = 0;
+        let usersList = data[i].users as User[]
+        channel.users = [];
+        while (usersList[j]) {
+          const userToPush = { name: usersList[j].name, id: usersList[j].id } as User
+          channel.users.push(userToPush)
+          j++;
+        }
+        j = 0;
+        let messageList = data[i].messages as Message[]
+        channel.messages = [];
+        while (messageList[j]) {
+          let message = { id: messageList[j].id, text: messageList[j].text,
+          channel: messageList[j].channel, user: messageList[j].user} as Message
+          channel.messages.push(message);
+          j++;
+        }
+        this.listChannels.push(channel);
+        if (this.chatboxOnChannelID == channel.id) {
+          this.chatboxOnChannel = channel;
+        }
+        i++;
+      }
+      if (this.chatboxOnChannel.id === 0) { this.chatboxOnChannelID = 0; }
+      console.log(this.listChannels);
+      console.log(this.chatboxOnChannel)
     })
     this.socket.on('newMessage', data => {
       console.log('Socket.io: newMessage: data: ', data);
@@ -295,11 +373,15 @@
       console.log('Socket.io: channelHasBeenLeaved');
       const channelIndex = this.listChannels.findIndex(channel => channel.id === channelID);
       if (channelIndex !== -1) {
-        console.log('in if cond')
         const channel = this.listChannels[channelIndex];
         channel.users = channel.users.filter(user => user.id !== userID);
         this.listChannels = this.listChannels.filter(channel => channel.id !== channelID);
         this.listChannels.push(channel);
+        
+        if (this.chatboxOnChannelID === channel.id) {
+          this.chatboxOnChannel = {} as Channel
+          this.chatboxOnChannel = channel;
+        }
       }
     })
   },

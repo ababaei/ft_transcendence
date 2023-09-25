@@ -73,7 +73,7 @@ export class ChatController {
         else {
             await this.chatService.addUserInChannel(joinedChannel, fromUser);
             await this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
-            await this.gateway.server.emit('updateChannelUserList', joinedChannel, fromUser);
+            // await this.gateway.server.emit('updateChannelUserList', joinedChannel, fromUser);
             return fromUser;
         }
     }
@@ -86,7 +86,8 @@ export class ChatController {
         const newMessage = await this.chatService.createMessage(inChannel, fromUser, data.text);
 
         const newMessageReply = await this.chatService.findMessageById(newMessage.id);
-        await this.gateway.server.emit('newMessage', newMessageReply);
+        await this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        // await this.gateway.server.emit('newMessage', newMessageReply);
         return newMessageReply;
     }
 
@@ -96,6 +97,7 @@ export class ChatController {
         const channelToDestroy = await this.chatService.findChannelById(data.channelID);
         const tmp = channelToDestroy.id;
         this.chatService.destroyChannel(channelToDestroy);
+        await this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
         this.gateway.server.emit('channelHasBeenDestroyed', tmp);
         return 1;
     }
@@ -105,9 +107,21 @@ export class ChatController {
         console.log('requete: leave channel');
         const channelToLeave = await this.chatService.findChannelById(data.channelID);
         const userLeaving = await this.chatService.findUserById(data.userID);
-        this.chatService.removeUserFromChannel(userLeaving, channelToLeave)
-        this.gateway.server.emit('userLeavedChannel', (data.userID, data.channelID));
+        this.chatService.removeUserFromChannel(userLeaving, channelToLeave);
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+            this.gateway.server.emit('userLeavedChannel', data.userID, data.channelID);
+        }, 100); // Délai de 100 millisecondes
         return 1;
+    }
+    @Post('changeChannelNameRequest')
+    async changeChannelName(@Body() data: {channelID: number, newChannelName: string, newChannelType: string, newChannelPassword: string}) {
+        console.log('requete: change channel name');
+        const channelToEdit = await this.chatService.findChannelById(data.channelID);
+        this.chatService.editChannel(channelToEdit, data.newChannelName, data.newChannelType, data.newChannelPassword);
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        }, 100); // Délai de 100 millisecondes
     }
 
     @SubscribeMessage('chatbox')
@@ -115,6 +129,4 @@ export class ChatController {
         console.log('chatchat');
         await this.gateway.server.emit('updateChatbox', await this.chatService.findChannelById(chatboxId));
     }
-
-
 }

@@ -81,6 +81,11 @@ export class ChatService {
 
     async addUserInChannel(selectedChannel: Channel, userToAdd: User) {
         console.log('chatService: adding ', userToAdd.name, ' in ', selectedChannel.name);
+        let newChannelOwner;
+        if (selectedChannel.ownerID == 0)
+            newChannelOwner = userToAdd.id;
+        else
+            newChannelOwner = selectedChannel.ownerID
         try {
             const updateChanUser = await this.prismaService.channel.update({
                 where: { id: selectedChannel.id },
@@ -90,6 +95,7 @@ export class ChatService {
                             id: userToAdd.id
                         },
                     },
+                    ownerID: newChannelOwner,
                 },
             });
 
@@ -134,6 +140,30 @@ export class ChatService {
                         id: user.id,
                     },
                 },
+            },
+        })
+        const updatedChannel = this.findChannelById(channel.id);
+        if (channel.ownerID == user.id) {
+            let channelOwner = 0;
+            if (await this.prismaService.channel.count() != 0) {
+                channelOwner = (await updatedChannel).users[0].id;
+            }
+            await this.prismaService.channel.update({
+                where: { id: channel.id },
+                data: {
+                    ownerID: channelOwner,
+                },
+            })
+        }
+    }
+
+    async editChannel(channel: Channel, newName: string, newType: string, newPassword: string) {
+        await this.prismaService.channel.update({
+            where: { id: channel.id },
+            data: {
+                name: newName,
+                mode: newType,
+                password: newPassword,
             },
         })
     }
