@@ -8,11 +8,16 @@ import { FortyTwoStrategy } from './strategy/school.strategy'
 import passport from 'passport';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SessionSerializer } from './utils/serializer';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [PassportModule.register({
     session: true,
     defaultStrategy: '42'
+  }),
+  JwtModule.register({
+    secret: process.env['COOKIE_KEY'],
+    global: true
   }),
   UsersModule],
   controllers: [AuthController],

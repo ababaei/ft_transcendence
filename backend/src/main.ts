@@ -4,14 +4,26 @@ import { ValidationPipe } from '@nestjs/common';
 // import {passport} from 'passport';
 // import passport = require("passport");
 import * as passport from 'passport';
-import * as session from 'express-session'
+import * as cookieParser from 'cookie-parser';
+// import * as session from 'express-session'
+import session = require('express-session');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
+  // app.use(session({
+  //   secret: process.env.COOKIE_KEY,
+  //   resave: false,
+  //   saveUninitialized: false,
+  //   cookie: { 
+  //     maxAge: 36000,
+  //     secure: false
+  //   }
+  // }));
+
   app.enableCors({
     origin: "http://localhost:8080",
-    // credentials: true,
+    credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     // allowedHeaders: "Content-Type, Authorization",
   });
@@ -20,18 +32,9 @@ async function bootstrap() {
     whitelist: true,
   }));
   
-  app.use(session({
-    secret: process.env["COOKIE_KEY"],
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-      maxAge: 3600000,
-      secure: false
-    }
-  }));
-
+  app.use(cookieParser())
   app.use(passport.initialize())
-  app.use(passport.session())
+  // app.use(passport.session())
   await app.listen(3000);
 }
 bootstrap();

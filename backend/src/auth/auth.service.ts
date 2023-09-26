@@ -5,12 +5,15 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { AuthDto } from './dto';
 import * as argon from 'argon2';
 import { UsersService } from 'src/users/users.service';
+import { Profile } from 'passport-42';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
     constructor (
         private prisma: PrismaService,
-        private usersService: UsersService
+        private usersService: UsersService,
+        private jwtService: JwtService  
         // private config: ConfigService
     ) {}
 
@@ -18,7 +21,9 @@ export class AuthService {
         console.log('______________________validate_USER_____________________')
         // console.log("login: ", profile)
         const user = await this.prisma.user.upsert({
-            where: { name: profile.username },
+            where: { 
+                name: profile.username
+            },
             update: {},
             create: {
                 name: profile.username,
@@ -26,12 +31,23 @@ export class AuthService {
             }
         })
         if (user) {
-            console.log("User validated")
-            return user;
+            console.log("User validated: ", user)
+            const token = await this.signToken({id: user.id})
+            return { token };
         }
         console.log("User not validated")
         return null;
     };
+
+    async signToken(payload: any): Promise<any> {
+        const secret = process.env.JWT_KEY;
+        const token = await this.jwtService.signAsync(payload,
+            {
+                expiresIn: "7d",
+                secret: secret
+            });
+            return token;
+    }
 
 /**********************************************************************************************/
 /*                                    LOGIN FUNCTIONS                                         */
