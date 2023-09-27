@@ -20,7 +20,7 @@ export class AuthController {
     ) {}
 
     @Get('user/:login')
-    @UseGuards(('42'))
+    @UseGuards(AuthGuard('42'))
     async getUser(@Param() params: {login: string}) {
         console.log("LOGIN: ", params.login)
         
@@ -33,7 +33,7 @@ export class AuthController {
     @Get('42')
     @UseGuards(AuthGuard('42'))
     async login() {
-        console.log("dodo")
+        console.log("entry")
         passport.authenticate('42')
     }
 
@@ -45,8 +45,10 @@ export class AuthController {
         console.log("USER: ", req.user)
         console.log(req.cookies);
         res.cookie('userData', req.user, {httpOnly: true, secure: false})
-        return res.status(302).redirect('http://localhost:8080/profil')
-        // return;
+        console.log("RES: ", res.getHeaders());
+        return res
+        .status(302)
+        .redirect('http://localhost:8080/profil')
     }
 
     @Get('logout')

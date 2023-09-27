@@ -10,9 +10,8 @@ export default {
       };
     },
     mounted() {
-      console.log(document.head)
-      const cooks = this.$cookies.get('Data');
-      console.log("COOKIE: ", cooks);
+      const cookies = this.$cookies.get('userData');
+      console.log("COOKIE: ", cookies);
     },
     methods: {
       getUser() {

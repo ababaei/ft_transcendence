@@ -20,6 +20,13 @@ async function bootstrap() {
   //     secure: false
   //   }
   // }));
+  
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+  }));
+  
+  app.use(cookieParser())
+  app.use(passport.initialize())
 
   app.enableCors({
     origin: "http://localhost:8080",
@@ -27,13 +34,6 @@ async function bootstrap() {
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     // allowedHeaders: "Content-Type, Authorization",
   });
-
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-  }));
-  
-  app.use(cookieParser())
-  app.use(passport.initialize())
   // app.use(passport.session())
   await app.listen(3000);
 }
