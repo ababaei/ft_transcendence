@@ -1,7 +1,7 @@
 <template>
     <main>
         <v-btn color="success" v-on:click="load" :class="{ invisible: game }">Trouver une partie</v-btn>
-        <!-- <p>{{ key }}</p> -->
+        <h1 :class="{ invisible: !game }">{{ position.left.score }} - {{ position.right.score }}</h1>
         <div :class="{ invisible: !loading }" id="loading">
           <iframe src="https://giphy.com/embed/3o7bu3XilJ5BOiSGic" width="30" height="30" frameBorder="0" class="gif"></iframe>
         </div>
@@ -20,7 +20,7 @@
     components: ({}),
     data() {
       return {
-        socket: io('ws://localhost:3000', { transports : ['websocket'] }),
+        socket: io('ws://10.34.9.10:3000', { transports : ['websocket'] }),
         key: 'aucune',
         position: {
           canvas: {
@@ -33,11 +33,13 @@
           },
           left: {
             x: 4,
-            y: 110
+            y: 110,
+            score: 0
           },
           right: {
             x: 681,
-            y: 110
+            y: 110,
+            score: 0
           },
           ball: {
             x: 350,
@@ -76,6 +78,9 @@
         this.loading = false;
         this.gameID = data;
         this.animateBall();
+      });
+      this.socket.on('gameEnded', () => {
+        this.game = false;
       })
     },
     methods: {
@@ -104,9 +109,17 @@
               && this.position.ball.x + this.position.ball.size > this.position.right.x))
               {
                 this.position.ball.direction.x *= -1;
-                this.position.ball.x + this.position.ball.size > this.position.canvas.width ?
-                this.reinitBall()
-                : this.position.ball.direction.y = Math.round((this.position.ball.y - this.position.right.y - (this.position.paddleSize.height / 2)) * (100 / (this.position.paddleSize.height / 2)) / 10)
+                if (this.position.ball.x + this.position.ball.size > this.position.canvas.width)
+                  this.reinitBall()
+                else {
+                  const dir = this.position.ball.direction.y;
+                  this.position.ball.direction.y = Math.round(Math.abs(this.position.ball.y - this.position.right.y - (this.position.paddleSize.height / 2)) * (100 / (this.position.paddleSize.height / 2)) / 10);
+                  console.log('avant :', dir, this.position.ball.direction.y);
+                  if ((dir > 0 && this.position.ball.direction.y > 0)
+                    || (dir < 0 && this.position.ball.direction.y < 0))
+                    this.position.ball.direction.y *= -1;
+                  console.log('apres :', dir, this.position.ball.direction.y);
+                }
               }
         if (this.position.ball.x - this.position.ball.size < 0
           || (this.position.ball.y >= this.position.left.y
@@ -114,9 +127,17 @@
                 && this.position.ball.x - this.position.ball.size < this.position.left.x + this.position.paddleSize.width))
                 {
                   this.position.ball.direction.x *= -1;
-                  this.position.ball.x - this.position.ball.size < 0 ?
-                  this.reinitBall()
-                  : this.position.ball.direction.y = Math.round((this.position.ball.y - this.position.left.y - (this.position.paddleSize.height / 2)) * (100 / (this.position.paddleSize.height / 2)) / 10)
+                  if (this.position.ball.x - this.position.ball.size < 0)
+                    this.reinitBall()
+                  else {
+                    const dir = this.position.ball.direction.y;
+                    this.position.ball.direction.y = Math.round(Math.abs(this.position.ball.y - this.position.left.y - (this.position.paddleSize.height / 2)) * (100 / (this.position.paddleSize.height / 2)) / 10);
+                    console.log('avant :', dir, this.position.ball.direction.y);
+                    if ((dir > 0 && this.position.ball.direction.y > 0)
+                    || (dir < 0 && this.position.ball.direction.y < 0))
+                    this.position.ball.direction.y *= -1;
+                    console.log('apres :', dir, this.position.ball.direction.y);
+                  }
                 }
         if (this.position.ball.y - this.position.ball.size < 0
           || this.position.ball.y + this.position.ball.size > this.position.canvas.height)

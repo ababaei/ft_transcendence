@@ -72,8 +72,16 @@ export class MyGateway {
         this.server.to(data[1].socket).emit('gameStarted', game.id);
     }
 
-    handleDisconnect(client: Socket) {
+    async handleDisconnect(client: Socket) {
         console.log(`Client disconnected : ${client.id}`)
+        const player = await this.playerService.getPlayer(`${client.id}`)
+        console.log(player);
+        if (player)
+        {
+            const players = await this.playerService.getPlayers(player.gameID);
+            this.server.to(players[0].socket).emit('gameEnded');
+            this.server.to(players[1].socket).emit('gameEnded');    
+        }
     }
 
 }
