@@ -1,6 +1,5 @@
 import { Body, Injectable } from '@nestjs/common';
 import { Channel, Message, User } from '@prisma/client';
-import { error } from 'console';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -112,9 +111,30 @@ export class ChatService {
                     },
                 },
                 users: true,
+                
             },
         });
-        return channelList;
+        const channelsWithAdminID: Channel[] = [];
+        for (const channel of channelList) {
+          const adminChannel = await this.prismaService.channel.findUnique({
+            where: {
+              id: channel.id,
+            },
+            select: {
+              adminID: true,
+              banID: true,
+              muteID: true,
+            },
+          });
+          channelsWithAdminID.push({
+            ...channel,
+            adminID: adminChannel.adminID,
+            muteID: adminChannel.muteID,
+            banID: adminChannel.banID,
+          });
+        }
+        console.log(channelsWithAdminID);
+        return channelsWithAdminID;
     }
 
     async destroyChannel(channel: Channel)
@@ -166,6 +186,50 @@ export class ChatService {
                 password: newPassword,
             },
         })
+    }
+
+    async setUserAdmin(channel: Channel, userID: number) {
+        console.log('chatService: set User admin');
+        if (channel.adminID.includes(userID))
+            return;
+        const updatedAdminArray = [...channel.adminID, userID];
+        await this.prismaService.channel.update({
+            where: { id: channel.id },
+            data: {
+                adminID: updatedAdminArray,
+            },
+        });
+    }
+    async removeUserAdmin(channel: Channel, userID: number) {
+        console.log('chatService: remove User admin');
+        const updatedAdminArray = channel.adminID.filter(id => id !== userID);
+        await this.prismaService.channel.update({
+            where: { id: channel.id },
+            data: {
+                adminID: updatedAdminArray,
+            },
+        });
+    }
+
+    async setUserMute(channel: Channel, userID: number) {
+        console.log('chatService: set User mute');
+        const updatedMuteArray = [...channel.muteID, userID];
+        await this.prismaService.channel.update({
+            where: { id: channel.id },
+            data: {
+                muteID: updatedMuteArray,
+            },
+        });
+    }
+    async removeUserMute(channel: Channel, userID: number) {
+        console.log('chatService: remove User mute');
+        const updatedMuteArray = channel.muteID.filter(id => id !== userID);
+        await this.prismaService.channel.update({
+            where: { id: channel.id },
+            data: {
+                muteID: updatedMuteArray,
+            },
+        });
     }
 
     async getMessageInChannel(channel: Channel): Promise<Message[]> {

@@ -6,6 +6,7 @@ import { Server } from 'http';
 import { MyGateway } from 'src/gateway/gateway';
 import { Socket } from 'socket.io-client';
 import { join } from 'path';
+import { timer } from 'rxjs';
 
 @Controller('chat')
 export class ChatController {
@@ -21,9 +22,8 @@ export class ChatController {
     async handleUsername(@Body() data: { username: string }) {
         console.log('requete: setUsernameRequest', data.username);
 
-        console.log('socket.io: emit updateChanList')
-        this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
-
+        // console.log('socket.io: emit updateChanList')
+        // this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
 
         const foundedUser = await this.prismaService.user.findFirst({
             where: {
@@ -31,6 +31,9 @@ export class ChatController {
             },
         });
         if (foundedUser) {
+            setTimeout(async () => {
+                this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+            }, 100); // Délai de 100 millisecondes
             return { userid: foundedUser.id, username: foundedUser.name };
         }
         else {
@@ -41,6 +44,9 @@ export class ChatController {
                     name: data.username,
                 },
             });
+            setTimeout(async () => {
+                this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+            }, 100); // Délai de 100 millisecondes
             return {userid: newUser.id, username: newUser.name }
         } catch { console.log('error while creating new user')}
         }
@@ -56,8 +62,9 @@ export class ChatController {
         await this.chatService.addUserInChannel(newChannel, fromUser);
 
         console.log('socket.io: emit updateChanList')
-        await this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
-
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        }, 100); // Délai de 100 millisecondes
         return newChannel;
     }
 
@@ -72,8 +79,9 @@ export class ChatController {
         }
         else {
             await this.chatService.addUserInChannel(joinedChannel, fromUser);
-            await this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
-            // await this.gateway.server.emit('updateChannelUserList', joinedChannel, fromUser);
+            setTimeout(async () => {
+                this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+            }, 100); // Délai de 100 millisecondes
             return fromUser;
         }
     }
@@ -86,8 +94,9 @@ export class ChatController {
         const newMessage = await this.chatService.createMessage(inChannel, fromUser, data.text);
 
         const newMessageReply = await this.chatService.findMessageById(newMessage.id);
-        await this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
-        // await this.gateway.server.emit('newMessage', newMessageReply);
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        }, 100); // Délai de 100 millisecondes
         return newMessageReply;
     }
 
@@ -97,8 +106,9 @@ export class ChatController {
         const channelToDestroy = await this.chatService.findChannelById(data.channelID);
         const tmp = channelToDestroy.id;
         this.chatService.destroyChannel(channelToDestroy);
-        await this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
-        this.gateway.server.emit('channelHasBeenDestroyed', tmp);
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        }, 100); // Délai de 100 millisecondes
         return 1;
     }
 
@@ -108,14 +118,14 @@ export class ChatController {
         const channelToLeave = await this.chatService.findChannelById(data.channelID);
         const userLeaving = await this.chatService.findUserById(data.userID);
         this.chatService.removeUserFromChannel(userLeaving, channelToLeave);
+        this.chatService.removeUserAdmin(channelToLeave, userLeaving.id);
         setTimeout(async () => {
             this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
-            this.gateway.server.emit('userLeavedChannel', data.userID, data.channelID);
         }, 100); // Délai de 100 millisecondes
         return 1;
     }
-    @Post('changeChannelNameRequest')
-    async changeChannelName(@Body() data: {channelID: number, newChannelName: string, newChannelType: string, newChannelPassword: string}) {
+    @Post('editChannelRequest')
+    async editChannel(@Body() data: {channelID: number, newChannelName: string, newChannelType: string, newChannelPassword: string}) {
         console.log('requete: change channel name');
         const channelToEdit = await this.chatService.findChannelById(data.channelID);
         this.chatService.editChannel(channelToEdit, data.newChannelName, data.newChannelType, data.newChannelPassword);
@@ -124,9 +134,46 @@ export class ChatController {
         }, 100); // Délai de 100 millisecondes
     }
 
-    @SubscribeMessage('chatbox')
-    async chatboxMessage(chatboxId: number) {
-        console.log('chatchat');
-        await this.gateway.server.emit('updateChatbox', await this.chatService.findChannelById(chatboxId));
+    @Post('makeUserAdminRequest')
+    async makeUserAdmin(@Body() data: {channelID: number, newAdminID: number}) {
+        console.log('requete: set user admin');
+        const channel = await this.chatService.findChannelById(data.channelID);
+        this.chatService.setUserAdmin(channel, data.newAdminID);
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        }, 100); // Délai de 100 millisecondes
+    }
+    @Post('removeUserAdminRequest')
+    async removeUserAdmin(@Body() data: {channelID: number, removedAdminID: number}) {
+        console.log('requete: remove user admin');
+        const channel = await this.chatService.findChannelById(data.channelID);
+        this.chatService.removeUserAdmin(channel, data.removedAdminID);
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        }, 100); // Délai de 100 millisecondes
+    }
+    @Post('muteUserRequest')
+    async muteUser(@Body() data: {channelID: number, userID: number, timer: number}) {
+        console.log('requete: mute User');
+        const channel = await this.chatService.findChannelById(data.channelID);
+        this.chatService.setUserMute(channel, data.userID);
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        }, 100); // Délai de 100 millisecondes
+        setTimeout(async () => {
+            this.chatService.removeUserMute(channel, data.userID);
+        }, (data.timer * 60000))
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        }, (data.timer * 60000) + 100); // Délai de 100 millisecondes
+    }
+    @Post('unmuteUserRequest')
+    async unmuteUser(@Body() data: {channelID: number, userID: number, timer: number}) {
+        console.log('requete: set user admin');
+        const channel = await this.chatService.findChannelById(data.channelID);
+        this.chatService.removeUserMute(channel, data.userID);
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        }, 100); // Délai de 100 millisecondes
     }
 }

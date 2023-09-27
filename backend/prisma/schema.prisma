@@ -21,8 +21,10 @@ model Channel {
   messages    Message[] @relation("ChannelMessages")
   users       User[]    @relation("UserChannels")
   ownerID     Int       @default(0)
-  adminID     Int[]
-  mode        String @default("public")
+  adminID     Int[]     @default([])
+  banID       Int[]     @default([])
+  muteID      Int[]     @default([])
+  mode        String    @default("public")
   password    String    @default("")
 }
 
