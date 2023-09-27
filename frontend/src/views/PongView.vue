@@ -44,7 +44,7 @@
             y: 150,
             size: 5,
             direction: {
-              x: 2,
+              x: 3,
               y: 0
             }
           }
@@ -102,13 +102,32 @@
           || (this.position.ball.y >= this.position.right.y
             && this.position.ball.y <= this.position.right.y + this.position.paddleSize.height
               && this.position.ball.x + this.position.ball.size > this.position.right.x))
-          this.position.ball.direction.x *= -1;
+              {
+                this.position.ball.direction.x *= -1;
+                this.position.ball.x + this.position.ball.size > this.position.canvas.width ?
+                this.reinitBall()
+                : this.position.ball.direction.y = Math.round((this.position.ball.y - this.position.right.y - (this.position.paddleSize.height / 2)) * (100 / (this.position.paddleSize.height / 2)) / 10)
+              }
         if (this.position.ball.x - this.position.ball.size < 0
           || (this.position.ball.y >= this.position.left.y
               && this.position.ball.y <= this.position.left.y + this.position.paddleSize.height
                 && this.position.ball.x - this.position.ball.size < this.position.left.x + this.position.paddleSize.width))
-          this.position.ball.direction.x *= -1;
+                {
+                  this.position.ball.direction.x *= -1;
+                  this.position.ball.x - this.position.ball.size < 0 ?
+                  this.reinitBall()
+                  : this.position.ball.direction.y = Math.round((this.position.ball.y - this.position.left.y - (this.position.paddleSize.height / 2)) * (100 / (this.position.paddleSize.height / 2)) / 10)
+                }
+        if (this.position.ball.y - this.position.ball.size < 0
+          || this.position.ball.y + this.position.ball.size > this.position.canvas.height)
+                this.position.ball.direction.y *= -1;
         this.position.ball.x += this.position.ball.direction.x;
+        this.position.ball.y += this.position.ball.direction.y;
+      },
+      reinitBall() {
+        this.position.ball.x = this.position.canvas.width / 2;
+        this.position.ball.y = this.position.canvas.height / 2;
+        this.position.ball.direction.y = 0;
       },
       async load() {
         if (this.loading == false)

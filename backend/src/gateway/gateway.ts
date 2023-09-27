@@ -52,9 +52,9 @@ export class MyGateway {
             if (data[0]=='ArrowDown')
             {
                 if (side == "left")
-                    data[2].left.y < 227 ? data[2].left.y +=5 : data[2].left.y = 222;
+                    data[2].left.y < 213 ? data[2].left.y +=5 : data[2].left.y = 218;
                 else
-                    data[2].right.y < 227 ? data[2].right.y +=5 : data[2].right.y = 222;
+                    data[2].right.y < 213 ? data[2].right.y +=5 : data[2].right.y = 218;
                 this.server.to(players[0].socket).emit('KeyPressed', data[2]);
                 this.server.to(players[1].socket).emit('KeyPressed', data[2]);
             }
