@@ -19,6 +19,12 @@ export class AuthController {
         private prismaService: PrismaService
     ) {}
 
+    @Get('test')
+    test(@Req() req: Request, @Res() res: Response) {
+        console.log('b_cookies: ', req.cookies.userData.token);
+        res.cookie('userData', req.cookies.userData.token, {httpOnly: true, secure: false})
+    }
+
     @Get('user/:login')
     @UseGuards(AuthGuard('42'))
     async getUser(@Param() params: {login: string}) {
@@ -44,8 +50,9 @@ export class AuthController {
         passport.authenticate('42', { failureRedirect: '/fail' })
         console.log("USER: ", req.user)
         console.log(req.cookies);
-        res.cookie('userData', req.user, {httpOnly: true, secure: false})
+        res.cookie('userData', req.user, {secure: false})
         console.log("RES: ", res.getHeaders());
+        res.clearCookie
         return res
         .status(302)
         .redirect('http://localhost:8080/profil')
