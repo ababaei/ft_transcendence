@@ -151,8 +151,7 @@
       <ul div="channelsList">
         <li v-for="channel in listChannels" :key="channel.id">
           <div @click="selectChannel(channel)" id="channelDescriptionBar">
-            {{ channel.name }} - 
-            {{ channel.mode }}
+            {{ channel.name }} - {{ channel.mode }}
           </div>
         </li>
       </ul>
@@ -188,7 +187,6 @@
   import { defineComponent } from 'vue';
   import axios from 'axios'
   import { io } from 'socket.io-client';
-import { channel } from 'diagnostics_channel';
 
   interface User {
     id: number;
@@ -239,6 +237,7 @@ import { channel } from 'diagnostics_channel';
         userContextMenu: null,
         userActionCursorOn: 0,
         timerCursorOn: 0,
+        channelWhileUpdating: {id: 0} as Channel
       }
     },
     methods: {
@@ -451,43 +450,20 @@ import { channel } from 'diagnostics_channel';
     },
 
   updateChannelListFrag(data: Channel[]) {
-    console.log('Socket.io: updateChanList: chatboxOnChannelID: ', this.chatboxOnChannelID);
+    console.log('Socket.io: updateChanList: chatboxOnChannelID: ', this.chatboxOnChannel.name);
     console.log('data:', data);
     data.sort((a, b) => a.id - b.id);
     this.listChannels = [];
-    console.log('listChannel right after init as empty : ', this.listChannels);
     this.chatboxOnChannelID = this.chatboxOnChannel.id;
     this.chatboxOnChannel = { id: 0 } as Channel;
 
     for (let i = 0; i < data.length; i++) {
-      const channelData = data[i];
-      console.log('template for newChannel              : ',i, channelData);
-      let newChannel: Channel = {
-        id: channelData.id,
-        name: channelData.name,
-        mode: channelData.mode,
-        ownerID: channelData.ownerID,
-        password: channelData.password,
-        adminID: channelData.adminID,
-        banID: channelData.banID,
-        muteID: channelData.muteID,
-        users: channelData.users,
-        messages: channelData.messages,
-      };
-      this.listChannels.push(newChannel);
-
-      console.log('newchannel pushed at the end of loop : ', i, newChannel);
-      console.log('newlistchannel at the end of loop    : ', i, this.listChannels);
-
-      if (this.chatboxOnChannelID === newChannel.id) {
-        this.chatboxOnChannel = newChannel;
-      }
+      this.channelWhileUpdating = data[i];
+      this.listChannels.push(this.channelWhileUpdating);
     }
-    if (this.chatboxOnChannel.id === 0) {
-      this.chatboxOnChannelID = 0;
+    if (this.chatboxOnChannelID !== 0) {
+      this.chatboxOnChannel = this.listChannels.find(channel => channel.id === this.chatboxOnChannelID) as Channel;
     }
-
-    // console.log('chatboxOnCHannel', this.chatboxOnChannel);
     console.log('listChannel at the end of updateListChannel: ', this.listChannels);
   },
 },
