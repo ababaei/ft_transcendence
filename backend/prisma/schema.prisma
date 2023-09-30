@@ -11,9 +11,9 @@ datasource db {
 model User {
   id       Int       @id @unique @default(autoincrement())
   name     String
-  friendsID Int[]    @default([])
-  messages Message[] @relation("UserMessages")
-  channels Channel[] @relation("UserChannels")
+  friendsID friendRelation[] @relation("UserRelation")
+  messages Message[]    @relation("UserMessages")
+  channels Channel[]    @relation("UserChannels")
 }
 
 model Channel {
@@ -38,4 +38,13 @@ model Message {
   userID    Int
   channel   Channel  @relation("ChannelMessages", fields: [channelID], references: [id])
   user      User     @relation("UserMessages", fields: [userID], references: [id])
+}
+
+model friendRelation {
+  id        Int     @id @default(autoincrement())
+  userID    Int
+  friendID  Int
+  convID    Int
+  isBlocked Boolean @default(false)
+  user      User    @relation("UserRelation", fields: [userID], references: [id])
 }

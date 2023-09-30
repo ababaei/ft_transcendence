@@ -58,7 +58,7 @@ export class ChatController {
     async handleChannelRequest(@Body() data: {channelName: string, userid: number, mode: string, password: string }){
         console.log('requete: createChannelRequest: ', data.channelName);
 
-        const newChannel = await this.chatService.createNewChannel(data.channelName, data.mode, data.password, data.userid);
+        const newChannel = await this.chatService.createNewChannel(data.channelName, data.mode, data.password, data.userid, false);
         const fromUser = await this.chatService.findUserById(data.userid);
 
         await this.chatService.addUserInChannel(newChannel, fromUser);
@@ -224,8 +224,36 @@ export class ChatController {
         console.log('requete: set user admin');
         const user1 = await this.chatService.findUserById(data.userID);
         const user2 = await this.chatService.findUserById(data.friendID);
-        this.chatService.addUserInFriends(user1, user2);
-        this.chatService.addUserInFriends(user2, user1);
+        const newChannel = await this.chatService.createNewChannel("", "direct", "", 0, true);
+        await this.chatService.addUserInChannel(newChannel, user1);
+        await this.chatService.addUserInChannel(newChannel, user2);
+        this.chatService.addUserInFriends(user1, user2, newChannel.id);
+
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+            this.gateway.server.emit('updateUsersList', await this.chatService.getUsersList());
+        }, 100); // Délai de 100 millisecondes
+    }
+    
+    @Post('blockUserRequest')
+    async blockUser(@Body() data: {userID: number, blockedID: number}) {
+        console.log('requete: block ');
+        const userBlocking = await this.chatService.findUserById(data.userID);
+        const userBlocked = await this.chatService.findUserById(data.blockedID);
+        this.chatService.setBlockedRelation(userBlocking, userBlocked);
+
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+            this.gateway.server.emit('updateUsersList', await this.chatService.getUsersList());
+        }, 100); // Délai de 100 millisecondes
+    }
+    @Post('unblockUserRequest')
+    async unblockUser(@Body() data: {userID: number, blockedID: number}) {
+        console.log('requete: unblock');
+        const userBlocking = await this.chatService.findUserById(data.userID);
+        const userBlocked = await this.chatService.findUserById(data.blockedID);
+        this.chatService.removeBlockedRelation(userBlocking, userBlocked);
+
         setTimeout(async () => {
             this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
             this.gateway.server.emit('updateUsersList', await this.chatService.getUsersList());

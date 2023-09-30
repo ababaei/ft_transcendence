@@ -1,5 +1,6 @@
 import { Body, Injectable } from '@nestjs/common';
 import { Channel, Message, User } from '@prisma/client';
+import { realpath } from 'fs';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -16,13 +17,14 @@ export class ChatService {
         })
     }
 
-    async createNewChannel(channelName: string, mode: string, password: string, ownerId: number) {
+    async createNewChannel(channelName: string, mode: string, password: string, ownerId: number, chanOrDirect: boolean) {
         const newChannel = await this.prismaService.channel.create({
             data: {
                 name: channelName,
                 mode: mode,
                 password: password,
-                ownerID: ownerId,   
+                ownerID: ownerId,
+                isDirect: chanOrDirect,
             },
         });
         console.log('create channel ', this.findChannelByName(channelName))
@@ -138,24 +140,12 @@ export class ChatService {
     }
 
     async getUsersList(): Promise<User[]> {
-        const userList = await this.prismaService.user.findMany( {
-        });
-        const userListWithFriends: User[] = [];
-        for (const user of userList) {
-          const friends = await this.prismaService.user.findUnique({
-            where: {
-              id: user.id,
-            },
-            select: {
-              friendsID: true,
-            },
-          });
-          userListWithFriends.push({
-            ...user,
-            friendsID: friends.friendsID,
-          });
-        }
-        return userListWithFriends;
+        const userList = await this.prismaService.user.findMany({
+            include: {
+                friendsID: true
+            },                
+        },)
+        return userList;
     }
 
     async destroyChannel(channel: Channel)
@@ -273,17 +263,85 @@ export class ChatService {
         });
     }
 
-    async addUserInFriends(user1: User, user2: User) {
+    async addUserInFriends(user1: User, user2: User, conv: number) {
         console.log('chatService: make friends');
-        if (user1.friendsID.includes(user2.id))
-            return;
-        const updatedFriendArray = [...user1.friendsID, user2.id];
-        await this.prismaService.user.update({
-            where: { id: user1.id },
+        await this.prismaService.friendRelation.create({
             data: {
-                friendsID: updatedFriendArray,
+                userID: user1.id,
+                friendID: user2.id,
+                convID: conv
             },
+        })
+        await this.prismaService.friendRelation.create({
+            data: {
+                userID: user2.id,
+                friendID: user1.id,
+                convID: conv
+            },
+        })
+    }
+
+    async setBlockedRelation(user1: User, user2: User) {
+        console.log('chatService: set Blocked Relation');
+        const relation = await this.prismaService.friendRelation.findFirst({
+            where: {
+                userID: user1.id,
+                friendID: user2.id,
+            }
         });
+        console.log(relation);
+        if (!relation) {
+            console.log("!relation")
+            await this.prismaService.friendRelation.create({
+                data: {
+                    userID: user1.id,
+                    friendID: user2.id,
+                    convID: 0,
+                    isBlocked: true
+                },
+            })
+            await this.prismaService.friendRelation.create({
+                data: {
+                    userID: user2.id,
+                    friendID: user1.id,
+                    convID: 0,
+                },
+            })
+        }
+        else {
+            await this.prismaService.friendRelation.update({
+                where: { id: relation.id },
+                data: {
+                    isBlocked: true,
+                },
+            })
+        }
+    }
+    async removeBlockedRelation(user1: User, user2: User) {
+        console.log('chatService: set Blocked Relation');
+        const relation = await this.prismaService.friendRelation.findFirst({
+            where: {
+                userID: user1.id,
+                friendID: user2.id,
+            }
+        });
+        console.log(relation);
+        if (relation) {
+            await this.prismaService.friendRelation.delete({
+                where: {id: relation.id}
+            })
+        }
+        const relation2 = await this.prismaService.friendRelation.findFirst({
+            where: {
+                userID: user2.id,
+                friendID: user1.id,
+            }
+        });
+        if (relation2) {
+            await this.prismaService.friendRelation.delete({
+                where: {id: relation2.id}
+            })
+        }
     }
 
     async getMessageInChannel(channel: Channel): Promise<Message[]> {

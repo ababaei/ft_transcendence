@@ -14,12 +14,12 @@
 
     <div id="chatboxDiv" v-if="logedUser.id && chatboxOnChannel.id && chatboxOnChannelID">
       <h2> ~ Chatbox ~ </h2>
-      <h3 id="channelName"> {{ chatboxOnChannel.name }} </h3>
+      <h3 id="channelName"> {{ getChannelName() }} </h3>
       <button @click="switchChatboxWindow"> {{ switchChatboxButton }}</button>
 
   <!-- INFO CHANNEL -->
 
-      <div id="channelInfo" v-if="chatboxWindow==0">
+      <div id="channelInfo" v-if="chatboxWindow==0 && !chatboxOnChannel.isDirect">
 
         <!-- EDIT CHANNEL PART -->
         <div v-if="chatboxOnChannel.ownerID===logedUser.id">
@@ -47,10 +47,10 @@
 
       <!-- JOIN CHANNEL -->
           <div id="joinChannel" v-if="!isUserInChannel(logedUser.id, chatboxOnChannel) &&
-          !isBan(logedUser.id, chatboxOnChannel)">
+          !isBan(logedUser.id, chatboxOnChannel) && chatboxOnChannel.mode!='private'">
             <input id="passwordJoinEntry" v-model="passwordToJoin"
             v-if="chatboxOnChannel.mode==='protected'" placeholder="Password">
-            <button @click="joinChannel()">Join</button>
+            <button @click="joinChannel(logedUser.id)">Join</button>
           </div>
           <p v-if="isBan(logedUser.id, chatboxOnChannel)"> You are banned</p>
       <!-- JOINCHANNEL FIN -->
@@ -64,6 +64,18 @@
               <li><button @click="leaveChannel">Leave channel</button></li>
               <li v-if="chatboxOnChannel.ownerID===logedUser.id">
                 <button @click="destroyChannel">Destroy channel</button></li>
+
+      <!-- INVITER UN AMI -->
+              <li><button @click="toggleTimer(3)">Invite friend</button>
+                <div id="ivitefriend" v-if="timerCursorOn==3">
+                  <template v-for="friend in logedUser.friendsID">
+                  <li v-if="!isUserInChannel(friend.id, chatboxOnChannel)">
+                      {{ getUserFromId(friend.id).name }}
+                      <button @click="joinChannel(friend.id)">+</button>
+                  </li>
+                  </template>
+                </div>
+              </li>
             </ul>
           </div>
       <!-- DESTROY/LEAVE CHANNEL FIN -->
@@ -134,9 +146,11 @@
       <div id="convWindow" v-if="chatboxWindow==1">
         <h6>Conversation</h6>
         <ul id="messageHistory">
-          <li v-for="message in chatboxOnChannel.messages" :key="message.id">
+          <template v-for="message in chatboxOnChannel.messages" :key="message.id">
+          <li v-if="!isBlocked(logedUser.id, message.user.id)">
             <p>{{ message.user.name }} : {{ message.text }}</p>
           </li>
+          </template>
         </ul>
         <form @submit.prevent="sendMessage" v-if="!isMute(logedUser.id, chatboxOnChannel)">
           <input id="messageEntry" type="text" name="messageBody"
@@ -153,7 +167,7 @@
       <h2> ~ Channel list ~ </h2>
       <ul div="channelsList">
         <template v-for="channel in listChannels" :key="channel.id">
-        <li v-if="channel.id!=-1">
+        <li v-if="channel.id!=-1 && !channel.isDirect">
           <div @click="selectChannel(channel)" id="channelDescriptionBar">
             {{ channel.name }} - {{ channel.mode }}
           </div>
@@ -190,18 +204,31 @@
       <h2> ~ Users List ~</h2>
       <ul>
         <template v-for="user in userList">
-        <li v-if="user.id==logedUser.id">
+        <li v-if="user.id!==logedUser.id && !isBlocked(logedUser.id, user.id) && 
+        !isBlocked(user.id, logedUser.id)">
              {{ user.name }}
             <button v-if="!isFriend(user.id)" @click="addFriend(user.id)">add friend</button>
+            <button @click="blockUser(user.id)"> block user </button>
         </li>
         </template>
       </ul>
       <h2> ~ Friends List ~</h2>
       <ul>
-        <li v-for="friendid in logedUser.friendsID" >
-            {{ getUserFromId(friendid).name }}
-            <button>direct message</button>
+        <template v-for="friend in logedUser.friendsID" >
+        <li v-if="!isBlocked(logedUser.id, friend.id) && !isBlocked(friend.id, logedUser.id)">
+            {{ getUserFromId(friend.friendID).name }}
+            <button @click="selectChannel(getChannelFromID(friend.convID))">direct message</button>
         </li>
+        </template>
+      </ul>
+      <h2> ~ Blocked List ~</h2>
+      <ul>
+        <template v-for="user in userList">
+        <li v-if="isBlocked(logedUser.id, user.id)">
+             {{ user.name }}
+            <button @click="unblockUser(user.id)"> unblock user </button>
+        </li>
+        </template>
       </ul>
     </div>
     </div>
@@ -213,9 +240,17 @@
   import axios from 'axios'
   import { io } from 'socket.io-client';
 
+  interface friendRelation {
+    id: number
+    userID: number
+    friendID: number
+    convID: number
+    isBlocked: boolean
+  }
+
   interface User {
     id: number;
-    friendsID: number[];
+    friendsID: friendRelation[];
     name: string;
   }
   interface Message {
@@ -298,6 +333,22 @@
       this.channelType = 'public'
     },
 
+    async createNewDirectConv() {
+      console.log('methods: createNewDirectConv');
+      try {
+        const reponse = await axios.post('/api/chat/createDirectConvRequest', {
+          channelName: this.channelCreationName,
+          userid: this.logedUser.id,
+          mode: this.channelType,
+          password: this.passwordChannel,
+
+        })
+      } catch { console.error(); }
+      this.channelCreationName = ''
+      this.passwordChannel = ''
+      this.channelType = 'public'
+    },
+
     async selectChannel(channel: Channel) {
       this.chatboxOnChannel = channel;
       this.chatboxOnChannelID = channel.id;
@@ -307,6 +358,7 @@
       this.chatboxWindow = 0;
       this.channelActionCheckbox = false;
       this.userActionCursorOn = 0;
+      if (channel.isDirect) {this.chatboxWindow = 1}
       console.log('methods: selectChannel:', this.chatboxOnChannelID);
     },
 
@@ -327,11 +379,11 @@
 
     // join un channel
 
-    async joinChannel() {
+    async joinChannel(userID: number) {
       console.log('methods: joinChannel');
       const reponse = await axios.post('/api/chat/joinChannelRequest', {
         channelID: this.chatboxOnChannel.id,
-        userID: this.logedUser.id,
+        userID: userID,
         password: this.passwordToJoin
       })
     },
@@ -455,12 +507,27 @@
 
     async addFriend(friendID: number) {
       console.log('methosds: addd friend');
+      if (this.isBlocked(friendID, this.logedUser.id)) { return }
       const reponse = await axios.post('/api/chat/addFriendRequest', {
         userID: this.logedUser.id,
         friendID: friendID,
       })
     },
 
+    async blockUser(blockedID: number) {
+      console.log("methods: block user")
+    const reponse = await axios.post('/api/chat/blockUserRequest', {
+        userID: this.logedUser.id,
+        blockedID: blockedID,
+      })
+    },
+    async unblockUser(blockedID: number) {
+      console.log("methods: unblock user")
+    const reponse = await axios.post('/api/chat/unblockUserRequest', {
+        userID: this.logedUser.id,
+        blockedID: blockedID,
+      })
+    },
 // utils
 
   isAdmin(userID: number, channel: Channel) {
@@ -513,8 +580,18 @@
     isFriend(userID: number){
       console.log('methods: is friend')
       const friendList = this.logedUser.friendsID;
-      const ret = friendList.find(user => user == userID);
+      if (!friendList) return 0
+      const ret = friendList.find(user => user.friendID == userID);
       if (ret) { return 1 }
+      return 0;
+    },
+    isBlocked(user1ID: number, user2ID: number) {
+      if (!user1ID || !user2ID) return (0);
+      let user1 = this.getUserFromId(user1ID)
+      if (!user1 || !user1.friendsID) return 0;
+      let relationWithUser2 = user1.friendsID.find(relation => relation.friendID == user2ID);
+      if (!relationWithUser2) return 0;
+      if (relationWithUser2.isBlocked) return 1;
       return 0;
     },
 
@@ -536,6 +613,21 @@
       if (user)
         return (user);
       return {id: 0, name: ''} as User;
+    },
+
+    getChannelFromID(channelID: number) {
+      const channel = this.listChannels.find(channel => channel.id == channelID);
+      if (channel)
+        return (channel);
+      return {id: 0} as Channel;
+    },
+
+    getChannelName() {
+      if (this.chatboxOnChannel.isDirect) {
+        const otherUser = this.chatboxOnChannel.users.find(user => user.id !== this.logedUser.id);
+        if (otherUser) { return otherUser.name }
+      }
+      return this.chatboxOnChannel.name
     },
 
   updateChannelListFrag(data: Channel[]) {
