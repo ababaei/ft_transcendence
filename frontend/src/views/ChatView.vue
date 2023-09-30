@@ -46,17 +46,20 @@
       <!-- EDIT CHANNEL PART FIN -->
 
       <!-- JOIN CHANNEL -->
-          <div id="joinChannel" v-if="!isUserInChannel(logedUser.id, chatboxOnChannel)">
+          <div id="joinChannel" v-if="!isUserInChannel(logedUser.id, chatboxOnChannel) &&
+          !isBan(logedUser.id, chatboxOnChannel)">
             <input id="passwordJoinEntry" v-model="passwordToJoin"
             v-if="chatboxOnChannel.mode==='protected'" placeholder="Password">
             <button @click="joinChannel()">Join</button>
           </div>
+          <p v-if="isBan(logedUser.id, chatboxOnChannel)"> You are banned</p>
       <!-- JOINCHANNEL FIN -->
 
       <!-- DESTROY/LEAVE CHANNEL -->
           <label for="channelAction">Channel Action</label>
           <input type="checkbox" id="channelAction" v-model="channelActionCheckbox">
-          <div id="channelActionList" v-if="channelActionCheckbox">
+          <div id="channelActionList" v-if="channelActionCheckbox
+          && isUserInChannel(logedUser.id, chatboxOnChannel)">
             <ul>
               <li><button @click="leaveChannel">Leave channel</button></li>
               <li v-if="chatboxOnChannel.ownerID===logedUser.id">
@@ -87,13 +90,13 @@
               ||logedUser.id === chatboxOnChannel.ownerID ">
 
             <!-- MUTE et UNMUTE -->
-                <button v-if="!isMute(user.id, chatboxOnChannel.id)" @click="toggleTimer(1)">Mute</button>
+                <button v-if="!isMute(user.id, chatboxOnChannel)" @click="toggleTimer(1)">Mute</button>
                 <div id="timerButtons" v-if="timerCursorOn==1">
                   <button @click="muteUser(user.id, chatboxOnChannel.id, 0.25)"> 1 min </button>
                   <button @click="muteUser(user.id, chatboxOnChannel.id, 30)"> 30 min </button>
                   <button @click="muteUser(user.id, chatboxOnChannel.id, 60)"> 1 hour</button>
                 </div>
-                <button v-if="isMute(user.id, chatboxOnChannel.id)"
+                <button v-if="isMute(user.id, chatboxOnChannel)"
                 @click="unmuteUser(user.id, chatboxOnChannel.id)">unmute</button>
 
             <!-- KICK -->
@@ -102,9 +105,9 @@
             <!-- BAN -->
                 <button @click="toggleTimer(2)">Ban</button>
                 <div id="timerButtons" v-if="timerCursorOn==2">
-                  <button> 30 min </button>
-                  <button> 1 hour </button>
-                  <button> 8 hour</button>
+                  <button @click="banUser(user.id, chatboxOnChannel.id, 0.25)"> 30 min </button>
+                  <button @click="banUser(user.id, chatboxOnChannel.id, 30)"> 1 hour </button>
+                  <button @click="banUser(user.id, chatboxOnChannel.id, 60)"> 8 hour</button>
                 </div>
 
       
@@ -135,12 +138,12 @@
             <p>{{ message.user.name }} : {{ message.text }}</p>
           </li>
         </ul>
-        <form @submit.prevent="sendMessage" v-if="!isMute(logedUser.id, chatboxOnChannel.id)">
+        <form @submit.prevent="sendMessage" v-if="!isMute(logedUser.id, chatboxOnChannel)">
           <input id="messageEntry" type="text" name="messageBody"
           v-model="messageToSend" placeholder="Message">
           <button>send</button>
         </form>
-        <h4 v-if="isMute(logedUser.id, chatboxOnChannel.id)">You are mute</h4>
+        <h4 v-if="isMute(logedUser.id, chatboxOnChannel)">You are mute</h4>
       </div>
     </div>
 
@@ -149,15 +152,18 @@
       <div>
       <h2> ~ Channel list ~ </h2>
       <ul div="channelsList">
-        <li v-for="channel in listChannels" :key="channel.id">
+        <template v-for="channel in listChannels" :key="channel.id">
+        <li v-if="channel.id!=-1">
           <div @click="selectChannel(channel)" id="channelDescriptionBar">
             {{ channel.name }} - {{ channel.mode }}
           </div>
         </li>
+      </template>
       </ul>
       </div>
-      <div>
+
 <!-- CREATION CHANNEL -->
+    <div>
       <form @submit.prevent="createNewChannel">
         <h4>Channel creation form</h4>
         <input type="text" id="channelEntry" name="channelname"
@@ -179,6 +185,25 @@
         <button v-if="channelType && channelCreationName" type="submit">Create channel</button>
       </form>
     </div>
+<!-- LISTE D'AMIS -->
+    <div id="relationsListsHub">
+      <h2> ~ Users List ~</h2>
+      <ul>
+        <template v-for="user in userList">
+        <li v-if="user.id==logedUser.id">
+             {{ user.name }}
+            <button v-if="!isFriend(user.id)" @click="addFriend(user.id)">add friend</button>
+        </li>
+        </template>
+      </ul>
+      <h2> ~ Friends List ~</h2>
+      <ul>
+        <li v-for="friendid in logedUser.friendsID" >
+            {{ getUserFromId(friendid).name }}
+            <button>direct message</button>
+        </li>
+      </ul>
+    </div>
     </div>
   </main>
 </template>
@@ -190,6 +215,7 @@
 
   interface User {
     id: number;
+    friendsID: number[];
     name: string;
   }
   interface Message {
@@ -208,7 +234,8 @@
     adminID: number[],
     muteID: number[],
     banID: number[],
-    users: User[]
+    users: User[],
+    isDirect: boolean
   }
 
 
@@ -222,6 +249,7 @@
         logedUser: { name: '', id: 0 } as User,
         channelCreationName: '' as string,
         listChannels: [] as Channel[],
+        userList: [] as User[],
         chatboxOnChannel: { id: 0} as Channel,
         chatboxOnChannelID: 0 as number,
         messageToSend: '' as string,
@@ -403,6 +431,36 @@
       })
     },
 
+
+    async banUser(userID: number, channelID: number, time: number) {
+      console.log('methosds: ban user');
+      const reponse = await axios.post('/api/chat/banUserRequest', {
+        channelID: channelID,
+        userID: userID,
+        timer: time,
+      })
+      await axios.post('/api/chat/leaveChannelRequest', {
+          userID: userID,
+          channelID: channelID,
+      });
+    },
+    async unbanUser(userID: number, channelID: number) {
+    console.log('methosds: unban user');
+      const reponse = await axios.post('/api/chat/unbanUserRequest', {
+        channelID: channelID,
+        userID: userID,
+      })
+    },
+
+
+    async addFriend(friendID: number) {
+      console.log('methosds: addd friend');
+      const reponse = await axios.post('/api/chat/addFriendRequest', {
+        userID: this.logedUser.id,
+        friendID: friendID,
+      })
+    },
+
 // utils
 
   isAdmin(userID: number, channel: Channel) {
@@ -416,16 +474,32 @@
       return 0;
     },
 
-  isMute(userID: number, channelID: number) {
-      const channelMuted = this.listChannels.find(channel => channel.id = channelID)?.muteID;
-      if (!channelMuted)
+  isMute(userID: number, channel: Channel) {
+    console.log("methods: is ");
+    const channelMuted = channel.muteID;
+    console.log(channel.muteID);
+      if (!channelMuted) {
         return 0;
-      if (channelMuted.find(user => user == userID))
+      }
+      if (channelMuted.find(user => user == userID)) {
         return (1)
-      return 0;
+      }
+        return 0;
+    },
+    isBan(userID: number, channel: Channel) {
+    console.log("methods: is ban");
+    const channelBaned = channel.banID;
+    console.log(channel.banID);
+      if (!channelBaned) {
+        return 0;
+      }
+      if (channelBaned.find(user => user == userID)) {
+        return (1)
+      }
+        return 0;
     },
 
-  isUserInChannel(userID: number, channel: Channel): number {
+    isUserInChannel(userID: number, channel: Channel): number {
       console.log('methods: isUserInChannel');
       if (!channel || !userID)
         return 0
@@ -434,6 +508,14 @@
         return (1)
       else
         return (0)
+    },
+
+    isFriend(userID: number){
+      console.log('methods: is friend')
+      const friendList = this.logedUser.friendsID;
+      const ret = friendList.find(user => user == userID);
+      if (ret) { return 1 }
+      return 0;
     },
 
   toggleContextMenu(userId: number) {
@@ -449,16 +531,34 @@
         this.timerCursorOn = timerOn;
     },
 
+    getUserFromId(userID: number) {
+      const user = this.userList.find(user => user.id == userID);
+      if (user)
+        return (user);
+      return {id: 0, name: ''} as User;
+    },
+
   updateChannelListFrag(data: Channel[]) {
     console.log('Socket.io: updateChanList: chatboxOnChannelID: ', this.chatboxOnChannel.name);
     console.log('data:', data);
     data.sort((a, b) => a.id - b.id);
     this.listChannels = [];
+    let cpy = [] as Channel[];
+    cpy.push({id: -1,} as Channel);
+    console.log(cpy);
     this.chatboxOnChannelID = this.chatboxOnChannel.id;
     this.chatboxOnChannel = { id: 0 } as Channel;
 
     for (let i = 0; i < data.length; i++) {
       this.channelWhileUpdating = data[i];
+      // this.channelWhileUpdating.muteID = data[i].muteID;
+      cpy.push(this.channelWhileUpdating);
+    }
+    for (let i = 0; i < cpy.length; i++) {
+      this.channelWhileUpdating = cpy[i];
+      // if (i != 0) {
+      //   this.channelWhileUpdating.muteID = cpy[i].muteID;
+      // }
       this.listChannels.push(this.channelWhileUpdating);
     }
     if (this.chatboxOnChannelID !== 0) {
@@ -466,6 +566,18 @@
     }
     console.log('listChannel at the end of updateListChannel: ', this.listChannels);
   },
+
+  updateUsersListFrag(data: User[]) {
+    console.log('Socket.io: updateFRiends list');
+    this.userList = [];
+    for (let i = 0; i < data.length; i++) {
+      let userInList = data[i];
+      this.userList.push(userInList);
+    }
+    let tmp = this.logedUser.id;
+    this.logedUser = this.userList.find(user => user.id == tmp) as User;
+    console.log('userList : ', this.userList);
+  }
 },
 
 // Reception sur le socket
@@ -475,6 +587,9 @@
 
     this.socket.on('updateChannelList', (data) => {
       this.updateChannelListFrag(data);
+    })
+    this.socket.on('updateUsersList', (data) => {
+      this.updateUsersListFrag(data);
     })
   },
   })

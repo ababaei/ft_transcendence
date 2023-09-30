@@ -102,7 +102,7 @@ export class ChatService {
     }
 
     async getChannelsList(): Promise<Channel[]> {
-        console.log('chatService: getChannelsList');
+        // console.log('chatService: getChannelsList');
         const channelList = await this.prismaService.channel.findMany({
             include: {
                 messages: {
@@ -135,6 +135,27 @@ export class ChatService {
         }
         console.log(channelsWithAdminID);
         return channelsWithAdminID;
+    }
+
+    async getUsersList(): Promise<User[]> {
+        const userList = await this.prismaService.user.findMany( {
+        });
+        const userListWithFriends: User[] = [];
+        for (const user of userList) {
+          const friends = await this.prismaService.user.findUnique({
+            where: {
+              id: user.id,
+            },
+            select: {
+              friendsID: true,
+            },
+          });
+          userListWithFriends.push({
+            ...user,
+            friendsID: friends.friendsID,
+          });
+        }
+        return userListWithFriends;
     }
 
     async destroyChannel(channel: Channel)
@@ -228,6 +249,39 @@ export class ChatService {
             where: { id: channel.id },
             data: {
                 muteID: updatedMuteArray,
+            },
+        });
+    }
+    async setUserBan(channel: Channel, userID: number) {
+        console.log('chatService: set User ban');
+        const updatedBanArray = [...channel.banID, userID];
+        await this.prismaService.channel.update({
+            where: { id: channel.id },
+            data: {
+                banID: updatedBanArray,
+            },
+        });
+    }
+    async removeUserBan(channel: Channel, userID: number) {
+        console.log('chatService: remove User ban');
+        const updatedBanArray = channel.banID.filter(id => id !== userID);
+        await this.prismaService.channel.update({
+            where: { id: channel.id },
+            data: {
+                banID: updatedBanArray,
+            },
+        });
+    }
+
+    async addUserInFriends(user1: User, user2: User) {
+        console.log('chatService: make friends');
+        if (user1.friendsID.includes(user2.id))
+            return;
+        const updatedFriendArray = [...user1.friendsID, user2.id];
+        await this.prismaService.user.update({
+            where: { id: user1.id },
+            data: {
+                friendsID: updatedFriendArray,
             },
         });
     }

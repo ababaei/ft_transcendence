@@ -11,6 +11,7 @@ datasource db {
 model User {
   id       Int       @id @unique @default(autoincrement())
   name     String
+  friendsID Int[]    @default([])
   messages Message[] @relation("UserMessages")
   channels Channel[] @relation("UserChannels")
 }
@@ -26,6 +27,7 @@ model Channel {
   muteID      Int[]     @default([])
   mode        String    @default("public")
   password    String    @default("")
+  isDirect    Boolean   @default(false)
 }
 
 model Message {
