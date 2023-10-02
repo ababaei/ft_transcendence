@@ -68,10 +68,10 @@
       <!-- INVITER UN AMI -->
               <li><button @click="toggleTimer(3)">Invite friend</button>
                 <div id="ivitefriend" v-if="timerCursorOn==3">
-                  <template v-for="friend in logedUser.friendsID">
-                  <li v-if="!isUserInChannel(friend.id, chatboxOnChannel)">
-                      {{ getUserFromId(friend.id).name }}
-                      <button @click="joinChannel(friend.id)">+</button>
+                  <template v-for="user in userList">
+                  <li v-if="!isUserInChannel(user.id, chatboxOnChannel) && isFriend(user.id)">
+                      {{ user.name }}
+                      <button @click="joinChannel(user.id)">+</button>
                   </li>
                   </template>
                 </div>
@@ -214,10 +214,10 @@
       </ul>
       <h2> ~ Friends List ~</h2>
       <ul>
-        <template v-for="friend in logedUser.friendsID" >
-        <li v-if="!isBlocked(logedUser.id, friend.id) && !isBlocked(friend.id, logedUser.id)">
-            {{ getUserFromId(friend.friendID).name }}
-            <button @click="selectChannel(getChannelFromID(friend.convID))">direct message</button>
+        <template v-for="relations in logedUser.friendsID" >
+        <li v-if="isFriend(relations.friendID)">
+            {{ getUserFromId(relations.friendID).name }}
+            <button @click="selectChannel(getChannelFromID(relations.convID))">direct message</button>
         </li>
         </template>
       </ul>
@@ -358,7 +358,7 @@
       this.chatboxWindow = 0;
       this.channelActionCheckbox = false;
       this.userActionCursorOn = 0;
-      if (channel.isDirect) {this.chatboxWindow = 1}
+      if (channel.isDirect || this.isUserInChannel(this.logedUser.id, this.chatboxOnChannel)) {this.chatboxWindow = 1}
       console.log('methods: selectChannel:', this.chatboxOnChannelID);
     },
 
@@ -579,17 +579,22 @@
 
     isFriend(userID: number){
       console.log('methods: is friend')
+      if (this.isBlocked(this.logedUser.id, userID)) { return 0; }
       const friendList = this.logedUser.friendsID;
+      console.log('friendlist:', friendList)
       if (!friendList) return 0
-      const ret = friendList.find(user => user.friendID == userID);
+      const ret = friendList.find(relation => relation.friendID == userID);
+      console.log('isfriend :ret', ret);
       if (ret) { return 1 }
       return 0;
     },
     isBlocked(user1ID: number, user2ID: number) {
+      console.log('nethods: isBlocked')
       if (!user1ID || !user2ID) return (0);
       let user1 = this.getUserFromId(user1ID)
       if (!user1 || !user1.friendsID) return 0;
       let relationWithUser2 = user1.friendsID.find(relation => relation.friendID == user2ID);
+      console.log('relation with otheruser: ', relationWithUser2);
       if (!relationWithUser2) return 0;
       if (relationWithUser2.isBlocked) return 1;
       return 0;
@@ -666,8 +671,11 @@
       let userInList = data[i];
       this.userList.push(userInList);
     }
-    let tmp = this.logedUser.id;
-    this.logedUser = this.userList.find(user => user.id == tmp) as User;
+    if (this.logedUser.id) {
+      let tmp = this.logedUser.id;
+      this.logedUser = this.userList.find(user => user.id == tmp) as User;
+    }
+
     console.log('userList : ', this.userList);
   }
 },
