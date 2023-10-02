@@ -2,6 +2,7 @@
 import axios from 'axios';
 import Vue from 'vue';
 import VueCookies from 'vue-cookies';
+import { useUserStore } from '@/stores/user';
 
 export default {
     data() {
@@ -9,21 +10,12 @@ export default {
         jwtToken: null,
       };
     },
-    mounted() {
-      // const cooks = this.$cookies.get("userData")
-      // console.log(cooks);
-      // axios.get('/api/auth/test', {
-      //   withCredentials: true
-      // })
-      // .then(() => 
-      //   {console.log(this.$cookies.get('userData'))}
-      // )
+    created() {
+      this.getUser();
     },
     methods: {
-      getUser() {
-        axios.get('/api/auth/user/ababaei', {
-          withCredentials: true
-        })
+      async getUser() {
+        useUserStore.fetchUser(this.$route.params.id)
         .then((res) => {console.log("Response: ", res.data)})
         .catch((err) => {console.error('Error TOTO: ', err)})
       },

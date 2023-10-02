@@ -34,7 +34,23 @@ export const useUserStore = defineStore({
 
       try {
         this.users = await axios.get('api/users')
-      }  
+      } catch(error: any) {
+        this.error = error
+      } finally {
+        this.loading = false
+      }
+    },
+    async fetchUser(this: Userstate, id: number) {
+      this.currentUser = null;
+      this.loading = true;
+
+      try {
+        this.currentUser = await axios.get('api/users/' + id)
+      } catch(error: any) {
+        this.error = error
+      } finally {
+        this.loading = false
+      }
     }
   }
 })

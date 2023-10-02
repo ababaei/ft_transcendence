@@ -25,7 +25,7 @@ export class AuthController {
         res.cookie('userData', req.cookies.userData.token, {httpOnly: true, secure: false})
     }
 
-    @Get('user/:login')
+    @Get('user/:id')
     @UseGuards(AuthGuard('42'))
     async getUser(@Param() params: {login: string}) {
         console.log("LOGIN: ", params.login)
