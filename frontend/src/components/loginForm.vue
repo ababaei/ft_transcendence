@@ -1,6 +1,9 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from 'axios';
+import jwt_decode from "jwt-decode";
+import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue';
 
     export default defineComponent ({
         name: "loginForm",
@@ -11,6 +14,13 @@ import axios from 'axios';
                     password: "",
                 },
             }
+        },
+        mounted() {
+            const cookies = this.$cookies.get("userData")
+            console.log(typeof(cookies));
+            console.log(cookies.token);
+            console.log(jwt_decode(cookies.token))
+                      
         },
         methods: {
             handleSubmit() {

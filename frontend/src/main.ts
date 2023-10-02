@@ -1,7 +1,7 @@
 import './assets/main.css'
 
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import { createPinia, setMapStoreSuffix } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
@@ -20,6 +20,7 @@ const vuetify = createVuetify({
 
 const app = createApp(App)
 
+setMapStoreSuffix('')
 
 app.use(VueCookies, { expires: '7d'})
 app.use(vuetify)

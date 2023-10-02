@@ -49,13 +49,10 @@ export class AuthController {
         console.log("______________________callback__________________")
         passport.authenticate('42', { failureRedirect: '/fail' })
         console.log("USER: ", req.user)
-        console.log(req.cookies);
-        res.cookie('userData', req.user, {secure: false})
-        console.log("RES: ", res.getHeaders());
-        res.clearCookie
+        res.cookie('userData', JSON.stringify(req.user), {secure: false})
         return res
         .status(302)
-        .redirect('http://localhost:8080/profil')
+        .redirect('http://localhost:8080/login')
     }
 
     @Get('logout')

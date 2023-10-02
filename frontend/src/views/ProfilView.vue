@@ -10,14 +10,14 @@ export default {
       };
     },
     mounted() {
-      const cooks = this.$cookies.get("userData")
-      console.log(cooks);
-      axios.get('/api/auth/test', {
-        withCredentials: true
-      })
-      .then(() => 
-        {console.log(this.$cookies.get('userData'))}
-      )
+      // const cooks = this.$cookies.get("userData")
+      // console.log(cooks);
+      // axios.get('/api/auth/test', {
+      //   withCredentials: true
+      // })
+      // .then(() => 
+      //   {console.log(this.$cookies.get('userData'))}
+      // )
     },
     methods: {
       getUser() {
