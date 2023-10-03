@@ -132,35 +132,62 @@ export class ChatController {
 
     @Post('leaveChannelRequest')
     async leaveChannel(@Body() data: { userID: number, channelID: number }) {
-        console.log('requete: leave channel');
-        const channelToLeave = await this.chatService.findChannelById(data.channelID);
-        const userLeaving = await this.chatService.findUserById(data.userID);
-        this.chatService.removeUserFromChannel(userLeaving, channelToLeave);
-        this.chatService.removeUserAdmin(channelToLeave, userLeaving.id);
-        this.sendUploadedData();
-        return 1;
+        try {
+            console.log('requete: leave channel');
+            const channelToLeave = await this.chatService.findChannelById(data.channelID);
+            const userLeaving = await this.chatService.findUserById(data.userID);
+            this.chatService.removeUserFromChannel(userLeaving, channelToLeave);
+            this.chatService.removeUserAdmin(channelToLeave, userLeaving.id);
+            this.sendUploadedData();
+            return 'backend: channel leaved';
+        }
+        catch {
+            console.log('error: leave channel');
+            return 'backend: error while leaving channel';
+        }
     }
     @Post('editChannelRequest')
     async editChannel(@Body() data: {channelID: number, newChannelName: string, newChannelType: string, newChannelPassword: string}) {
-        console.log('requete: change channel name');
-        const channelToEdit = await this.chatService.findChannelById(data.channelID);
-        this.chatService.editChannel(channelToEdit, data.newChannelName, data.newChannelType, data.newChannelPassword);
-        this.sendUploadedData();
+        try {
+            console.log('requete: change channel name');
+            const channelToEdit = await this.chatService.findChannelById(data.channelID);
+            this.chatService.editChannel(channelToEdit, data.newChannelName, data.newChannelType, data.newChannelPassword);
+            this.sendUploadedData();
+            return 'backend: channel edited';
+        }
+        catch {
+            console.log('error: edit channel')
+            return 'backend: error while editing channel';
+        }
     }
 
     @Post('makeUserAdminRequest')
     async makeUserAdmin(@Body() data: {channelID: number, newAdminID: number}) {
-        console.log('requete: set user admin');
-        const channel = await this.chatService.findChannelById(data.channelID);
-        this.chatService.setUserAdmin(channel, data.newAdminID);
-        this.sendUploadedData();
+        try {
+            console.log('requete: set user admin');
+            const channel = await this.chatService.findChannelById(data.channelID);
+            this.chatService.setUserAdmin(channel, data.newAdminID);
+            this.sendUploadedData();
+            return 'backend: user mode set to admin'
+        }
+        catch {
+            console.log('error: make user admin');
+            return 'backend: error while making user administrator';
+        }
     }
     @Post('removeUserAdminRequest')
     async removeUserAdmin(@Body() data: {channelID: number, removedAdminID: number}) {
-        console.log('requete: remove user admin');
-        const channel = await this.chatService.findChannelById(data.channelID);
-        this.chatService.removeUserAdmin(channel, data.removedAdminID);
-        this.sendUploadedData();
+        try {
+            console.log('requete: remove user admin');
+            const channel = await this.chatService.findChannelById(data.channelID);
+            this.chatService.removeUserAdmin(channel, data.removedAdminID);
+            this.sendUploadedData();
+            return 'backend: user removed from administartors';
+        }
+        catch {
+            console.log('error: removing administartor');
+            return 'backend: error removing user administartor';
+        }
     }
     @Post('muteUserRequest')
     async muteUser(@Body() data: {channelID: number, userID: number, timer: number}) {
@@ -178,10 +205,17 @@ export class ChatController {
     }
     @Post('unmuteUserRequest')
     async unmuteUser(@Body() data: {channelID: number, userID: number, timer: number}) {
-        console.log('requete: set user admin');
-        const channel = await this.chatService.findChannelById(data.channelID);
-        this.chatService.removeUserMute(channel, data.userID);
-        this.sendUploadedData();
+        try {
+            console.log('requete: set user admin');
+            const channel = await this.chatService.findChannelById(data.channelID);
+            this.chatService.removeUserMute(channel, data.userID);
+            this.sendUploadedData();
+            return 'backend: user unmuted';
+        }
+        catch {
+            console.log('error: unmuting user');
+            return 'backend: error while unmuting user'
+        }
     }
 
     @Post('banUserRequest')
@@ -201,42 +235,70 @@ export class ChatController {
     }
     @Post('unbanUserRequest')
     async unbanUser(@Body() data: {channelID: number, userID: number, timer: number}) {
-        console.log('requete: unban user');
-        const channel = await this.chatService.findChannelById(data.channelID);
-        this.chatService.removeUserBan(channel, data.userID);
-        this.sendUploadedData();
+        try {
+            console.log('requete: unban user');
+            const channel = await this.chatService.findChannelById(data.channelID);
+            this.chatService.removeUserBan(channel, data.userID);
+            this.sendUploadedData();
+            return 'backend: user unbaned';
+        }
+        catch {
+            console.log('error: unbaning user');
+            return 'backend: error while unbaning user'
+        }
     }
 
     @Post('addFriendRequest')
     async addFriend(@Body() data: {userID: number, friendID: number}) {
-        console.log('requete: set user admin');
-        const user1 = await this.chatService.findUserById(data.userID);
-        const user2 = await this.chatService.findUserById(data.friendID);
-        const newChannel = await this.chatService.createNewChannel("", "direct", "", 0, true);
-        await this.chatService.addUserInChannel(newChannel, user1);
-        await this.chatService.addUserInChannel(newChannel, user2);
-        this.chatService.addUserInFriends(user1, user2, newChannel.id);
+        try {
+            console.log('requete: set user admin');
+            const user1 = await this.chatService.findUserById(data.userID);
+            const user2 = await this.chatService.findUserById(data.friendID);
+            const newChannel = await this.chatService.createNewChannel("", "direct", "", 0, true);
+            await this.chatService.addUserInChannel(newChannel, user1);
+            await this.chatService.addUserInChannel(newChannel, user2);
+            this.chatService.addUserInFriends(user1, user2, newChannel.id);
 
-        this.sendUploadedData();
+            this.sendUploadedData();
+            return 'backend: friend added';
+        }
+        catch {
+            console.log('error: adding friend');
+            return 'backend: error while adding friend'
+        }
     }
     
     @Post('blockUserRequest')
     async blockUser(@Body() data: {userID: number, blockedID: number}) {
-        console.log('requete: block ');
-        const userBlocking = await this.chatService.findUserById(data.userID);
-        const userBlocked = await this.chatService.findUserById(data.blockedID);
-        this.chatService.setBlockedRelation(userBlocking, userBlocked);
+        try {
+            console.log('requete: block ');
+            const userBlocking = await this.chatService.findUserById(data.userID);
+            const userBlocked = await this.chatService.findUserById(data.blockedID);
+            this.chatService.setBlockedRelation(userBlocking, userBlocked);
 
-        this.sendUploadedData();
+            this.sendUploadedData();
+            return 'backend: user blocked';
+        }
+        catch {
+            console.log('error: blocking user');
+            return 'backend: error while blocking user'
+        }
     }
     @Post('unblockUserRequest')
     async unblockUser(@Body() data: {userID: number, blockedID: number}) {
-        console.log('requete: unblock');
-        const userBlocking = await this.chatService.findUserById(data.userID);
-        const userBlocked = await this.chatService.findUserById(data.blockedID);
-        this.chatService.removeBlockedRelation(userBlocking, userBlocked);
+        try {
+            console.log('requete: unblock');
+            const userBlocking = await this.chatService.findUserById(data.userID);
+            const userBlocked = await this.chatService.findUserById(data.blockedID);
+            this.chatService.removeBlockedRelation(userBlocking, userBlocked);
 
-        this.sendUploadedData();
+            this.sendUploadedData();
+            return 'backend: user unblocked';
+        }
+        catch {
+            console.log('error: unblocking user');
+            return 'backend: error while unblocking user'
+        }
     }
 
     sendUploadedData() {

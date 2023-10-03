@@ -381,11 +381,14 @@
 
     async joinChannel(userID: number) {
       console.log('methods: joinChannel');
+      try {
       const reponse = await axios.post('/api/chat/joinChannelRequest', {
         channelID: this.chatboxOnChannel.id,
         userID: userID,
         password: this.passwordToJoin
       })
+      console.log(reponse.data);
+      } catch { console.error(); }
     },
     async switchChatboxWindow() {
       console.log('methods: switchChatboxWindow ', this.chatboxWindow)
@@ -404,129 +407,172 @@
 // ACTIONS SUR LE CHANNEL
 
     async destroyChannel() {
-      console.log('methods: Destroy channel');
-      const reponse = await axios.post('/api/chat/destroyChannelRequest', {
-        channelID: this.chatboxOnChannel.id,
-      })
+      try {
+        console.log('methods: Destroy channel');
+        const reponse = await axios.post('/api/chat/destroyChannelRequest', {
+          channelID: this.chatboxOnChannel.id,
+        })
+        console.log(reponse.data);
+      } catch { console.error(); }
     },
 
     async leaveChannel() {
-      console.log('methods: LeaveChannel');
-      if (this.chatboxOnChannel.users.length === 1) {
-          const reponse = await axios.post('/api/chat/destroyChannelRequest', {
-          channelID: this.chatboxOnChannel.id,
-        })
-      }
-      else {
-        const reponse = await axios.post('/api/chat/leaveChannelRequest', {
-          userID: this.logedUser.id,
-          channelID: this.chatboxOnChannel.id,
-        });
-      }
+      try {
+        console.log('methods: LeaveChannel');
+        if (this.chatboxOnChannel.users.length === 1) {
+            const reponse = await axios.post('/api/chat/destroyChannelRequest', {
+            channelID: this.chatboxOnChannel.id,
+          })
+          console.log(reponse.data);
+        }
+        else {
+          const reponse = await axios.post('/api/chat/leaveChannelRequest', {
+            userID: this.logedUser.id,
+            channelID: this.chatboxOnChannel.id,
+            
+          });
+          console.log(reponse.data);
+        }
+      } catch { console.error(); }
     },
     async editChannel() {
-      const reponse = await axios.post('/api/chat/editChannelRequest', {
-        channelID: this.chatboxOnChannel.id,
-        newChannelName: this.channelNewName,
-        newChannelType: this.channelTypeEdit,
-        newChannelPassword: this.passwordChannelEdit,
-      })
+      try {
+        const reponse = await axios.post('/api/chat/editChannelRequest', {
+          channelID: this.chatboxOnChannel.id,
+          newChannelName: this.channelNewName,
+          newChannelType: this.channelTypeEdit,
+          newChannelPassword: this.passwordChannelEdit,
+        })
+        console.log(reponse.data);
+      } catch { console.error(); }
     },
 
 
 // ACTIONS SUR LES USERS
 
     async makeUserAdmin(newAdminID: number, channelID: number) {
-      console.log('methosds: makeUserAdmin');
-      const reponse = await axios.post('/api/chat/makeUserAdminRequest', {
-        channelID: channelID,
-        newAdminID: newAdminID,
-      })
+      try {
+        console.log('methosds: makeUserAdmin');
+        const reponse = await axios.post('/api/chat/makeUserAdminRequest', {
+          channelID: channelID,
+          newAdminID: newAdminID,
+        })
+        console.log(reponse.data);
+      } catch { console.error(); }
     },
     async removeUserAdmin(AdminID: number, channelID: number) {
+      try {
       console.log('methosds: removeUserAdmin');
       const reponse = await axios.post('/api/chat/removeUserAdminRequest', {
         channelID: channelID,
         removedAdminID: AdminID,
       })
+      console.log(reponse.data);
+      } catch { console.error(); }
     },
 
 
     async kickUserFromChannel(userID: number, channelID: number) {
       console.log('methods: LeaveChannel');
-      if (this.chatboxOnChannel.users.length === 1) {
-          const reponse = await axios.post('/api/chat/destroyChannelRequest', {
-          channelID: this.chatboxOnChannel.id,
-        })
-      }
-      else {
-        const reponse = await axios.post('/api/chat/leaveChannelRequest', {
-          userID: userID,
-          channelID: channelID,
-        });
-      }
+      try {
+        if (this.chatboxOnChannel.users.length === 1) {
+            const reponse = await axios.post('/api/chat/destroyChannelRequest', {
+            channelID: this.chatboxOnChannel.id,
+          })
+          console.log(reponse.data);
+        }
+        else {
+          const reponse = await axios.post('/api/chat/leaveChannelRequest', {
+            userID: userID,
+            channelID: channelID,
+          });
+          console.log(reponse.data);
+        }
+      } catch { console.error(); }
     },
 
     async muteUser(userID: number, channelID: number, time: number) {
-      console.log('methosds: mute user');
-      const reponse = await axios.post('/api/chat/muteUserRequest', {
-        channelID: channelID,
-        userID: userID,
-        timer: time,
-      })
+      try {
+        console.log('methosds: mute user');
+        const reponse = await axios.post('/api/chat/muteUserRequest', {
+          channelID: channelID,
+          userID: userID,
+          timer: time,
+        })
+        console.log(reponse.data);
+      } catch { console.error(); }
     },
     async unmuteUser(userID: number, channelID: number) {
-    console.log('methosds: mute user');
-      const reponse = await axios.post('/api/chat/unmuteUserRequest', {
-        channelID: channelID,
-        userID: userID,
-      })
+      try {
+        console.log('methosds: mute user');
+          const reponse = await axios.post('/api/chat/unmuteUserRequest', {
+            channelID: channelID,
+            userID: userID,
+          })
+          console.log(reponse.data);
+      } catch { console.error(); }
     },
 
 
     async banUser(userID: number, channelID: number, time: number) {
-      console.log('methosds: ban user');
-      const reponse = await axios.post('/api/chat/banUserRequest', {
-        channelID: channelID,
-        userID: userID,
-        timer: time,
-      })
-      await axios.post('/api/chat/leaveChannelRequest', {
-          userID: userID,
+      try {
+        console.log('methosds: ban user');
+        const reponse = await axios.post('/api/chat/banUserRequest', {
           channelID: channelID,
-      });
+          userID: userID,
+          timer: time,
+        })
+        console.log(reponse.data);
+        await axios.post('/api/chat/leaveChannelRequest', {
+            userID: userID,
+            channelID: channelID,
+        });
+        console.log(reponse.data);
+      } catch { console.error(); }
     },
     async unbanUser(userID: number, channelID: number) {
-    console.log('methosds: unban user');
-      const reponse = await axios.post('/api/chat/unbanUserRequest', {
-        channelID: channelID,
-        userID: userID,
-      })
+      try {
+        console.log('methosds: unban user');
+          const reponse = await axios.post('/api/chat/unbanUserRequest', {
+            channelID: channelID,
+            userID: userID,
+          })
+          console.log(reponse.data);
+      } catch { console.error(); }
     },
 
 
     async addFriend(friendID: number) {
       console.log('methosds: addd friend');
-      if (this.isBlocked(friendID, this.logedUser.id)) { return }
-      const reponse = await axios.post('/api/chat/addFriendRequest', {
-        userID: this.logedUser.id,
-        friendID: friendID,
-      })
+      try {
+        if (this.isBlocked(friendID, this.logedUser.id)) { return }
+        const reponse = await axios.post('/api/chat/addFriendRequest', {
+          userID: this.logedUser.id,
+          friendID: friendID,
+        })
+        console.log(reponse.data);
+      } catch { console.error(); }
     },
 
     async blockUser(blockedID: number) {
-      console.log("methods: block user")
-    const reponse = await axios.post('/api/chat/blockUserRequest', {
-        userID: this.logedUser.id,
-        blockedID: blockedID,
-      })
+      try {
+        console.log("methods: block user")
+        const reponse = await axios.post('/api/chat/blockUserRequest', {
+            userID: this.logedUser.id,
+            blockedID: blockedID,
+          })
+          console.log(reponse.data);
+      } catch { console.error(); }
     },
     async unblockUser(blockedID: number) {
-      console.log("methods: unblock user")
-    const reponse = await axios.post('/api/chat/unblockUserRequest', {
-        userID: this.logedUser.id,
-        blockedID: blockedID,
-      })
+      try {
+        console.log("methods: unblock user")
+        const reponse = await axios.post('/api/chat/unblockUserRequest', {
+          userID: this.logedUser.id,
+          blockedID: blockedID,
+        })
+        console.log(reponse.data);
+      } catch { console.error(); }
     },
 // utils
 
