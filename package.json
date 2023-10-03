@@ -1,6 +1,9 @@
 {
   "dependencies": {
     "@nestjs/cli": "^10.1.17",
+    "@nestjs/platform-express": "^10.2.5",
+    "@nestjs/platform-socket.io": "^10.2.5",
+    "@nestjs/websockets": "^10.2.5",
     "socket.io-client": "^4.7.2"
   },
   "prisma": {"schema": "/backend/prisma/schema.prisma"}

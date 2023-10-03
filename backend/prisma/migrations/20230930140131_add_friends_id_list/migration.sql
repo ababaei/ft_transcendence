@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "friendsID" INTEGER[] DEFAULT ARRAY[]::INTEGER[];

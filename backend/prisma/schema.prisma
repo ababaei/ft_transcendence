@@ -1,8 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
+<<<<<<< HEAD
   provider = "prisma-client-js"
+=======
+  provider      = "prisma-client-js"
+>>>>>>> origin/newchat_branch_adam
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -12,6 +13,7 @@ datasource db {
 }
 
 model User {
+<<<<<<< HEAD
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -23,4 +25,44 @@ model User {
   lastName String?
 
   @@map("users")
+=======
+  id       Int       @id @unique @default(autoincrement())
+  name     String
+  friendsID friendRelation[] @relation("UserRelation")
+  messages Message[]    @relation("UserMessages")
+  channels Channel[]    @relation("UserChannels")
+}
+
+model Channel {
+  id          Int       @id @unique @default(autoincrement())
+  name        String
+  messages    Message[] @relation("ChannelMessages")
+  users       User[]    @relation("UserChannels")
+  ownerID     Int       @default(0)
+  adminID     Int[]     @default([])
+  banID       Int[]     @default([])
+  muteID      Int[]     @default([])
+  mode        String    @default("public")
+  password    String    @default("")
+  isDirect    Boolean   @default(false)
+}
+
+model Message {
+  id        Int      @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  text      String
+  channelID Int
+  userID    Int
+  channel   Channel  @relation("ChannelMessages", fields: [channelID], references: [id])
+  user      User     @relation("UserMessages", fields: [userID], references: [id])
+}
+
+model friendRelation {
+  id        Int     @id @default(autoincrement())
+  userID    Int
+  friendID  Int
+  convID    Int
+  isBlocked Boolean @default(false)
+  user      User    @relation("UserRelation", fields: [userID], references: [id])
+>>>>>>> origin/newchat_branch_adam
 }
