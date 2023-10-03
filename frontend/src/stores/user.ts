@@ -40,10 +40,11 @@ export const useUserStore = defineStore({
         this.loading = false
       }
     },
-    async fetchUser(this: Userstate, id: number) {
+    async fetchUser(this: Userstate, id: string) {
       this.currentUser = null;
       this.loading = true;
-
+      
+      console.log(id);
       try {
         this.currentUser = await axios.get('api/users/' + id)
       } catch(error: any) {
@@ -51,6 +52,7 @@ export const useUserStore = defineStore({
       } finally {
         this.loading = false
       }
+      console.log(this.currentUser)
     }
   }
 })

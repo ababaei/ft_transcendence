@@ -14,11 +14,12 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     }
 
     async validate(accessToken: string, refreshToken: string, profile: any, done: Function): Promise<any> {
-        console.log("PROFILE: ", profile.id )
+        console.log("PROFILE: ", profile.user )
         const token = await this.authService.validateUser(profile);
+        console.log("TOKEN: ", token.user.id)
         if (!token) {
             throw new UnauthorizedException();
-        }
-        return token;
+        }  
+        return done(null, token);
     }
 }

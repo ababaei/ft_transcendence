@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Header, Headers, Next, Param, Post, Redirect, Req, Res, UseGuards} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
 import * as passport from 'passport';
 import { SchoolAuthGuard } from './guards/42auth.guard';
 import { AuthGuard } from '@nestjs/passport';
@@ -48,11 +47,11 @@ export class AuthController {
     async callback(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         console.log("______________________callback__________________")
         passport.authenticate('42', { failureRedirect: '/fail' })
-        console.log("USER: ", req.user)
+        const ret: any = req.user
         res.cookie('userData', JSON.stringify(req.user), {secure: false})
         return res
         .status(302)
-        .redirect('http://localhost:8080/login')
+        .redirect('http://localhost:8080/profil/' + ret.user.id)
     }
 
     @Get('logout')
@@ -72,16 +71,5 @@ export class AuthController {
     //     console.log('authenticate_')
     //     const handler = passport.authenticate('42');
     //     handler();
-    // }
-
-
-    @Post('signup')
-    signup(@Body() dto: AuthDto) {
-        console.log("SIGNUP:____")
-    }
-
-    // @Post('signin')
-    // signin(@Body() dto: AuthDto) {
-    //     return this.authService.signin(dto);
     // }
 }

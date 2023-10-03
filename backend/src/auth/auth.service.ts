@@ -2,7 +2,6 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { AuthDto } from './dto';
 import * as argon from 'argon2';
 import { UsersService } from 'src/users/users.service';
 import { Profile } from 'passport-42';
@@ -31,9 +30,9 @@ export class AuthService {
             }
         })
         if (user) {
-            console.log("User validated: ", user)
+            console.log("User validated: ", user.id)
             const token = await this.signToken({id: user.id})
-            return { token };
+            return ({ token, user});
         }
         console.log("User not validated")
         return null;

@@ -4,6 +4,7 @@ import Vue from 'vue';
 import VueCookies from 'vue-cookies';
 import { mapActions } from 'pinia'
 import { useUserStore } from '@/stores/user';
+import jwt_decode from "jwt-decode";
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -19,14 +20,16 @@ export default defineComponent({
       };
     },
     created() {
-      
+      const cookies = this.$cookies.get("userData")
+            console.log(typeof(cookies));
+            console.log(cookies.token);
+            console.log(jwt_decode(cookies.token))
+      console.log("ROUTE_ID: ", this.$route.params.id, typeof(this.$route.params.id))
       this.getUser();
     },
     methods: {
       async getUser() {
-        await this.userStore.fetchUser(this.$route.params.id)
-        .then((res: any) => {console.log("Response: ", res.data)})
-        .catch((err: any) => {console.error('Error TOTO: ', err)})
+        await this.userStore.fetchUser(this.$route.params.id as string)
       },
       logOut() { 
         axios.get('api/auth/logout')

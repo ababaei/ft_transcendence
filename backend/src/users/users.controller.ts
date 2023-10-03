@@ -7,11 +7,19 @@ export class UsersController {
         private prismaService: PrismaService
     ) {}
 
-    @Get('users/:id')
-    async getUser(@Param() params: {id: number}) {
+    @Get('test')
+    test() {
+        console.log('THIS IS A TEST0');
+    }
+
+    @Get('/:id')
+    async getUser(@Param() params: {id: string}) {
+        console.log("__________________GETTING USER_______________")
+        const userID: number = Number(params.id)
         const user = await this.prismaService.user.findFirst({
-            where: {id: params.id}
+            where: {id: userID}
         })
+        console.log(user);
         return user;
     }
 }
