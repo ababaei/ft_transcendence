@@ -2,28 +2,37 @@
 import axios from 'axios';
 import Vue from 'vue';
 import VueCookies from 'vue-cookies';
+import { mapActions } from 'pinia'
 import { useUserStore } from '@/stores/user';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
+    setup() {
+      const userStore = useUserStore()
+
+      
+      return {userStore};
+    },
     data() {
       return {
         jwtToken: null,
       };
     },
     created() {
+      
       this.getUser();
     },
     methods: {
       async getUser() {
-        useUserStore.fetchUser(this.$route.params.id)
-        .then((res) => {console.log("Response: ", res.data)})
-        .catch((err) => {console.error('Error TOTO: ', err)})
+        await this.userStore.fetchUser(this.$route.params.id)
+        .then((res: any) => {console.log("Response: ", res.data)})
+        .catch((err: any) => {console.error('Error TOTO: ', err)})
       },
-      logOut() {
+      logOut() { 
         axios.get('api/auth/logout')
-      }
+      },
     }
-  }
+  })
 </script>
 
 <template>

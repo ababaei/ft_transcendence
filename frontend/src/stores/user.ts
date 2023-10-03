@@ -7,7 +7,7 @@ interface User {
   username: string,
 }
 
-interface Userstate {
+export interface Userstate {
   users: null | User[],
   currentUser: null | User,
   loading: boolean,
