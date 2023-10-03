@@ -1,9 +1,5 @@
 generator client {
-<<<<<<< HEAD
   provider = "prisma-client-js"
-=======
-  provider      = "prisma-client-js"
->>>>>>> origin/newchat_branch_adam
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -13,24 +9,15 @@ datasource db {
 }
 
 model User {
-<<<<<<< HEAD
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   email String @unique
-  hash String
-
-  firstName String?
-  lastName String?
-
-  @@map("users")
-=======
-  id       Int       @id @unique @default(autoincrement())
   name     String
   friendsID friendRelation[] @relation("UserRelation")
   messages Message[]    @relation("UserMessages")
   channels Channel[]    @relation("UserChannels")
+  @@map("users")
 }
 
 model Channel {
@@ -64,5 +51,4 @@ model friendRelation {
   convID    Int
   isBlocked Boolean @default(false)
   user      User    @relation("UserRelation", fields: [userID], references: [id])
->>>>>>> origin/newchat_branch_adam
 }
