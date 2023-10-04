@@ -20,7 +20,7 @@
     components: ({}),
     data() {
       return {
-        socket: io('http://localhost:3000', { transports : ['websocket'] }),
+        socket: io('ws://10.24.109.2:3000', { transports : ['websocket'] }),
         // socket: io('http://localhost:3000'),
         key: 'aucune',
         canvas: {
@@ -72,12 +72,12 @@
         }
         this.socketRef = data;
       });
-      this.socket.on('gameStarted', (data: number) => {
-        this.game = true;
-        this.loading = false;
-        this.gameID = data;
-        requestAnimationFrame(this.gameLoop);
-      });
+      // this.socket.on('gameStarted', (data: number) => {
+      //   this.game = true;
+      //   this.loading = false;
+      //   this.gameID = data;
+      //   requestAnimationFrame(this.gameLoop);
+      // });
       this.socket.on('newBall', (data: any) => {
         this.ball.x = data.x,
         this.ball.y = data.y,
