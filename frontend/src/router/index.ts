@@ -4,7 +4,6 @@ import Profil from '@/views/ProfilView.vue'
 import Chat from '@/views/ChatView.vue'
 import Pong from '@/views/PongView.vue'
 import App from '@/App.vue'
-// import Pong from '../views/PongView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

@@ -19,7 +19,7 @@
     components: ({}),
     data() {
       return {
-        socket: io('ws://10.24.109.2:3000', { transports : ['websocket'] }),
+        socket: io('http://localhost:3000', { transports : ['websocket'] }),
         // socket: io('http://localhost:3000'),
         key: 'aucune',
         canvas: {
