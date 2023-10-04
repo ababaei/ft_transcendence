@@ -40,6 +40,7 @@ export class ChatController {
             try {
             const newUser = await this.prismaService.user.create({
                 data: {
+                    email: "random@roro.fr",
                     name: data.username,
                 },
             });
