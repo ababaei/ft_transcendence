@@ -10,7 +10,7 @@ import { onMounted } from 'vue';
         data() {},
         mounted() {
             const cookies = this.$cookies.get("userData")
-            console.log(typeof(cookies));
+            console.log("OBJ :", {cookies});
             console.log(cookies.token);
             console.log(jwt_decode(cookies.token))
         },

@@ -21,10 +21,9 @@ export default defineComponent({
     },
     created() {
       const cookies = this.$cookies.get("userData")
-            console.log(typeof(cookies));
-            console.log(cookies.token);
-            console.log(jwt_decode(cookies.token))
-      console.log("ROUTE_ID: ", this.$route.params.id, typeof(this.$route.params.id))
+      if (cookies) {
+        localStorage.setItem(cookies.user.id, cookies.token);
+      }
       this.getUser();
     },
     methods: {

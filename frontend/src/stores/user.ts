@@ -31,7 +31,7 @@ export const useUserStore = defineStore({
     async fetchUsers(this: Userstate) {
       this.users = [];
       this.loading = true;
-
+      
       try {
         this.users = await axios.get('api/users')
       } catch(error: any) {
