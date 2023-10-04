@@ -5,6 +5,31 @@
   font-weight: normal;
 }
 
+body {
+  display: flex;
+}
+
+main {
+  height: 80%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#game {
+  /* width: 40%; */
+  border: 1px solid #6d4db6;
+}
+
+#loading {
+  margin-top: 1%;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
 nav {
   display: flex;
   width: 100%;

@@ -52,3 +52,23 @@ model friendRelation {
   isBlocked Boolean @default(false)
   user      User    @relation("UserRelation", fields: [userID], references: [id])
 }
+
+model Waiting {
+  id      Int     @id @default(autoincrement())
+  socket  String? @unique
+  private Boolean?
+}
+
+model Player {
+  id      Int     @id @default(autoincrement())
+  socket  String? @unique
+  gameID  Int?
+  game    Game?   @relation(fields: [gameID], references: [id])
+}
+
+model Game {
+  id      Int   @id @default(autoincrement())
+  active  Boolean @default(true)
+
+  PlayersID Player[]
+}
