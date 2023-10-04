@@ -24,12 +24,12 @@ export class PlayersService {
     //     })
     // }
 
-    async updatePlayer(player: Player, socket: string): Promise<Player>{
-        return this.prisma.player.update({
-            where: {id:player.id},
-            data: {socket:socket}
-        })
-    }
+    // async updatePlayer(player: Player, socket: string): Promise<Player>{
+    //     return this.prisma.player.update({
+    //         where: {id:player.id},
+    //         data: {socket:socket}
+    //     })
+    // }
 
     async newPlayer(game: Game, socket: string): Promise<Player>{
         const newPlayer = await this.prisma.player.create({

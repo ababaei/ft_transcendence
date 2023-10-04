@@ -2,7 +2,6 @@ import { Inject } from "@nestjs/common";
 import { Game } from "@prisma/client";
 import { PrismaService } from "src/prisma.service";
 
-
 export class GameService {
 
     constructor(@Inject(PrismaService)
@@ -31,4 +30,36 @@ export class GameService {
             data:{}
         })
     }
+}
+
+export class Paddle {
+    id: string
+    x: number
+    y: number
+    roomNo: number
+    playerNo: number
+    up: boolean
+    down: boolean
+
+    constructor(id: string, x: number, y: number, roomNo: number, playerNo: number){
+        this.id = id;
+        this.x = x;
+        this.y = y;
+        this.roomNo = roomNo;
+        this.playerNo = playerNo;
+        this.up = false;
+        this.down = false
+    }
+
+}
+
+export class Ball {
+    x: number
+    y: number
+
+    constructor(){
+        this.x = 200;
+        this.y = 200
+    }
+    
 }
