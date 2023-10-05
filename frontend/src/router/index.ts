@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '@/views/LoginView.vue'
 import Profil from '@/views/ProfilView.vue'
-import Chat from '@/views/ChatView.vue'
+import Chat from '@/views/NewChatView.vue'
 import Pong from '@/views/PongView.vue'
 import App from '@/App.vue'
 // import Pong from '../views/PongView.vue'
