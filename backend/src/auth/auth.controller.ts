@@ -51,7 +51,7 @@ export class AuthController {
         res.cookie('userData', JSON.stringify(req.user), {secure: false})
         return res
         .status(302)
-        .redirect('http://localhost:8080/profil/' + ret.user.id)
+        .redirect('http://localhost:8080/login')
     }
 
     @Get('logout')

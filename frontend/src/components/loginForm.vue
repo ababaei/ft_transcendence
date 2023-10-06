@@ -4,12 +4,25 @@ import axios from 'axios';
 import jwt_decode from "jwt-decode";
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
+import { useUserStore } from '@/stores/user';
 
     export default defineComponent ({
+        setup() {
+            const userStore = useUserStore()
+            return { userStore }
+        },
         name: "loginForm",
         data() {},
         mounted() {
             const cookies = this.$cookies.get("userData")
+            console.log(cookies);
+            if (cookies) {
+                this.userStore.logIn(cookies);
+                // this.userStore.userToken = cookies.token;
+                // this.userStore.currentUser = cookies.user;
+            } else {
+                this.userStore.currentUser = null;
+            }
             console.log("OBJ :", {cookies});
             console.log(cookies.token);
             console.log(jwt_decode(cookies.token))

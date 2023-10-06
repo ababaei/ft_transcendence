@@ -6,12 +6,12 @@ import { mapActions } from 'pinia'
 import { useUserStore } from '@/stores/user';
 import jwt_decode from "jwt-decode";
 import { defineComponent } from 'vue';
+import router from '@/router';
 
 export default defineComponent({
     setup() {
       const userStore = useUserStore()
-
-      
+      console.log('PROFIL_SETUP')
       return {userStore};
     },
     data() {
@@ -19,19 +19,21 @@ export default defineComponent({
         jwtToken: null,
       };
     },
-    created() {
-      const cookies = this.$cookies.get("userData")
-      if (cookies) {
-        localStorage.setItem(cookies.user.id, cookies.token);
+    beforeCreate() {
+      const user: any = this.getUser();
+      console.log("fe_user: ", user)
+      if (user) {
+        router.push("http://localhost/profil/" + user.id)
       }
-      this.getUser();
     },
     methods: {
-      async getUser() {
-        await this.userStore.fetchUser(this.$route.params.id as string)
+      getUser() {
+        console.log(this.userStore.currentUser)
+        return this.userStore.currentUser
       },
       logOut() { 
-        axios.get('api/auth/logout')
+        // axios.get('api/auth/logout')
+        this.userStore.logOut();
       },
     }
   })
