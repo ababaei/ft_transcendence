@@ -18,6 +18,7 @@
                 <chat_channelList
                  v-if="this.logedUser.id != 0"
                  :channelList="this.channelList" 
+                 :logedUser="this.logedUser"
                  @channel-selected="this.selectChannel" />
                  <Chat_channelCreationComponent v-if="this.logedUser.id!=0" :logedUserID="this.logedUser.id" />
               </v-col>

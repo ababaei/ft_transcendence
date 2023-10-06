@@ -9,18 +9,18 @@
     height="320"
     item-height="48">
     <template v-slot:default="{ item }">
-    <v-card v-if="item.id !== -1"
+    <v-card v-if="item.id !== -1" @click="this.selectChannel(item)"
     class="mb-3">
       <v-row>
         <v-col>
           <v-card-text>{{ item.name }}</v-card-text>
         </v-col>
         <v-col>
-          <v-chip class="" prepend-icon="">{{ item.mode }}</v-chip>
+          <v-chip class="d-flex align-center p-20" prepend-icon="">{{ item.mode }}</v-chip>
         </v-col>
         <v-col>
           <v-card-actions>
-            <v-btn @click="this.selectChannel(item)">
+            <v-btn @click="this.joinChannel(this.logedUser.id, item)">
               <v-icon>mdi-account-plus</v-icon>
               Join Channel
             </v-btn>
@@ -30,33 +30,6 @@
     </v-card>
   </template>
 </v-virtual-scroll>
-
-
-
-
-      <!-- <v-row>
-        <v-col v-for="channel in this.channelList" :key="channel.id" cols="12">
-            <v-card v-if="channel.id != -1"
-            color="teal-lighten-1">
-            <v-row>
-              <v-col>
-                <v-card-text> {{ channel.name }} </v-card-text>
-              </v-col>
-              <v-col>
-                <v-chip class="d-flex align-center" prepend-icon=""> {{ channel.mode }} </v-chip>
-              </v-col>
-              <v-col>
-              <v-card-actions>
-                <v-btn @click="this.selectChannel(channel)">
-                  <v-icon>mdi-account-plus</v-icon>
-                  Join Channel
-                </v-btn>
-              </v-card-actions>
-              </v-col>
-            </v-row>              
-            </v-card>
-        </v-col>
-      </v-row> -->
     </v-card>
     </v-container>
   </template>
@@ -105,12 +78,31 @@ interface friendRelation {
                 type: Array,
                 default: () => []
             },
+            logedUser: {
+            type: Object as () => User,
+            default: () => ({ id:0, name: ''}),
+          }
         },
         methods: {
             selectChannel(channel: Channel) {
-                console.log('button clicked', channel)
+                console.log('methods: selectChannel', channel)
                 this.$emit('channel-selected', channel);
-            }
+            },
+
+            async joinChannel(userID: number, channel: Channel) {
+              console.log('methods: joinChannel');
+              console.log("to send ",channel.id, this.logedUser.id)
+              try {
+                console.log("to send ",channel.id, this.logedUser.id)
+                const reponse = await axios.post('/api/chat/joinChannelRequest', {
+                  channelID: channel.id,
+                  userID: this.logedUser.id,
+                  password: ""
+                })
+                console.log(reponse.data);
+              }
+              catch { console.error(); }
+    },
         }
     })
 </script>

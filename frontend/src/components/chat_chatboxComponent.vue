@@ -5,34 +5,64 @@
         <v-tab value="one">Messages</v-tab>
         <v-tab value="two">Infos</v-tab>
       </v-tabs>
-  
-      <v-card-text>
+      <v-divider></v-divider>
+      <v-card height="520" item-height="48">
+
+
         <v-window v-model="tab">
           <v-window-item value="one">
-
-            <v-list lines="one">
-                <v-list-item v-for="message in this.channelInChatBox.messages" :key="message.id"
-                :title="message.user.name"
-                :subtitle="message.text"
-                ></v-list-item>
-            </v-list>
+            <v-virtual-scroll :items="this.channelInChatBox.messages"  height="420" item-height="48" style="overflow-x: hidden;">
+            <template v-slot:default="{ item: message }">
+                    <v-row>
+                        <v-col :class="{ 'text-right': message.user.id === this.logedUser.id }">
+                            <v-list-item>
+                                <v-list-item-content>
+                                    <v-list-item-title>{{ message.user.name }}</v-list-item-title>
+                                    <v-list-item-subtitle style="white-space: pre-wrap;">{{ message.text }}</v-list-item-subtitle>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-col>
+                    </v-row>
+            </template>
+            </v-virtual-scroll>
+            <v-divider></v-divider>
             <v-form @submit.prevent="sendMessage" method="POST">
+              <v-row>
+              <v-col cols="4">
                 <v-text-field
                     v-model="messageToSend"
                     name="message"
                     label="Message">
                 </v-text-field>
+              </v-col>
+              <v-col cols="6">
                 <v-btn type="submit">send</v-btn>
+              </v-col>
+            </v-row>
             </v-form>
-
           </v-window-item>
 
-
-  
           <v-window-item value="two">
+
+          <v-virtual-scroll :items="this.channelInChatBox.users"  height="420" item-height="48" style="overflow-x: hidden;">
+            <template v-slot:default="{ item: user }">
+                    <v-row>
+                        <v-col>
+                            <v-list-item>
+                                <v-list-item-content>
+                                    <v-list-item-title>{{ user.name }}</v-list-item-title>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-col>
+                    </v-row>
+            </template>
+          </v-virtual-scroll>
+
           </v-window-item>
+
+
         </v-window>
-      </v-card-text>
+        </v-card>
     </v-card>
   </template>
 

@@ -10,10 +10,10 @@
           autocomplete="off"
         ></v-text-field>
         <div>
-          <v-radio-group inline v-model="this.channelCreationForm.type" color="primary">
-            <v-radio label="public" value="public"></v-radio>
-            <v-radio label="private" value="private"></v-radio>
-            <v-radio label="protected" value="protected"></v-radio>
+          <v-radio-group inline v-model="this.channelCreationForm.type">
+            <v-radio label="public" value="public" color="black"></v-radio>
+            <v-radio label="private" value="private" color="black"></v-radio>
+            <v-radio label="protected" value="protected" color="red"></v-radio>
           </v-radio-group>
         </div>
         <div v-if="this.channelCreationForm.type === 'protected'">
@@ -70,3 +70,14 @@ import axios from 'axios';
     })
 </script>
 
+<style>
+/* Ciblez les boutons radio individuels */
+.v-radio {
+}
+
+/* Vous pouvez également styliser les boutons radio sélectionnés différemment */
+.v-radio.is-selected {
+  background-color: green; /* Par exemple, une couleur différente pour les boutons sélectionnés */
+  color: white;
+}
+</style>
