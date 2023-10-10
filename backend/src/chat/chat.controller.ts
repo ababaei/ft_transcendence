@@ -20,8 +20,9 @@ export class ChatController {
     async handleUsername(@Body() data: { username: string }) {
         console.log('requete: setUsernameRequest', data.username);
 
-        // console.log('socket.io: emit updateChanList')
-        // this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        console.log('socket.io: emit updateChanList')
+        this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+        this.gateway.server.emit('updateUsersList', await this.chatService.getUsersList());
 
         const foundedUser = await this.prismaService.user.findFirst({
             where: {
@@ -40,13 +41,14 @@ export class ChatController {
             try {
             const newUser = await this.prismaService.user.create({
                 data: {
-                    email: "random@roro.fr",
+                    email: data.username,
                     name: data.username,
                 },
             });
             setTimeout(async () => {
                 this.gateway.server.emit('updateUsersList', await this.chatService.getUsersList());
                 this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+                this.gateway.server.emit('logUser', newUser)
             }, 100); // Délai de 100 millisecondes
             return {userid: newUser.id, username: newUser.name }
         } catch { console.log('error while creating new user')}
@@ -55,8 +57,8 @@ export class ChatController {
     }
     @Post('createChannelRequest')
     async handleChannelRequest(@Body() data: {channelName: string, userid: number, mode: string, password: string }){
+        console.log('requete: createChannelRequest: ', data.channelName);
         try {
-            console.log('requete: createChannelRequest: ', data.channelName);
             if (!data.channelName || !data.userid || !data.mode ) { return 1 }
 
             const newChannel = await this.chatService.createNewChannel(data.channelName, data.mode, data.password, data.userid, false);
@@ -307,10 +309,10 @@ export class ChatController {
 
         setTimeout(async () => {
             try {
-            const userList = await this.chatService.getUsersList();
-            const channelList = await this.chatService.getChannelsList();
-            this.gateway.server.emit('updateUsersList', userList);
-                this.gateway.server.emit('updateChannelList', channelList);
+                const userList = await this.chatService.getUsersList();
+                const channelList = await this.chatService.getChannelsList();
+                this.gateway.server.emit('updateUsersList', userList);
+                this.gateway.server.emit('updateChannelList', channelList); 
             } catch {
                 throw error;
             }
