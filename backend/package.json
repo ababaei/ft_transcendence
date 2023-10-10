@@ -48,11 +48,8 @@
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
-<<<<<<< HEAD
     "@types/cookie-parser": "^1.4.4",
-=======
     "@types/cron": "^2.4.0",
->>>>>>> 912d5fd6018a84bfb9cf00c6e63cf2f4f24d7a9c
     "@types/express": "^4.17.17",
     "@types/express-session": "^1.17.8",
     "@types/jest": "^29.5.2",
