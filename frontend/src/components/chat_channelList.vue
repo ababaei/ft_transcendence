@@ -17,12 +17,19 @@
     @click="selectChannel(item)"
     class="mb-3">
     <v-row>
-        <v-col> <v-card-text>{{ item.name }}</v-card-text> </v-col>
-        <v-col> <v-chip> {{ item.mode }} </v-chip> </v-col>
-        <v-col>
+        <v-col cols="3"> <v-card-text>{{ item.name }}</v-card-text> </v-col>
+        <v-col cols="3"> <v-chip> {{ item.mode }} </v-chip> </v-col>
+        <v-col cols="6">
         <v-card-actions  v-if="!isUserInChannel(logedUser.id, item)">
-          <v-form @submit-prevent="joinChannel(logedUser.id, item)" method="POST">
-            <v-btn type="submit">Join Channel</v-btn>
+          <v-form @submit.prevent="joinChannel(logedUser.id, item)">
+            <v-row>
+            <v-col><v-text-field v-if="item.mode=='protected'"
+            v-model="password"
+            name="joinPassword"
+            label="Password">
+            </v-text-field></v-col>
+            <v-col cols="2"><v-btn type="submit">Join</v-btn></v-col>
+          </v-row>
           </v-form>
         </v-card-actions>
         </v-col>
@@ -45,6 +52,11 @@ import type { Channel, friendRelation, User, Message } from './chat_utilsMethods
         name: "chat_channelList",
         components : {
         },
+        data() {
+          return {
+            password: '',
+          };
+        },
         props: {
             channelList: {
                 type: Array,
@@ -65,12 +77,13 @@ import type { Channel, friendRelation, User, Message } from './chat_utilsMethods
 
             async joinChannel(userID: number, channel: Channel) {
               console.log('methods: joinChannel');
+              console.log(channel, userID);
               try {
                 const reponse = await axios.post('/api/chat/joinChannelRequest', {
                   channelID: channel.id,
                   userID: userID,
-                  password: ""
-                });
+                  password: channel.mode === 'protected' ? this.password : '',
+                })
                 console.log(reponse.data);
               }
               catch { console.error(); }

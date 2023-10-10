@@ -73,7 +73,6 @@ import type { Channel, friendRelation, User, Message } from './chat_utilsMethods
 </script>
 
 <style>
-/* Ciblez les boutons radio individuels */
 
 
 /* Vous pouvez également styliser les boutons radio sélectionnés différemment */
