@@ -1,78 +1,50 @@
 <template>
     <v-container>
-      <v-card class="mx-auto" max-width="500">
-        <v-card-title> Channel list </v-card-title>
+      <v-card id="channelListCard"
+      class="mx-auto" max-width="500">
+      <v-card-title> Channel list </v-card-title>
 
     <v-divider></v-divider>
     <v-virtual-scroll
-    :items="this.channelList"
+    :items="(channelList as Channel[])"
     height="320"
     item-height="48">
     <template v-slot:default="{ item }">
-    <v-card v-if="item.id !== -1" @click="this.selectChannel(item)"
+
+<!-- CARTE DE DESCRIPTION D'UN CHANNEL -->
+    <v-card id="channelDescriptionBar"
+    v-if="item.id !== -1"
+    @click="selectChannel(item)"
     class="mb-3">
-      <v-row>
+    <v-row>
+        <v-col> <v-card-text>{{ item.name }}</v-card-text> </v-col>
+        <v-col> <v-chip> {{ item.mode }} </v-chip> </v-col>
         <v-col>
-          <v-card-text>{{ item.name }}</v-card-text>
+        <v-card-actions  v-if="!isUserInChannel(logedUser.id, item)">
+          <v-form @submit-prevent="joinChannel(logedUser.id, item)" method="POST">
+            <v-btn type="submit">Join Channel</v-btn>
+          </v-form>
+        </v-card-actions>
         </v-col>
-        <v-col>
-          <v-chip class="d-flex align-center p-20" prepend-icon="">{{ item.mode }}</v-chip>
-        </v-col>
-        <v-col>
-          <v-card-actions>
-            <v-btn @click="this.joinChannel(this.logedUser.id, item)">
-              <v-icon>mdi-account-plus</v-icon>
-              Join Channel
-            </v-btn>
-          </v-card-actions>
-        </v-col>
-      </v-row>              
+    </v-row>
     </v-card>
-  </template>
-</v-virtual-scroll>
+
+    </template>
+    </v-virtual-scroll>
     </v-card>
     </v-container>
-  </template>
+</template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from 'axios';
-
-interface friendRelation {
-    id: number
-    userID: number
-    friendID: number
-    convID: number
-    isBlocked: boolean
-  }
-
-  interface User {
-    id: number;
-    friendsID: friendRelation[];
-    name: string;
-  }
-  interface Message {
-    id: number;
-    text: string;
-    channel: Channel;
-    user: User
-  }
-  interface Channel {
-    id: number;
-    name: string;
-    messages: Message[],
-    mode: string,
-    password: string,
-    ownerID: number,
-    adminID: number[],
-    muteID: number[],
-    banID: number[],
-    users: User[],
-    isDirect: boolean
-  }
+import { isUserInChannel } from './chat_utilsMethods';
+import type { Channel, friendRelation, User, Message } from './chat_utilsMethods';
 
     export default defineComponent ({
         name: "chat_channelList",
+        components : {
+        },
         props: {
             channelList: {
                 type: Array,
@@ -86,23 +58,26 @@ interface friendRelation {
         methods: {
             selectChannel(channel: Channel) {
                 console.log('methods: selectChannel', channel)
-                this.$emit('channel-selected', channel);
+                if (isUserInChannel(this.logedUser.id, channel)) {
+                  this.$emit('channel-selected', channel);
+                }
             },
 
             async joinChannel(userID: number, channel: Channel) {
               console.log('methods: joinChannel');
-              console.log("to send ",channel.id, this.logedUser.id)
               try {
-                console.log("to send ",channel.id, this.logedUser.id)
                 const reponse = await axios.post('/api/chat/joinChannelRequest', {
                   channelID: channel.id,
-                  userID: this.logedUser.id,
+                  userID: userID,
                   password: ""
-                })
+                });
                 console.log(reponse.data);
               }
               catch { console.error(); }
-    },
+            },
+
+            // imports 
+            isUserInChannel(userID: number, channel: Channel) { return isUserInChannel(userID, channel); },
         }
     })
 </script>

@@ -4,23 +4,34 @@
       <v-main>
         <v-row>
           <v-col cols="6"> <!-- Colonne de la boîte de chat -->
-            <p v-if="this.logedUser.id!=0"> {{ this.logedUser.name }}</p>
+            <p v-if="logedUser.id!=0"> {{ logedUser.name }}</p>
+
+<!-- CHATBOX                      @components/chat_chatboxComponent.vue -->
             <chat_chatboxComponent
-            v-if="this.logedUser.id!=0 && this.channelInChatBoxID != 0"
-            :channelInChatBox="this.channelInChatBox"
-            :logedUser="this.logedUser"/>
+            v-if="logedUser.id!=0 && channelInChatBoxID != 0"
+            :channelInChatBox="channelInChatBox"
+            :logedUser="logedUser"/>
           </v-col>
-          <v-col cols="6"> <!-- Colonne des autres composants -->
+          <v-col cols="6">
             <v-row>
               <v-col>
-                <chat_BetaLoginForm v-if="this.logedUser.id==0"
-                @user-loged="this.userLoged"/>
+
+  <!-- LOGIN -->
+                <chat_BetaLoginForm v-if="logedUser.id==0"
+                @user-loged="userLoged"/>
+
+<!-- CHANNEL LIST                 @component/channelList.vue -->
                 <chat_channelList
-                 v-if="this.logedUser.id != 0"
-                 :channelList="this.channelList" 
-                 :logedUser="this.logedUser"
-                 @channel-selected="this.selectChannel" />
-                 <Chat_channelCreationComponent v-if="this.logedUser.id!=0" :logedUserID="this.logedUser.id" />
+                 v-if="logedUser.id != 0"
+                 :channelList="channelList" 
+                 :logedUser="logedUser"
+                 @channel-selected="selectChannel" />
+
+
+<!-- CHANNEL CREATION FORM        @component/channelCreationComponent.vue-->
+                 <Chat_channelCreationComponent
+                 v-if="logedUser.id!=0"
+                 :logedUserID="logedUser.id" />
               </v-col>
             </v-row>
           </v-col>
@@ -30,12 +41,6 @@
   </v-responsive>
 </template>
 
-<style>
-  p {
-    background: red white--text;
-  }
-</style>
-
 
 <script lang="ts">
 import chat_BetaLoginForm from "@/components/chat_loginComponant.vue";
@@ -43,41 +48,11 @@ import { io } from 'socket.io-client';
 import Chat_channelCreationComponent from "@/components/chat_channelCreationComponent.vue";
 import chat_channelList from "@/components/chat_channelList.vue";
 import chat_chatboxComponent from "@/components/chat_chatboxComponent.vue"
+import type { Channel, friendRelation, User, Message } from '@/components/chat_utilsMethods';
 
-  interface friendRelation {
-    id: number
-    userID: number
-    friendID: number
-    convID: number
-    isBlocked: boolean
-  }
 
-  interface User {
-    id: number;
-    friendsID: friendRelation[];
-    name: string;
-  }
-  interface Message {
-    id: number;
-    text: string;
-    channel: Channel;
-    user: User
-  }
-  interface Channel {
-    id: number;
-    name: string;
-    messages: Message[],
-    mode: string,
-    password: string,
-    ownerID: number,
-    adminID: number[],
-    muteID: number[],
-    banID: number[],
-    users: User[],
-    isDirect: boolean
-  }
 
-  export default {
+export default {
     name: 'ChatView',
     components: {
     chat_BetaLoginForm,
@@ -98,13 +73,13 @@ import chat_chatboxComponent from "@/components/chat_chatboxComponent.vue"
 
 
     methods: {
-      updateSelectedChannel(channelId) {
+      updateSelectedChannel(channelId: number) {
         console.log('update: ',channelId)
       // Mettre à jour channelInChatBoxID avec l'ID du canal sélectionné
         this.channelInChatBoxID = channelId;
     },
 
-    userLoged(user: {data: {userid, name}}) {
+    userLoged(user: {data: {userid: number, name: string}}) {
       console.log("Methods: logedUser: ", user.data)
       console.log(this.getUserFromId(user.data.userid));
       this.logedUser = this.getUserFromId(user.data.userid);
@@ -139,7 +114,7 @@ import chat_chatboxComponent from "@/components/chat_chatboxComponent.vue"
         console.log('data:', data);
 
         //init
-        data.sort((a, b) => a.id - b.id);
+        data.sort((a: Channel, b: Channel) => a.id - b.id);
         this.channelList = [];
         let cpy = [] as Channel[];
         cpy.push({id: -1,} as Channel);                                 //pansement
@@ -162,7 +137,7 @@ import chat_chatboxComponent from "@/components/chat_chatboxComponent.vue"
         if (this.channelInChatBoxID !== 0) {
             this.channelInChatBox = this.channelList.find(channel => channel.id === this.channelInChatBoxID) as Channel;
         }
-        console.log('listChannel at the end of updateListChannel: ', this.listChannels);
+        console.log('listChannel at the end of updateListChannel: ', this.channelList);
     })
 
     this.socket.on('updateUsersList', (data) => {

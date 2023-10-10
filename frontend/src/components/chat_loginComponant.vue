@@ -1,8 +1,8 @@
 <template>
     <v-container class="pt-10">
-        <v-form @submit.prevent="this.sendUsername" method="POST"> 
+        <v-form @submit.prevent="sendUsername" method="POST"> 
             <v-text-field
-                v-model="this.nameForm.name"
+                v-model="nameForm.name"
                 name="name"
                 label="Name"
             ></v-text-field>
@@ -14,39 +14,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from 'axios';
-
-interface friendRelation {
-    id: number
-    userID: number
-    friendID: number
-    convID: number
-    isBlocked: boolean
-  }
-
-  interface User {
-    id: number;
-    friendsID: friendRelation[];
-    name: string;
-  }
-  interface Message {
-    id: number;
-    text: string;
-    channel: Channel;
-    user: User
-  }
-  interface Channel {
-    id: number;
-    name: string;
-    messages: Message[],
-    mode: string,
-    password: string,
-    ownerID: number,
-    adminID: number[],
-    muteID: number[],
-    banID: number[],
-    users: User[],
-    isDirect: boolean
-  }
+import type { Channel, friendRelation, User, Message } from './chat_utilsMethods';
 
     export default defineComponent ({
         name: "chat_BetaloginForm",
@@ -64,10 +32,6 @@ interface friendRelation {
             });
             console.log("reponse", reponse.data)
             this.$emit('user-loged', reponse)
-            // this.logedUser.id = reponse.data.userid;
-            // this.logedUser.name = reponse.data.username;
-            // console.log('methods: senndUsername:', this.logedUser);
-            // console.log(this.listChannels)
         },
     }
 })
