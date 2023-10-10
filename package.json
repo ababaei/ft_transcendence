@@ -4,6 +4,7 @@
     "@nestjs/platform-express": "^10.2.5",
     "@nestjs/platform-socket.io": "^10.2.5",
     "@nestjs/websockets": "^10.2.5",
+    "@nestjs/schedule": "^3.0.4",
     "socket.io-client": "^4.7.2"
   },
   "prisma": {

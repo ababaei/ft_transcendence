@@ -5,6 +5,7 @@ import App from './App.vue'
 
 import { createPinia, setMapStoreSuffix } from 'pinia'
 import router from './router'
+import axios from 'axios';
 
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'

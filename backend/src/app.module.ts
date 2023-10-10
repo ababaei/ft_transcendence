@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GatewayModule } from './gateway/gateway.module';
@@ -9,6 +8,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ChatModule } from './chat/chat.module';
 import { UsersModule } from './users/users.module';
 import { FortyTwoStrategy } from './auth/strategy/school.strategy';
+import { PlayersModule } from './players/players.module';
+import { GameModule } from './games/games.module';
+import { WaitingModule } from './waiting/waiting.module';
 
 @Module({
   imports: [
@@ -18,6 +20,9 @@ import { FortyTwoStrategy } from './auth/strategy/school.strategy';
     ConfigModule.forRoot({isGlobal: true}),
     ChatModule,
     UsersModule,
+    PlayersModule,
+    GameModule,
+    WaitingModule
   ],
   controllers: [AppController],
   providers: [AppService],
