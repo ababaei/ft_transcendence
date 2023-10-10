@@ -7,6 +7,8 @@ import { GatewayModule } from './gateway/gateway.module';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ChatModule } from './chat/chat.module';
+import { UsersModule } from './users/users.module';
+import { FortyTwoStrategy } from './auth/strategy/school.strategy';
 
 @Module({
   imports: [
@@ -15,6 +17,7 @@ import { ChatModule } from './chat/chat.module';
     PrismaModule,
     ConfigModule.forRoot({isGlobal: true}),
     ChatModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

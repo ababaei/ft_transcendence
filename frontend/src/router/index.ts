@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import App from '@/App.vue'
 import Login from '@/views/LoginView.vue'
 import Profil from '@/views/ProfilView.vue'
 import Chat from '@/views/ChatView.vue'
 import Pong from '@/views/PongView.vue'
-import App from '@/App.vue'
+import { useUserStore } from '@/stores/user'
 // import Pong from '../views/PongView.vue'
 
 const router = createRouter({
@@ -20,7 +21,7 @@ const router = createRouter({
       component: Login
     },
     {
-      path: '/profil',
+      path: '/profil/:id',
       name: 'profil',
       component: Profil
     },
@@ -35,6 +36,23 @@ const router = createRouter({
       component: Pong
     },
   ]
+});
+
+router.beforeEach((to, from, next) => {
+  const store = useUserStore();
+
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (store.currentUser == null) {
+      next({
+        path: '/login',
+        params: { nextUrl: to.fullPath }
+      });
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
 })
 
 export default router
