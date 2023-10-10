@@ -7,12 +7,7 @@ export class UsersController {
         private prismaService: PrismaService
     ) {}
 
-    @Get('test')
-    test() {
-        console.log('THIS IS A TEST0');
-    }
-
-    @Get('/:id')
+    @Get('/:id') // This should call a user provider functions inside of doing logic here.
     async getUser(@Param() params: {id: string}) {
         console.log("__________________GETTING USER_______________")
         const userID: number = Number(params.id)
