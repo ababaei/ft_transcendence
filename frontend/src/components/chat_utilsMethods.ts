@@ -38,7 +38,7 @@ export interface Channel {
 }
 
 export function isUserInChannel(userID: number, channel: Channel): number {
-  if (!channel || !userID) {
+  if (!channel || !userID || !channel.users) {
     return 0;
   }
   const ret = channel.users.find((user) => user.id == userID);
@@ -70,15 +70,15 @@ console.log(channel.muteID);
   return false
 }
 
-export function isBan(userID: number, channel: Channel) {
+export function isBan(userID: number, channel: Channel): boolean {
 console.log("methods: is ban");
 const channelBaned = channel.banID;
 console.log(channel.banID);
   if (!channelBaned) {
-    return 0;
+    return false;
   }
   if (channelBaned.find(user => user == userID)) {
-    return (1)
+    return (true)
   }
-    return 0;
+  return false;
 }

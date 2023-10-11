@@ -156,6 +156,7 @@ export class ChatService {
                 let channelOwner = 0;
                 if (await this.prismaService.channel.count() != 0) {
                     channelOwner = (await updatedChannel).users[0].id;
+                    this.setUserAdmin(await updatedChannel, channelOwner)
                 }
                 await this.prismaService.channel.update({
                     where: { id: channel.id },
@@ -439,6 +440,63 @@ export class ChatService {
         catch {
             console.log('error: set user admin');
             throw error        
+        }
+    }
+
+    async isBan(userID: number, channel: Channel): Promise<boolean> {
+        try {
+            if (channel.banID.includes(userID)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            console.error('Error in isBan:', error);
+            throw error;
+        }
+    }
+    async isMute(userID: number, channel: Channel): Promise<boolean> {
+        try {
+            if (channel.muteID.includes(userID)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            console.error('Error in isMute:', error);
+            throw error;
+        }
+    }
+    async isUserInChannel(userID: number, channel: Channel): Promise<boolean> {
+        try {
+            const channelWithUsers = await this.prismaService.channel.findUnique({
+                where: { id: channel.id },
+                include: {
+                    users: true,
+                },
+            });
+    
+            if (channelWithUsers && channelWithUsers.users) {
+                const userInChannel = channelWithUsers.users.some((user) => user.id === userID);
+                return userInChannel;
+            }
+    
+            return false;
+        } catch (error) {
+            console.error('Error in isUserInChannel:', error);
+            throw error;
+        }
+    }
+    async isAdmin(userID: number, channel: Channel): Promise<boolean> {
+        try {
+            if (channel.adminID.includes(userID)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            console.error('Error in isAdmin:', error);
+            throw error;
         }
     }
 }

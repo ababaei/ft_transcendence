@@ -22,10 +22,11 @@
         <v-tab value="two">Infos</v-tab>
       </v-tabs>
       <v-divider></v-divider>
-      <v-card height="520" item-height="48">
+      <v-card height="520">
 
 <!-- ONGLETS DE LA CHATBOX -->
         <v-window v-model="tab">
+          <v-col>
   <!-- FENETRE DE MESSAGES DU CHANNEL -->
           <v-window-item value="one">
             <v-virtual-scroll :items="(channelInChatBox.messages as Message[])"  height="420" item-height="48" style="overflow-x: hidden;">
@@ -33,8 +34,8 @@
               <v-row>
                 <v-col :class="{ 'text-right': message.user.id === logedUser.id }">
                   <v-list-item>
-                    <v-list-item-title>{{ message.user.name }}</v-list-item-title>
-                    <v-list-item-subtitle style="white-space: pre-wrap;">{{ message.text }}</v-list-item-subtitle>
+                    <v-list-item-title  style="white-space: pre-wrap;">{{ message.text }}</v-list-item-title>
+                    <v-list-item-subtitle>from  {{ message.user.name }}</v-list-item-subtitle>
                   </v-list-item>
                 </v-col>
               </v-row>
@@ -43,22 +44,28 @@
             <v-divider></v-divider>
 
     <!-- ENVOIE DE MESSAGES -->
+          <v-card height="100">
+            <v-card-actions>
             <v-form @submit.prevent="sendMessage" method="POST" v-if="!isMute(logedUser.id, channelInChatBox)">
               <v-row>
-              <v-col cols="4">
+              <v-col cols="9">
                 <v-text-field
                     v-model="messageToSend"
                     name="message"
-                    label="Message">
+                    label="Message"
+                    style="width: 100%;">
                 </v-text-field>
               </v-col>
-              <v-col cols="6">
+              <v-col cols="2">
                 <v-btn type="submit">send</v-btn>
               </v-col>
-            </v-row>
+              </v-row>
             </v-form>
+            </v-card-actions>
+            <v-card-text v-if="isMute(logedUser.id, channelInChatBox)">You are mute</v-card-text>
+          </v-card>
           </v-window-item>
-
+        </v-col>
 <!-- FENETRE D'INFO DU CHANNEL -->
           <v-window-item value="two">
 
@@ -78,7 +85,7 @@
               <!-- ACTIONS SUR USER -->
                     <v-menu>
                       <template v-slot:activator="{ props }">
-                        <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
+                        <v-btn icon="mdi-dots-vertical" v-bind="props" v-if="user.id!==logedUser.id"></v-btn>
                       </template>
                       <v-list>
                         <div v-if="logedUser.id==channelInChatBox.ownerID || isAdmin(logedUser.id, channelInChatBox)">
@@ -95,7 +102,12 @@
                         <v-list-item v-if="!isMute(user.id, channelInChatBox) && user.id!==channelInChatBox.ownerID"
                         @click="openTimerDialog('mute', user.id)">Mute</v-list-item>
                         <v-list-item v-if="isMute(user.id, channelInChatBox)"
-                        @click="unmuteUser(user.id, channelInChatBox.id)">Unmute</v-list-item>                        
+                        @click="unmuteUser(user.id, channelInChatBox.id)">Unmute</v-list-item>
+                <!-- Mute user -->
+                        <v-list-item v-if="!isBan(user.id, channelInChatBox) && user.id!==channelInChatBox.ownerID"
+                        @click="openTimerDialog('ban', user.id)">Ban</v-list-item>
+                        <v-list-item v-if="isBan(user.id, channelInChatBox)"
+                        @click="unbanUser(user.id, channelInChatBox.id)">Unban</v-list-item>  
                       </div>
                       </v-list>
                     </v-menu>
@@ -167,14 +179,14 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-  </template>
+</template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from 'axios';
 import { VListItem } from 'vuetify/components';
 import type { Channel, friendRelation, User, Message } from './chat_utilsMethods';
-import { isAdmin, isMute } from './chat_utilsMethods'
+import { isAdmin, isMute, isBan } from './chat_utilsMethods'
 
     export default defineComponent ({
         name: "chat_chatboxComponent",
@@ -241,6 +253,7 @@ import { isAdmin, isMute } from './chat_utilsMethods'
               try {
                 console.log('methods: Destroy channel');
                 const reponse = await axios.post('/api/chat/destroyChannelRequest', {
+                  user: this.logedUser.id,
                   channelID: this.channelInChatBox.id,
                 })
                 console.log(reponse.data);
@@ -267,6 +280,7 @@ import { isAdmin, isMute } from './chat_utilsMethods'
             async editChannel() {
               try {
                 const reponse = await axios.post('/api/chat/editChannelRequest', {
+                  user: this.logedUser.id,
                   channelID: this.channelInChatBox.id,
                   newChannelName: this.channelEditForm.name,
                   newChannelType: this.channelEditForm.type,
@@ -281,6 +295,7 @@ import { isAdmin, isMute } from './chat_utilsMethods'
               try {
                 console.log('methosds: makeUserAdmin');
                 const reponse = await axios.post('/api/chat/makeUserAdminRequest', {
+                  user: this.logedUser.id,
                   channelID: channelID,
                   newAdminID: newAdminID,
                 })
@@ -291,6 +306,7 @@ import { isAdmin, isMute } from './chat_utilsMethods'
               try {
                 console.log('methosds: removeUserAdmin');
                 const reponse = await axios.post('/api/chat/removeUserAdminRequest', {
+                user: this.logedUser.id,
                 channelID: channelID,
                 removedAdminID: AdminID,
               })
@@ -322,6 +338,7 @@ import { isAdmin, isMute } from './chat_utilsMethods'
       try {
         console.log('methosds: mute user');
         const reponse = await axios.post('/api/chat/muteUserRequest', {
+          user: this.logedUser.id,
           channelID: channelID,
           userID: userID,
           timer: time,
@@ -333,6 +350,7 @@ import { isAdmin, isMute } from './chat_utilsMethods'
       try {
         console.log('methosds: mute user');
           const reponse = await axios.post('/api/chat/unmuteUserRequest', {
+            user: this.logedUser.id,
             channelID: channelID,
             userID: userID,
           })
@@ -345,6 +363,7 @@ import { isAdmin, isMute } from './chat_utilsMethods'
       try {
         console.log('methosds: ban user');
         const reponse = await axios.post('/api/chat/banUserRequest', {
+          user: this.logedUser.id,
           channelID: channelID,
           userID: userID,
           timer: time,
@@ -361,6 +380,7 @@ import { isAdmin, isMute } from './chat_utilsMethods'
       try {
         console.log('methosds: unban user');
           const reponse = await axios.post('/api/chat/unbanUserRequest', {
+            user: this.logedUser.id,
             channelID: channelID,
             userID: userID,
           })
@@ -371,12 +391,16 @@ import { isAdmin, isMute } from './chat_utilsMethods'
       if (this.timerForm.action === 'mute') {
         this.muteUser(this.timerForm.onUserID, this.channelInChatBox.id, this.timerForm.time);
       }
+      else if (this.timerForm.action === 'ban') {
+        this.banUser(this.timerForm.onUserID, this.channelInChatBox.id, this.timerForm.time);
+      }
       this.timerDialog = false;
     },
 
           // IMPORTS
           isAdmin(userID: number, channel: Channel) { return isAdmin(userID, channel); },
           isMute(userID: number, channel: Channel): boolean { return isMute(userID, channel); },
+          isBan(userID: number, channel: Channel): boolean { return isBan(userID, channel); },
         }
     })
 </script>
