@@ -26,6 +26,7 @@ export class AuthService {
       create: {
         name: profile.username,
         email: profile.emails[0].value,
+        avatar: profile.photos[0].value,
       },
     });
     if (user) {
