@@ -134,7 +134,7 @@
             this.justPressed = true;
           this.arrowdown = true;
         }
-        if(this.justPressed === true)
+        if(this.justPressed === true && this.game == true)
         {
           let userCommand = {
             up : this.arrowup,
@@ -155,6 +155,7 @@
             up : this.arrowup,
             down : this.arrowdown
           }
+        if (this.game == true)
           this.socket.emit('keypress', userCommand);
       },
       renderGame() {
@@ -174,23 +175,6 @@
         ctx.fill();
         requestAnimationFrame(this.renderGame);
       },
-      // gameLoop() {
-      //   var c = <HTMLCanvasElement>document.querySelector('canvas');
-      //   if (!c)
-      //     throw new Error('failed to get canvas');
-      //   var ctx = c.getContext("2d");
-      //   if (!ctx)
-      //     throw new Error('failed to get 2D context');
-      //   ctx.clearRect(0, 0, c.width, c.height);
-      //   ctx.fillStyle = '#6d4db6';
-      //   ctx.fillRect(this.left.x, this.left.y, this.paddleSize.width, this.paddleSize.height);
-      //   ctx.fillRect(this.right.x, this.right.y, this.paddleSize.width, this.paddleSize.height);
-      //   ctx.imageSmoothingEnabled = false;
-      //   ctx.beginPath();
-      //   ctx.arc(this.ball.x, this.ball.y, this.ball.size, 0, Math.PI * 2, false);
-      //   ctx.fill();
-      //   requestAnimationFrame(this.gameLoop);
-      // },
       async loadingF(){
         if (this.loading == false)
         {

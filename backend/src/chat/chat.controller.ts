@@ -3,8 +3,9 @@ import { ChatService } from './chat.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'http';
-import { MyGateway } from 'src/gateway/gateway';
 import { error } from 'console';
+import { MyGateway } from 'src/gateway/gateway';
+
 
 @Controller('chat')
 export class ChatController {
@@ -13,8 +14,8 @@ export class ChatController {
         private prismaService : PrismaService,
         private gateway: MyGateway,
     ) {}
-    @WebSocketServer()
-    server: Server;
+    // @WebSocketServer()
+    // server: Server;
     
     @Post('setUsername')
     async handleUsername(@Body() data: { username: string }) {
