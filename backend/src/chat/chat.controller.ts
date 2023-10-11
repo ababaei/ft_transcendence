@@ -50,9 +50,8 @@ export class ChatController {
     } else {
       console.log('create new user', data.username);
       try {
-        const newUser = await this.prismaService.user.create({
-          data: {
-            email: data.username,
+        const newUser = await this.prismaService.user.findFirst({
+          where: {
             name: data.username,
           },
         });
