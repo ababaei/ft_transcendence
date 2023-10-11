@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
@@ -9,29 +9,30 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  email String @unique
-  name     String
+  id        Int              @id @default(autoincrement())
+  name      String           @unique
+  createdAt DateTime         @default(now())
+  email     String           @unique
+  updatedAt DateTime         @updatedAt
+  messages  Message[]        @relation("UserMessages")
   friendsID friendRelation[] @relation("UserRelation")
-  messages Message[]    @relation("UserMessages")
-  channels Channel[]    @relation("UserChannels")
+  channels  Channel[]        @relation("UserChannels")
+
   @@map("users")
 }
 
 model Channel {
-  id          Int       @id @unique @default(autoincrement())
-  name        String
-  messages    Message[] @relation("ChannelMessages")
-  users       User[]    @relation("UserChannels")
-  ownerID     Int       @default(0)
-  adminID     Int[]     @default([])
-  banID       Int[]     @default([])
-  muteID      Int[]     @default([])
-  mode        String    @default("public")
-  password    String    @default("")
-  isDirect    Boolean   @default(false)
+  id       Int       @id @unique @default(autoincrement())
+  name     String
+  adminID  Int[]     @default([])
+  mode     String    @default("public")
+  ownerID  Int       @default(0)
+  password String    @default("")
+  banID    Int[]     @default([])
+  muteID   Int[]     @default([])
+  isDirect Boolean   @default(false)
+  messages Message[] @relation("ChannelMessages")
+  users    User[]    @relation("UserChannels")
 }
 
 model Message {
@@ -54,21 +55,20 @@ model friendRelation {
 }
 
 model Waiting {
-  id      Int     @id @default(autoincrement())
-  socket  String? @unique
+  id      Int      @id @default(autoincrement())
+  socket  String?  @unique
   private Boolean?
 }
 
 model Player {
-  id      Int     @id @default(autoincrement())
-  socket  String? @unique
-  gameID  Int?
-  game    Game?   @relation(fields: [gameID], references: [id])
+  id     Int     @id @default(autoincrement())
+  socket String? @unique
+  gameID Int?
+  game   Game?   @relation(fields: [gameID], references: [id])
 }
 
 model Game {
-  id      Int   @id @default(autoincrement())
-  active  Boolean @default(true)
-
+  id        Int      @id @default(autoincrement())
+  active    Boolean  @default(true)
   PlayersID Player[]
 }

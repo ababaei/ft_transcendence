@@ -17,22 +17,24 @@ async function bootstrap() {
     // origin: "http://localhost:8080",
     // credentials: true
     origin: '*',
-    methods: ["GET", "POST", "DELETE"],
+    methods: ['GET', 'POST', 'DELETE'],
     allowedHeaders: 'Content-Type, Authorization',
     preflightContinue: false,
     optionsSuccessStatus: 204,
-    credentials: true
+    credentials: true,
   });
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-  }));
-  
-  app.use(cookieParser())
-  app.use(passport.initialize())
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
+
+  app.use(cookieParser());
+  app.use(passport.initialize());
 
   app.enableCors({
-    origin: "http://localhost:8080",
+    origin: 'http://localhost:8080',
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     // allowedHeaders: "Content-Type, Authorization",

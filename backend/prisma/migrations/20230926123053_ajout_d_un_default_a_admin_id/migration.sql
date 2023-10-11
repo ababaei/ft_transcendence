@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Channel" ALTER COLUMN "adminID" SET DEFAULT ARRAY[]::INTEGER[];
