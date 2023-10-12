@@ -104,7 +104,8 @@ export class ChatController {
         throw error;
       }
 
-      const ret = await this.chatService.addUserInChannel(newChannel, fromUser);
+            const ret = await this.chatService.addUserInChannel(newChannel, fromUser);
+            this.chatService.setUserAdmin(newChannel, fromUser.id);
 
       this.sendUploadedData();
 
@@ -126,13 +127,154 @@ export class ChatController {
         data.channelID,
       );
 
-      if (
-        joinedChannel.mode === 'protected' &&
-        data.password != joinedChannel.password
-      ) {
-        return 'backend: wrong password';
-      } else {
-        await this.chatService.addUserInChannel(joinedChannel, fromUser);
+            if (await this.chatService.isBan(fromUser.id, joinedChannel) || await this.chatService.isUserInChannel(fromUser.id, joinedChannel)) {
+                return 'backend: you cant join this channel'
+            }
+            if (joinedChannel.mode === 'protected' && data.password != joinedChannel.password) {
+                return 'backend: wrong password';
+            }
+            else {
+                await this.chatService.addUserInChannel(joinedChannel, fromUser);
+                this.sendUploadedData();
+                return 'backend: channel joined'
+            }
+        } 
+        catch {
+            console.log('error: join channel')
+            return 'backend: failed to join channel'
+        }
+    }
+    
+    @Post('messageRequest')
+    async handleMessageRequest(@Body() data: {text: string, user: number, channel: number}) {
+        console.log('Message request');
+        try {
+            const fromUser = await this.chatService.findUserById(data.user);
+            const inChannel = await this.chatService.findChannelById(data.channel);
+            const newMessage = await this.chatService.createMessage(inChannel, fromUser, data.text);
+
+            if (await !this.chatService.isUserInChannel(fromUser.id, inChannel) || await this.chatService.isMute(fromUser.id, inChannel)) {
+                return 'backend: you are not allowed to speak in this channel'
+            }
+            const newMessageReply = await this.chatService.findMessageById(newMessage.id);
+            this.sendUploadedData()
+            return 'backend: new message uploaded';
+        }
+        catch {
+            console.log('Error handling new message')
+            return ('backend: error with new message');
+        }
+    }
+
+    @Post('destroyChannelRequest')
+    async destroyChannel(@Body() data: { user: number, channelID: number }) {
+        console.log('requete: destroy channel');
+        try {
+            const fromUser = await this.chatService.findUserById(data.user);
+            const channelToDestroy = await this.chatService.findChannelById(data.channelID);
+
+            if (fromUser.id !== channelToDestroy.ownerID) {
+                return 'backend: you must be channel owner to destroy this channel';
+            }
+            const tmp = channelToDestroy.id;
+            this.chatService.destroyChannel(channelToDestroy);
+            this.sendUploadedData();
+            return 'backend: channel destroyed';
+        }
+        catch {
+            console.log('destroy channel : error')
+            return ('backend: error while destroying channel');
+        }
+    }
+
+    @Post('leaveChannelRequest')
+    async leaveChannel(@Body() data: { userID: number, channelID: number }) {
+        try {
+            console.log('requete: leave channel');
+            const channelToLeave = await this.chatService.findChannelById(data.channelID);
+            const userLeaving = await this.chatService.findUserById(data.userID);
+            this.chatService.removeUserFromChannel(userLeaving, channelToLeave);
+            this.chatService.removeUserAdmin(channelToLeave, userLeaving.id);
+            if (!channelToLeave.users) {
+                this.chatService.destroyChannel(channelToLeave);
+            }
+            this.sendUploadedData();
+            return 'backend: channel leaved';
+        }
+        catch {
+            console.log('error: leave channel');
+            return 'backend: error while leaving channel';
+        }
+    }
+    @Post('editChannelRequest')
+    async editChannel(@Body() data: { user: number, channelID: number, newChannelName: string, newChannelType: string, newChannelPassword: string}) {
+        try {
+            console.log('requete: edit channel request');
+            const fromUser = await this.chatService.findUserById(data.user);
+            const channelToEdit = await this.chatService.findChannelById(data.channelID);
+
+            if (fromUser.id !== channelToEdit.ownerID) {
+                return 'backend: you must be channel owner to edit this channel';
+            }
+            this.chatService.editChannel(channelToEdit, data.newChannelName, data.newChannelType, data.newChannelPassword);
+            this.sendUploadedData();
+            return 'backend: channel edited';
+        }
+        catch {
+            console.log('error: edit channel')
+            return 'backend: error while editing channel';
+        }
+    }
+
+    @Post('makeUserAdminRequest')
+    async makeUserAdmin(@Body() data: {user: number, channelID: number, newAdminID: number}) {
+        try {
+            console.log('requete: set user admin');
+            const fromUser = await this.chatService.findUserById(data.user);
+            const channel = await this.chatService.findChannelById(data.channelID);
+
+            if (fromUser.id !== channel.ownerID) {
+                return 'backend: you must be channel owner to make a user admin';
+            }
+            this.chatService.setUserAdmin(channel, data.newAdminID);
+            this.sendUploadedData();
+            return 'backend: user mode set to admin'
+        }
+        catch {
+            console.log('error: make user admin');
+            return 'backend: error while making user administrator';
+        }
+    }
+    @Post('removeUserAdminRequest')
+    async removeUserAdmin(@Body() data: {user: number, channelID: number, removedAdminID: number}) {
+        try {
+            console.log('requete: remove user admin');
+            const fromUser = await this.chatService.findUserById(data.user);
+            const channel = await this.chatService.findChannelById(data.channelID);
+
+            if (fromUser.id !== channel.ownerID) {
+                return 'backend: you must be channel owner to remove a user admin';
+            }
+            this.chatService.removeUserAdmin(channel, data.removedAdminID);
+            this.sendUploadedData();
+            return 'backend: user removed from administrators';
+        }
+        catch {
+            console.log('error: removing administartor');
+            return 'backend: error removing user administrator';
+        }
+    }
+    @Post('muteUserRequest')
+    async muteUser(@Body() data: {user: number, channelID: number, userID: number, timer: number}) {
+        console.log('requete: mute User');
+        const channel = await this.chatService.findChannelById(data.channelID);
+        const fromUser = await this.chatService.findUserById(data.user);
+
+        if (await !this.chatService.isAdmin(fromUser.id, channel) || await this.chatService.isAdmin(data.userID, channel)
+        || data.userID === channel.ownerID) {
+            return 'backend: cant mute user';
+        }
+        this.chatService.setUserMute(channel, data.userID);
         this.sendUploadedData();
         return 'backend: channel joined';
       }
@@ -140,65 +282,66 @@ export class ChatController {
       console.log('error: join channel');
       return 'backend: failed to join channel';
     }
-  }
+    @Post('unmuteUserRequest')
+    async unmuteUser(@Body() data: {user: number, channelID: number, userID: number, timer: number}) {
+        try {
+            console.log('requete: set user admin');
+            const channel = await this.chatService.findChannelById(data.channelID);
+            const fromUser = await this.chatService.findUserById(data.user);
 
-  @Post('messageRequest')
-  async handleMessageRequest(
-    @Body() data: { text: string; user: number; channel: number },
-  ) {
-    console.log('Message request');
-    try {
-      const fromUser = await this.chatService.findUserById(data.user);
-      const inChannel = await this.chatService.findChannelById(data.channel);
-      const newMessage = await this.chatService.createMessage(
-        inChannel,
-        fromUser,
-        data.text,
-      );
-
-      const newMessageReply = await this.chatService.findMessageById(
-        newMessage.id,
-      );
-      this.sendUploadedData();
-      return 'backend: new message uploaded';
-    } catch {
-      console.log('Error handling new message');
-      return 'backend: error with new message';
+            if (await !this.chatService.isAdmin(fromUser.id, channel)) {
+                return 'backend: cant unmute user';
+            }
+            this.chatService.removeUserMute(channel, data.userID);
+            this.sendUploadedData();
+            return 'backend: user unmuted';
+        }
+        catch {
+            console.log('error: unmuting user');
+            return 'backend: error while unmuting user'
+        }
     }
   }
 
-  @Post('destroyChannelRequest')
-  async destroyChannel(@Body() data: { channelID: number }) {
-    console.log('requete: destroy channel');
-    try {
-      const channelToDestroy = await this.chatService.findChannelById(
-        data.channelID,
-      );
-      const tmp = channelToDestroy.id;
-      this.chatService.destroyChannel(channelToDestroy);
-      this.sendUploadedData();
-      return 'backend: channel destroyed';
-    } catch {
-      console.log('destroy channel : error');
-      return 'backend: error while destroying channel';
-    }
-  }
+    @Post('banUserRequest')
+    async banUser(@Body() data: {user: number, channelID: number, userID: number, timer: number}) {
+        console.log('requete: ban User');
+        const channel = await this.chatService.findChannelById(data.channelID);
+        const fromUser = await this.chatService.findUserById(data.user);
 
-  @Post('leaveChannelRequest')
-  async leaveChannel(@Body() data: { userID: number; channelID: number }) {
-    try {
-      console.log('requete: leave channel');
-      const channelToLeave = await this.chatService.findChannelById(
-        data.channelID,
-      );
-      const userLeaving = await this.chatService.findUserById(data.userID);
-      this.chatService.removeUserFromChannel(userLeaving, channelToLeave);
-      this.chatService.removeUserAdmin(channelToLeave, userLeaving.id);
-      this.sendUploadedData();
-      return 'backend: channel leaved';
-    } catch {
-      console.log('error: leave channel');
-      return 'backend: error while leaving channel';
+        if (await !this.chatService.isAdmin(fromUser.id, channel) || await this.chatService.isAdmin(data.userID, channel)
+        || data.userID === channel.ownerID) {
+            return 'backend: cant ban user';
+        }
+        this.chatService.setUserBan(channel, data.userID);
+        this.sendUploadedData();
+
+        setTimeout(async () => {
+            this.chatService.removeUserBan(channel, data.userID);
+        }, (data.timer * 60000))
+        setTimeout(async () => {
+            this.gateway.server.emit('updateChannelList', await this.chatService.getChannelsList());
+            this.gateway.server.emit('updateUsersList', await this.chatService.getUsersList());
+        }, (data.timer * 60000) + 100); // Délai de 100 millisecondes
+    }
+    @Post('unbanUserRequest')
+    async unbanUser(@Body() data: {user: number, channelID: number, userID: number, timer: number}) {
+        try {
+            console.log('requete: unban user');
+            const channel = await this.chatService.findChannelById(data.channelID);
+            const fromUser = await this.chatService.findUserById(data.user);
+
+            if (await !this.chatService.isAdmin(fromUser.id, channel)) {
+                return 'backend: cant unmute user';
+            }
+            this.chatService.removeUserBan(channel, data.userID);
+            this.sendUploadedData();
+            return 'backend: user unbaned';
+        }
+        catch {
+            console.log('error: unbaning user');
+            return 'backend: error while unbaning user'
+        }
     }
   }
   @Post('editChannelRequest')

@@ -38,9 +38,47 @@ export interface Channel {
 }
 
 export function isUserInChannel(userID: number, channel: Channel): number {
-  if (!channel || !userID) {
+  if (!channel || !userID || !channel.users) {
     return 0;
   }
   const ret = channel.users.find((user) => user.id == userID);
   return ret ? 1 : 0;
+}
+
+
+export function isAdmin(userID: number, channel: Channel) {
+  const channelAdmins = channel.adminID;
+  if (!channelAdmins)
+    return 0;
+  if (channelAdmins.find(user => user == userID)) {
+    console.log('isAdmin: ', userID, ' is administrator')
+    return (1)
+  }
+  return 0;
+}
+
+export function isMute(userID: number, channel: Channel): boolean{
+console.log("methods: is ");
+const channelMuted = channel.muteID;
+console.log(channel.muteID);
+  if (!channelMuted) {
+    return false;
+  }
+  if (channelMuted.find(user => user == userID)) {
+    return true
+  }
+  return false
+}
+
+export function isBan(userID: number, channel: Channel): boolean {
+console.log("methods: is ban");
+const channelBaned = channel.banID;
+console.log(channel.banID);
+  if (!channelBaned) {
+    return false;
+  }
+  if (channelBaned.find(user => user == userID)) {
+    return (true)
+  }
+  return false;
 }

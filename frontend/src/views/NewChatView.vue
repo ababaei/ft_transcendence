@@ -48,7 +48,7 @@ import { io } from 'socket.io-client';
 import Chat_channelCreationComponent from "@/components/chat_channelCreationComponent.vue";
 import chat_channelList from "@/components/chat_channelList.vue";
 import chat_chatboxComponent from "@/components/chat_chatboxComponent.vue"
-import type { Channel, friendRelation, User, Message } from '@/components/chat_utilsMethods';
+import { type Channel, type friendRelation, type User, type Message, isUserInChannel } from '@/components/chat_utilsMethods';
 
 
 
@@ -136,6 +136,10 @@ export default {
         // mise a jour de channel in chat box
         if (this.channelInChatBoxID !== 0) {
             this.channelInChatBox = this.channelList.find(channel => channel.id === this.channelInChatBoxID) as Channel;
+        }
+        if (!isUserInChannel(this.logedUser.id, this.channelInChatBox)) {
+          this.channelInChatBox = {id: 0 } as Channel;
+          this.channelInChatBoxID = 0;
         }
         console.log('listChannel at the end of updateListChannel: ', this.channelList);
     })
