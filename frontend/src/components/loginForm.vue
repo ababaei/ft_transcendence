@@ -1,10 +1,11 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
+import router from '@/router';
+
 import axios from 'axios';
 import jwt_decode from "jwt-decode";
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
-import { useUserStore } from '@/stores/user';
 import { mapStores } from 'pinia';
 
     export default defineComponent ({
@@ -16,12 +17,16 @@ import { mapStores } from 'pinia';
         },
         mounted() {
             const cookies = this.$cookies.get("userData")
-            console.log(cookies);
+            const tmpUser = JSON.stringify(cookies.user)
+            console.log("USERID", tmpUser);
             if (cookies) {
                 localStorage.setItem('isAuthenticated', 'true')
-                localStorage.setItem('currentUser', cookies.user)
+                localStorage.setItem('currentUser', tmpUser)
                 localStorage.setItem('jwt_token', cookies.token)
             }
+            // if (localStorage.getItem('isAuthenticated') == 'true') {
+            //     router.push('/profil/' + cookies.user.id)
+            // }
         },
         methods: {
             schoolLogin() {               
@@ -34,6 +39,5 @@ import { mapStores } from 'pinia';
 <template>
     <v-container class="pt-10">
         <v-btn class="mt-5" @click="schoolLogin">Log with 42</v-btn>
-        CURRENT USER: {{ profilUser.name }}
     </v-container>
 </template>

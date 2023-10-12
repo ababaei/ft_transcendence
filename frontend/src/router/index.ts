@@ -4,7 +4,6 @@ import Login from '@/views/LoginView.vue'
 import Profil from '@/views/ProfilView.vue'
 import Chat from '@/views/NewChatView.vue'
 import Pong from '@/views/PongView.vue'
-import { useUserStore } from '@/stores/user'
 // import Pong from '../views/PongView.vue'
 
 const router = createRouter({

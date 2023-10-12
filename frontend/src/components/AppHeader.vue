@@ -1,23 +1,24 @@
 <script lang="ts">
-import { useUserStore } from '@/stores/user';
 import { defineComponent } from 'vue';
 
     export default defineComponent ({
-        setup() {
-            const userStore = useUserStore();
-            return {userStore};
-        },
         name: "appHeader",
         data() {
             return {
                     profilUser: '' as string,
             }
         },
-        created() {
-            if (this.userStore.currentUser){
-                this.profilUser = this.userStore.currentUser;
+        computed: {
+            currentUser() {
+                const user = localStorage.getItem('currentUser')
+                console.log(user)
+                if(user) {
+                    const objUser = JSON.parse(user)
+                    return '/profil/' + objUser.id
+                }
+                return '/login'
             }
-        },
+        }
     })
 </script>
 
@@ -29,12 +30,10 @@ import { defineComponent } from 'vue';
             </RouterLink>
         </div>
         <v-spacer></v-spacer>
-        logged user: {{ profilUser.name }}
-        <v-spacer></v-spacer>
 
             <RouterLink to="/login"><v-btn color="white">Login</v-btn></RouterLink>
-            <RouterLink to="/profil"><v-btn color="white">Profil</v-btn></RouterLink>
-            <!-- <RouterLink v-bind:to="'/profil/' + userStore.currentUser"><v-btn color="white">Profil</v-btn></RouterLink> -->
+            <!-- <RouterLink to="/profil"><v-btn color="white">Profil</v-btn></RouterLink> -->
+            <RouterLink v-bind:to=currentUser><v-btn color="white">Profil</v-btn></RouterLink>
             <RouterLink to="/chat"><v-btn color="white">Chat</v-btn></RouterLink>
             <RouterLink to="/pong"><v-btn color="white">Pong</v-btn></RouterLink>
         <!-- <RouterLink to="/pong">Pong</RouterLink> -->
