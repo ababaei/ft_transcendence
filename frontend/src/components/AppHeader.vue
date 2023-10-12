@@ -3,21 +3,21 @@ import { useUserStore } from '@/stores/user';
 import { defineComponent } from 'vue';
 
     export default defineComponent ({
-        // setup() {
-        //     const userStore = useUserStore();
-        //     return {userStore};
-        // },
-        // name: "appHeader",
-        // data() {
-        //     return {
-        //             profilUser: ""
-        //     }
-        // },
-        // created() {
-        //     if (this.userStore.currentUser) {
-        //         this.profilUser = this.userStore.currentUser ;
-        //     }
-        // }
+        setup() {
+            const userStore = useUserStore();
+            return {userStore};
+        },
+        name: "appHeader",
+        data() {
+            return {
+                    profilUser: '' as string,
+            }
+        },
+        created() {
+            if (this.userStore.currentUser){
+                this.profilUser = this.userStore.currentUser;
+            }
+        },
     })
 </script>
 
@@ -28,7 +28,8 @@ import { defineComponent } from 'vue';
                 <h2>ginpgonp</h2>
             </RouterLink>
         </div>
-        
+        <v-spacer></v-spacer>
+        logged user: {{ profilUser.name }}
         <v-spacer></v-spacer>
 
             <RouterLink to="/login"><v-btn color="white">Login</v-btn></RouterLink>

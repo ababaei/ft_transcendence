@@ -10,39 +10,44 @@ import { useUserStore } from '@/stores/user'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/',
-      name: 'app',
-      component: App
-    },
+    // {
+    //   path: '/',
+    //   name: 'app',
+    //   component: App
+    // },
     {
       path: '/login',
       name: 'connexion',
-      component: Login
+      component: Login,
+      alias: '/'
     },
     {
       path: '/profil/:id',
       name: 'profil',
-      component: Profil
+      component: Profil,
+      meta: { requiresAuth: true }
     },
     {
       path: '/chat',
       name: 'chat',
-      component: Chat
+      component: Chat,
+      meta: { requiresAuth: true }
     },
     {
       path: '/pong',
       name: 'pong',
-      component: Pong
+      component: Pong,
+      meta: { requiresAuth: true }
     },
   ]
 });
 
 router.beforeEach((to, from, next) => {
-  const store = useUserStore();
+  const isAuth = localStorage.getItem('isAuthenticated');
+  console.log('beforeeach isAuth: ', isAuth);
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (store.currentUser == null) {
+    if (isAuth === 'false') {
       next({
         path: '/login',
         params: { nextUrl: to.fullPath }

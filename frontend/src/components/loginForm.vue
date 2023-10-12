@@ -5,32 +5,27 @@ import jwt_decode from "jwt-decode";
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import { useUserStore } from '@/stores/user';
+import { mapStores } from 'pinia';
 
     export default defineComponent ({
-        setup() {
-            const userStore = useUserStore()
-            return { userStore }
-        },
         name: "loginForm",
-        data() {},
+        data() {
+            return {
+                profilUser: '' as string
+            }
+        },
         mounted() {
             const cookies = this.$cookies.get("userData")
             console.log(cookies);
             if (cookies) {
-                this.userStore.logIn(cookies);
-                // this.userStore.userToken = cookies.token;
-                // this.userStore.currentUser = cookies.user;
-            } else {
-                this.userStore.currentUser = null;
+                localStorage.setItem('isAuthenticated', 'true')
+                localStorage.setItem('currentUser', cookies.user)
+                localStorage.setItem('jwt_token', cookies.token)
             }
-            console.log("OBJ :", {cookies});
-            console.log(cookies.token);
-            console.log(jwt_decode(cookies.token))
         },
         methods: {
             schoolLogin() {               
                 window.location.href = 'http://localhost:8080/api/auth/42'
-                console.log("_____________________TOTO_____________")
             },
         }
     })
@@ -39,5 +34,6 @@ import { useUserStore } from '@/stores/user';
 <template>
     <v-container class="pt-10">
         <v-btn class="mt-5" @click="schoolLogin">Log with 42</v-btn>
+        CURRENT USER: {{ profilUser.name }}
     </v-container>
 </template>
