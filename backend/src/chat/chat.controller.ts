@@ -55,6 +55,7 @@ export class ChatController {
           data: {
             email: data.username,
             name: data.username,
+            avatar: '',
           },
         });
         setTimeout(async () => {
