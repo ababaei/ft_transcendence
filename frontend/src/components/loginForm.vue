@@ -23,10 +23,11 @@ import { mapStores } from 'pinia';
                 localStorage.setItem('isAuthenticated', 'true')
                 localStorage.setItem('currentUser', tmpUser)
                 localStorage.setItem('jwt_token', cookies.token)
+                router.push('/profil/' + cookies.user.id)
             }
-            // if (localStorage.getItem('isAuthenticated') == 'true') {
-            //     router.push('/profil/' + cookies.user.id)
-            // }
+            if (localStorage.getItem('isAuthenticated') == 'true') {
+                router.push('/profil/' + cookies.user.id)
+            }
         },
         methods: {
             schoolLogin() {               
