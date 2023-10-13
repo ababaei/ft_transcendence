@@ -32,9 +32,6 @@ export default defineComponent({
         {
           console.log('profilePic')
           profilePic.src = avatar;
-          profilePic.style.width = '5vw';
-          profilePic.style.height = '10vh';
-          profilePic.style.borderRadius = '50%';
         }
       }
     },
@@ -63,3 +60,16 @@ export default defineComponent({
     <v-btn class="mt-5" @click="logOut">Log out</v-btn>
   </main>
 </template>
+
+<style>
+#avatar {
+  width: 10%;
+  border-radius: 50%;
+}
+
+@media screen and (max-width: 800px) {
+  #avatar {
+    width: 20%;
+  }
+}
+</style>
