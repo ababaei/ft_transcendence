@@ -1,11 +1,12 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import router from '@/router';
+import axios from 'axios';
 
 export default defineComponent({
     data() {
       return {
-        jwtToken: null,
+        // jwtToken: null,
       };
     },
     computed: {
@@ -14,7 +15,13 @@ export default defineComponent({
         if (user)
           return (JSON.parse(user))
         return null
-      }
+      },
+      jwt_token() {
+        const userTkn = localStorage.getItem('jwt_token')
+        if (userTkn)
+          return userTkn
+        return null
+      }      
     },
     created() {
       const user: any = localStorage.getItem('currentUser');
@@ -37,7 +44,11 @@ export default defineComponent({
     },
     methods: {
       getUser() {
-        
+        axios.get('/api/users/' + this.profileUser.id,
+        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+        .then((res) => {
+          console.log(res);
+        })
       },
       logOut() {
         localStorage.setItem('isAuthenticated', 'false')
@@ -45,6 +56,9 @@ export default defineComponent({
         this.$cookies.remove('userData')
         router.push('/login')
       },
+      activate2fa() {
+        
+      }
     }
   })
 </script>
@@ -57,6 +71,7 @@ export default defineComponent({
     <!-- <v-avatar v-bind:src="profileUser.avatar" rounded="0" id="avatar"></v-avatar> -->
     <!-- LOGGED USER: {{profileUser.avatar}} -->
     <v-btn class="mt-5" @click="getUser">USER</v-btn>
+    <v-btn class="mt-5" @click="activate2fa">Enable 2FA</v-btn>
     <v-btn class="mt-5" @click="logOut">Log out</v-btn>
   </main>
 </template>
