@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import App from '@/App.vue'
 import Login from '@/views/LoginView.vue'
 import Profil from '@/views/ProfilView.vue'
 import Chat from '@/views/NewChatView.vue'

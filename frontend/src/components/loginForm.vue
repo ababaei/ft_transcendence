@@ -2,12 +2,6 @@
 import { defineComponent } from 'vue';
 import router from '@/router';
 
-import axios from 'axios';
-import jwt_decode from "jwt-decode";
-import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
-import { mapStores } from 'pinia';
-
     export default defineComponent ({
         name: "loginForm",
         data() {

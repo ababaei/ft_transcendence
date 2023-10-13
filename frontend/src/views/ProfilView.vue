@@ -1,12 +1,6 @@
 <script lang="ts">
-import axios from 'axios';
-import Vue from 'vue';
-import VueCookies from 'vue-cookies';
-import { mapActions } from 'pinia'
-import jwt_decode from "jwt-decode";
 import { defineComponent } from 'vue';
 import router from '@/router';
-import { mapStores } from 'pinia';
 
 export default defineComponent({
     data() {
@@ -19,20 +13,13 @@ export default defineComponent({
         const user = localStorage.getItem('currentUser')
         if (user)
           return (JSON.parse(user))
+        return null
       }
     },
     created() {
       const user: any = localStorage.getItem('currentUser');
       console.log("fe_user: ", user)
       console.log("CURRENT: ", localStorage.getItem('currentUser'))
-      // if (this.userStore.currentUser) {
-        //   this.profileUser = this.userStore.currentUser;
-        // }
-        // if (user) {
-          //   router.push("/profil/" + user.id)
-          // } else {
-            //   router.push('/login')
-            // }
     },
     mounted() {
       if (this.profileUser)
@@ -52,10 +39,9 @@ export default defineComponent({
       }
     },
     methods: {
-      // getUser() {
-      //   console.log(this.userStore.currentUser)
-      //   return this.userStore.currentUser
-      // },
+      getUser() {
+        
+      },
       logOut() {
         localStorage.setItem('isAuthenticated', 'false')
         localStorage.removeItem('currentUser')
@@ -73,7 +59,7 @@ export default defineComponent({
     <h2>{{ profileUser.name }}</h2>
     <!-- <v-avatar v-bind:src="profileUser.avatar" rounded="0" id="avatar"></v-avatar> -->
     <!-- LOGGED USER: {{profileUser.avatar}} -->
-    <!-- <v-btn class="mt-5" @click="getUser">USER</v-btn> -->
+    <v-btn class="mt-5" @click="getUser">USER</v-btn>
     <v-btn class="mt-5" @click="logOut">Log out</v-btn>
   </main>
 </template>
