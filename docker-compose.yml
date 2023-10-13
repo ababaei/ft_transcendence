@@ -32,7 +32,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - ./backend:/usr/src/app
+      - ./backend:/usr/src/app:z
 
   frontend:
     build: frontend
@@ -46,7 +46,7 @@ services:
     expose:
       - 8080
     volumes:
-      - ./frontend:/usr/src/app
+      - ./frontend:/usr/src/app:z
 
 networks:
   transcendence:

@@ -1,36 +1,31 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
-import axios from 'axios';
-import jwt_decode from "jwt-decode";
-import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
-import { useUserStore } from '@/stores/user';
+import router from '@/router';
 
     export default defineComponent ({
-        setup() {
-            const userStore = useUserStore()
-            return { userStore }
-        },
         name: "loginForm",
-        data() {},
+        data() {
+            return {
+                profilUser: '' as string
+            }
+        },
         mounted() {
             const cookies = this.$cookies.get("userData")
-            console.log(cookies);
+            const tmpUser = JSON.stringify(cookies.user)
+            console.log("USERID", tmpUser);
             if (cookies) {
-                this.userStore.logIn(cookies);
-                // this.userStore.userToken = cookies.token;
-                // this.userStore.currentUser = cookies.user;
-            } else {
-                this.userStore.currentUser = null;
+                localStorage.setItem('isAuthenticated', 'true')
+                localStorage.setItem('currentUser', tmpUser)
+                localStorage.setItem('jwt_token', cookies.token)
+                router.push('/profil/' + cookies.user.id)
             }
-            console.log("OBJ :", {cookies});
-            console.log(cookies.token);
-            console.log(jwt_decode(cookies.token))
+            if (localStorage.getItem('isAuthenticated') == 'true') {
+                router.push('/profil/' + cookies.user.id)
+            }
         },
         methods: {
             schoolLogin() {               
                 window.location.href = 'http://localhost:8080/api/auth/42'
-                console.log("_____________________TOTO_____________")
             },
         }
     })

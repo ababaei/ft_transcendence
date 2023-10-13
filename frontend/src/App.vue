@@ -7,6 +7,9 @@
       appHeader
     },
     name: "app",
+    mounted() {
+      localStorage.setItem('isAuthenticated', 'false')
+    }
   });
 </script>
 

@@ -1,48 +1,90 @@
 <script lang="ts">
-import axios from 'axios';
-import Vue from 'vue';
-import VueCookies from 'vue-cookies';
-import { mapActions } from 'pinia'
-import { useUserStore } from '@/stores/user';
-import jwt_decode from "jwt-decode";
 import { defineComponent } from 'vue';
 import router from '@/router';
+import axios from 'axios';
 
 export default defineComponent({
-    setup() {
-      const userStore = useUserStore()
-      console.log('PROFIL_SETUP')
-      return {userStore};
-    },
     data() {
       return {
-        jwtToken: null,
+        // jwtToken: null,
       };
     },
-    beforeCreate() {
-      const user: any = this.getUser();
+    computed: {
+      profileUser() {
+        const user = localStorage.getItem('currentUser')
+        if (user)
+          return (JSON.parse(user))
+        return null
+      },
+      jwt_token() {
+        const userTkn = localStorage.getItem('jwt_token')
+        if (userTkn)
+          return userTkn
+        return null
+      }      
+    },
+    created() {
+      const user: any = localStorage.getItem('currentUser');
       console.log("fe_user: ", user)
-      if (user) {
-        router.push("http://localhost/profil/" + user.id)
+      console.log("CURRENT: ", localStorage.getItem('currentUser'))
+    },
+    mounted() {
+      if (this.profileUser)
+      {
+        const avatar = this.profileUser.avatar;
+        console.log('avatar :', avatar);
+        // const profilePic = document.getElementsByTagName('img')[1];
+        const profilePic = document.getElementsByTagName('img')[0];
+        if (profilePic)
+        {
+          console.log('profilePic')
+          profilePic.src = avatar;
+        }
       }
     },
     methods: {
       getUser() {
-        console.log(this.userStore.currentUser)
-        return this.userStore.currentUser
+        axios.get('/api/users/' + this.profileUser.id,
+        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+        .then((res) => {
+          console.log(res);
+        })
       },
-      logOut() { 
-        // axios.get('api/auth/logout')
-        this.userStore.logOut();
+      logOut() {
+        localStorage.setItem('isAuthenticated', 'false')
+        localStorage.removeItem('currentUser')
+        this.$cookies.remove('userData')
+        router.push('/login')
       },
+      activate2fa() {
+        
+      }
     }
   })
 </script>
 
 <template>
   <main>
-    <h1>Page Profil</h1>
+    <!-- <h1>Page Profil</h1> -->
+    <img src="" alt="" id="avatar">
+    <h2>{{ profileUser.name }}</h2>
+    <!-- <v-avatar v-bind:src="profileUser.avatar" rounded="0" id="avatar"></v-avatar> -->
+    <!-- LOGGED USER: {{profileUser.avatar}} -->
     <v-btn class="mt-5" @click="getUser">USER</v-btn>
+    <v-btn class="mt-5" @click="activate2fa">Enable 2FA</v-btn>
     <v-btn class="mt-5" @click="logOut">Log out</v-btn>
   </main>
 </template>
+
+<style>
+#avatar {
+  width: 10%;
+  border-radius: 50%;
+}
+
+@media screen and (max-width: 800px) {
+  #avatar {
+    width: 20%;
+  }
+}
+</style>

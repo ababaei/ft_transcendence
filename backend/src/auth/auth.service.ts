@@ -17,16 +17,18 @@ export class AuthService {
   async validateUser(profile: any): Promise<any> {
     console.log('______________________validate_USER_____________________');
     // console.log("login: ", profile)
-    console.log('VALID_PROFIL: ', profile.emails[0].value);
+    console.log('VALID_PROFIL: ', profile._json.image.link);
     const user = await this.prisma.user.upsert({
       where: {
         name: profile.username,
       },
-      update: {},
+      update: {
+        avatar: profile._json.image.link,
+      },
       create: {
         name: profile.username,
         email: profile.emails[0].value,
-        avatar: profile.photos[0].value,
+        avatar: profile._json.image.link,
       },
     });
     if (user) {
