@@ -29,11 +29,11 @@ export class UsersController {
     this.userService.saveSecretKey(userID, secretKey);
   }
 
-  @UseGuards(JwtGuard)
-  @Post('verify2FA')
-  verify2FA(@Body('userID') userID: string, @Body('otp') otp: string) {
-    const secretKey = this.userService.getSecretKey();
-    const isValid = this.userService.verifyOTP(otp, secretKey);
-    return { isValid };
-  }
+  // @UseGuards(JwtGuard)
+  // @Post('verify2FA')
+  // verify2FA(@Body('userID') userID: string, @Body('otp') otp: string) {
+  //   const secretKey = this.userService.getSecretKey();
+  //   const isValid = this.userService.verifyOTP(otp, secretKey);
+  //   return { isValid };
+  // }
 } 

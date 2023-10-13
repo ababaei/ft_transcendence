@@ -2,9 +2,12 @@
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
+    "twoFaActivated" BOOLEAN NOT NULL DEFAULT false,
+    "twoFaSecret" TEXT NOT NULL DEFAULT '',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "email" TEXT NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "avatar" TEXT NOT NULL DEFAULT '../frontend/assets/DefaultAvatar.png',
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -77,6 +80,9 @@ CREATE TABLE "_UserChannels" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_name_key" ON "users"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
