@@ -22,9 +22,7 @@ export class AuthService {
       where: {
         name: profile.username,
       },
-      update: {
-        avatar: profile._json.image.link,
-      },
+      update: {},
       create: {
         name: profile.username,
         email: profile.emails[0].value,

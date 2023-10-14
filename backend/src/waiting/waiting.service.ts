@@ -1,6 +1,6 @@
 import { Inject } from "@nestjs/common";
 import { Waiting } from "@prisma/client";
-import { PrismaService } from "src/prisma.service";
+import { PrismaService } from "src/prisma/prisma.service";
 
 
 export class WaitingService {

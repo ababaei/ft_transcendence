@@ -22,12 +22,12 @@ export class UsersController {
     return user;
   }
 
-  @UseGuards(JwtGuard)
-  @Post('enable2FA')
-  enable2FA(@Body('userID') userID: string) {
-    const secretKey = this.userService.generateSecretKey();
-    this.userService.saveSecretKey(userID, secretKey);
-  }
+  // @UseGuards(JwtGuard)
+  // @Post('enable2FA')
+  // enable2FA(@Body('userID') userID: string) {
+  //   const secretKey = this.userService.generateSecretKey();
+  //   this.userService.saveSecretKey(userID, secretKey);
+  // }
 
   // @UseGuards(JwtGuard)
   // @Post('verify2FA')
