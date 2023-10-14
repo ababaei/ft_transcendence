@@ -5,7 +5,7 @@ import { defineComponent } from 'vue';
         name: "appHeader",
         data() {
             return {
-                    profilUser: '' as string,
+                profilUser: '' as string,
             }
         },
         computed: {
@@ -17,13 +17,13 @@ import { defineComponent } from 'vue';
                     return '/profil/' + objUser.id
                 }
                 return '/login'
-            }
+            },
         }
     })
 </script>
 
 <template>
-    <v-app-bar app color="primary" class="px-10" dark>
+    <v-app-bar app class="px-10" dark>
         <div class="d-flex align-center">
             <RouterLink to="/">
                 <h2>ginpgonp</h2>
@@ -31,7 +31,7 @@ import { defineComponent } from 'vue';
         </div>
         <v-spacer></v-spacer>
 
-            <RouterLink to="/login"><v-btn color="white">Login</v-btn></RouterLink>
+            <!-- <RouterLink to="/login"><v-btn color="white">Login</v-btn></RouterLink> -->
             <!-- <RouterLink to="/profil"><v-btn color="white">Profil</v-btn></RouterLink> -->
             <RouterLink v-bind:to=currentUser><v-btn color="white">Profil</v-btn></RouterLink>
             <RouterLink to="/chat"><v-btn color="white">Chat</v-btn></RouterLink>
@@ -39,3 +39,10 @@ import { defineComponent } from 'vue';
         <!-- <RouterLink to="/pong">Pong</RouterLink> -->
     </v-app-bar>
 </template>
+
+<style>
+header {
+    background-color: rgb(255, 255, 255) !important;
+}
+
+</style>

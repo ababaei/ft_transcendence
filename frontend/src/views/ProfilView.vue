@@ -67,9 +67,11 @@ export default defineComponent({
   <main>
     <!-- <h1>Page Profil</h1> -->
     <img src="" alt="" id="avatar">
-    <h2>{{ profileUser.name }}</h2>
+    <h1>{{ profileUser.name }}</h1>
     <!-- <v-avatar v-bind:src="profileUser.avatar" rounded="0" id="avatar"></v-avatar> -->
     <!-- LOGGED USER: {{profileUser.avatar}} -->
+    <h2>bonjour</h2>
+    <font-awesome-icon icon="fa-solid fa-spinner" spin style="color: #5b466d;" />
     <v-btn class="mt-5" @click="getUser">USER</v-btn>
     <v-btn class="mt-5" @click="activate2fa">Enable 2FA</v-btn>
     <v-btn class="mt-5" @click="logOut">Log out</v-btn>
@@ -82,7 +84,11 @@ export default defineComponent({
   border-radius: 50%;
 }
 
-@media screen and (max-width: 800px) {
+h1 {
+  font-size: 3em;
+}
+
+@media screen and (max-width: 1000px) {
   #avatar {
     width: 20%;
   }

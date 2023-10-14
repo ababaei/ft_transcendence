@@ -1,8 +1,10 @@
 @import './base.css';
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@700&display=swap');
 
 #app {
   width: 100%;
   font-weight: normal;
+  font-family: 'Chakra Petch', sans-serif;
 }
 
 body {
@@ -41,6 +43,14 @@ nav {
 h1 {
   margin: 0 auto;
   text-align: center;
+}
+
+h1, h2 {
+  color: #ae7cd6;
+}
+
+span {
+  color: #ae7cd6;
 }
 
 main {

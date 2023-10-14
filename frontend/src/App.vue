@@ -7,16 +7,16 @@
       appHeader
     },
     name: "app",
-    mounted() {
+    created() {
       localStorage.setItem('isAuthenticated', 'false')
-    }
+    },
   });
 </script>
 
 <template>
   <v-app>
-    <appHeader></appHeader>
-    <RouterView />
+    <appHeader v-show="$route.name == 'profil' || $route.name == 'chat' || $route.name == 'pong'"></appHeader>
+    <RouterView class="mt-16"/>
   </v-app>
 </template>
 

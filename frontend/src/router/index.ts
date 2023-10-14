@@ -3,21 +3,17 @@ import Login from '@/views/LoginView.vue'
 import Profil from '@/views/ProfilView.vue'
 import Chat from '@/views/NewChatView.vue'
 import Pong from '@/views/PongView.vue'
+import NotFound from '@/views/NotFound.vue'
 // import Pong from '../views/PongView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // {
-    //   path: '/',
-    //   name: 'app',
-    //   component: App
-    // },
     {
       path: '/login',
       name: 'connexion',
       component: Login,
-      alias: '/'
+      alias: '/',
     },
     {
       path: '/profil/:id',
@@ -37,6 +33,10 @@ const router = createRouter({
       component: Pong,
       meta: { requiresAuth: true }
     },
+    {
+      path: '/:pathMatch(.*)*',
+      component: NotFound
+    }
   ]
 });
 

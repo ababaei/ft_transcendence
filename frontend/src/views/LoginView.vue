@@ -10,15 +10,14 @@
 </script>
 
 <template>
-  <v-responsive>
-    <v-container fluid>  
-      <v-main>
-        <v-row>
-          <v-col cols="4" offset="4">
-            <loginForm />
-          </v-col>
-        </v-row>
-      </v-main>
-    </v-container>
-  </v-responsive>
+  <v-main>
+    <loginForm />
+  </v-main>
 </template>
+
+<style>
+
+.v-main {
+  background: linear-gradient(to bottom right, rgb(34, 24, 36), rgb(178, 143, 206))
+}
+</style>

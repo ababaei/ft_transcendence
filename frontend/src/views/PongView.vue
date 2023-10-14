@@ -1,9 +1,10 @@
 <template>
     <main>
-        <v-btn color="success" v-on:click="loadingF" :class="{ invisible: game }">Trouver une partie</v-btn>
+        <v-btn variant="outlined" v-on:click="loadingF" :class="{ invisible: game }">Trouver une partie</v-btn>
         <h1 :class="{ invisible: !game }">{{ left.score }} - {{ right.score }}</h1>
         <div :class="{ invisible: !loading }" id="loading">
-          <iframe src="https://giphy.com/embed/3o7bu3XilJ5BOiSGic" width="30" height="30" frameBorder="0" class="gif"></iframe>
+          <font-awesome-icon :icon="['fas', 'spinner']" spin />
+          <!-- <iframe src="https://giphy.com/embed/3o7bu3XilJ5BOiSGic" width="30" height="30" frameBorder="0" class="gif"></iframe> -->
         </div>
         <canvas id="game" :class="{ invisible: !game }" width="700" height="300"></canvas>
     </main>
@@ -215,3 +216,13 @@
     }
   })
   </script>
+
+<style> 
+button {
+  color: #ae7cd6 !important;
+}
+
+#spin {
+  color: black !important;
+}
+</style>

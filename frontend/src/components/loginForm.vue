@@ -32,7 +32,13 @@ import router from '@/router';
 </script>
 
 <template>
-    <v-container class="pt-10">
-        <v-btn class="mt-5" @click="schoolLogin">Log with 42</v-btn>
-    </v-container>
+    <v-btn rounded="xl" size="x-large" variant="outlined" @click="schoolLogin" id="connect">Log with 42</v-btn>
 </template>
+
+<style>
+
+
+#connect, #connect span {
+    color: whitesmoke;
+}
+</style>
