@@ -6,7 +6,7 @@
 
     <v-divider></v-divider>
     <v-virtual-scroll
-    :items="(channelList as Channel[])"
+    :items="(this.channelList as Channel[])"
     height="320"
     item-height="48">
     <template v-slot:default="{ item }">
@@ -14,25 +14,25 @@
 <!-- CARTE DE DESCRIPTION D'UN CHANNEL -->
     <v-card id="channelDescriptionBar"
     v-if="item.id !== -1"
-    @click="selectChannel(item)"
-    class="mb-3">
-    <v-row>
-        <v-col cols="3"> <v-card-text>{{ item.name }}</v-card-text> </v-col>
-        <v-col cols="3"> <v-chip> {{ item.mode }} </v-chip> </v-col>
-        <v-col cols="6">
-        <v-card-actions  v-if="!isUserInChannel(logedUser.id, item) && !isBan(logedUser.id, item)">
-          <v-form @submit.prevent="joinChannel(logedUser.id, item)">
-            <v-row>
+    @click="this.selectChannel(item)"
+    >
+    <v-row flex-wrap class="d-flex justify-center">
+        <v-col class="3"> <v-card-text>{{ item.name }}</v-card-text> </v-col>
+        <v-col class="3"> <v-chip> {{ item.mode }} </v-chip> </v-col>
+        <v-col class="3">
+        <v-card-actions  v-if="!this.isUserInChannel(this.profileUser.id, item) && !this.isBan(this.profileUser.id, item)">
+          <v-form @submit.prevent="this.joinChannel(item)">
+            <v-row flex-wrap>
             <v-col><v-text-field v-if="item.mode=='protected'"
-            v-model="password"
+            v-model="this.password"
             name="joinPassword"
             label="Password">
             </v-text-field></v-col>
-            <v-col cols="2"><v-btn type="submit">Join</v-btn></v-col>
+            <v-col cols="2"><v-btn type="submit">+</v-btn></v-col>
           </v-row>
           </v-form>
         </v-card-actions>
-        <v-card-text v-if="isBan(logedUser.id, item)">You  are ban from this channel</v-card-text>
+        <v-card-text v-if="this.isBan(this.profileUser.id, item)">You  are ban from this channel</v-card-text>
         </v-col>
     </v-row>
     </v-card>
@@ -58,33 +58,47 @@ import type { Channel, friendRelation, User, Message } from './chat_utilsMethods
             password: '',
           };
         },
+        computed: {
+          profileUser() {
+            const user = localStorage.getItem('currentUser')
+            if (user)
+              return (JSON.parse(user))
+            return null
+          },
+          jwt_token() {
+            const userTkn = localStorage.getItem('jwt_token')
+            if (userTkn)
+              return userTkn
+            return null
+          }      
+        },
+        created() {
+          const user: any = localStorage.getItem('currentUser');
+          console.log("fe_user: ", user)
+          console.log("CURRENT: ", localStorage.getItem('currentUser'))
+        },
         props: {
-            channelList: {
-                type: Array,
-                default: () => []
-            },
-            logedUser: {
-            type: Object as () => User,
-            default: () => ({ id:0, name: ''}),
-          }
+          channelList: {
+              type: Array,
+              default: () => []
+          },
         },
         methods: {
             selectChannel(channel: Channel) {
                 console.log('methods: selectChannel', channel)
-                if (isUserInChannel(this.logedUser.id, channel)) {
+                if (isUserInChannel(this.profileUser.id, channel)) {
                   this.$emit('channel-selected', channel);
                 }
             },
 
-            async joinChannel(userID: number, channel: Channel) {
+            async joinChannel(channel: Channel) {
               console.log('methods: joinChannel');
-              console.log(channel, userID);
+              console.log(channel);
               try {
                 const reponse = await axios.post('/api/chat/joinChannelRequest', {
                   channelID: channel.id,
-                  userID: userID,
                   password: channel.mode === 'protected' ? this.password : '',
-                })
+                }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
                 console.log(reponse.data);
               }
               catch { console.error(); }

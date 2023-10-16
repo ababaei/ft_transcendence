@@ -12,14 +12,22 @@ cors: {
 })
 @Global()
 export class MyGateway {
-    // constructor (private readonly prismaService: PrismaService,
-    //     private readonly chatService: ChatService) {}
+    constructor (private chatService: ChatService) {}
     @WebSocketServer()
     server: Server;
 
     // async handleConnection(client: Socket) {
     //     await client.emit('updateChannelList', await this.chatService.getChannelsList());
     // }
+    async handleConnection(client: Socket) {
+        // console.log(`Client connected : ${client.id}`);
+        // this.server.to(`${client.id}`).emit('socketRef', `${client.id}`)
+        console.log('socket.io: emit updateChanList');
+        const userList = await this.chatService.getUsersList();
+        const channelList = await this.chatService.getChannelsList();
+        this.server.emit('updateUsersList', userList);
+        this.server.emit('updateChannelList', channelList);
+    }
 
     handleDisconnect(client: Socket) {
     //    console.log(`Client disconnected : ${client.id}`)

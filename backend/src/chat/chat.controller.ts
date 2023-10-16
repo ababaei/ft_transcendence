@@ -1,10 +1,13 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'http';
 import { MyGateway } from 'src/gateway/gateway';
 import { error } from 'console';
+import { JwtGuard } from 'src/auth/guards/jwt.guard';
+import { User } from '@prisma/client';
+import { Request } from 'express';
 
 @Controller('chat')
 export class ChatController {
@@ -76,29 +79,31 @@ export class ChatController {
     return;
   }
   @Post('createChannelRequest')
+  @UseGuards(JwtGuard)
   async handleChannelRequest(
+    @Req() req: Request,
     @Body()
     data: {
       channelName: string;
-      userid: number;
       mode: string;
       password: string;
     },
   ) {
     console.log('requete: createChannelRequest: ', data.channelName);
     try {
-      if (!data.channelName || !data.userid || !data.mode) {
+      if (!data.channelName || !data.mode) {
         return 1;
       }
-
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+      console.log('req.user: ', req.user);
       const newChannel = await this.chatService.createNewChannel(
         data.channelName,
         data.mode,
         data.password,
-        data.userid,
+        fromUser.id,
         false,
       );
-      const fromUser = await this.chatService.findUserById(data.userid);
+      // const fromUser = await this.chatService.findUserById(cpy.id);
       if (!newChannel || !fromUser) {
         throw error;
       }
@@ -116,12 +121,14 @@ export class ChatController {
   }
 
   @Post('joinChannelRequest')
+  @UseGuards(JwtGuard)
   async handleJoinChannelRequest(
+    @Req() req: Request,
     @Body() data: { channelID: number; userID: number; password: string },
   ) {
     console.log('Join channel Request');
     try {
-      const fromUser = await this.chatService.findUserById(data.userID);
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
       const joinedChannel = await this.chatService.findChannelById(
         data.channelID,
       );
@@ -149,12 +156,14 @@ export class ChatController {
   }
 
   @Post('messageRequest')
+  @UseGuards(JwtGuard)
   async handleMessageRequest(
-    @Body() data: { text: string; user: number; channel: number },
+    @Req() req: Request,
+    @Body() data: { text: string; channel: number },
   ) {
     console.log('Message request');
     try {
-      const fromUser = await this.chatService.findUserById(data.user);
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
       const inChannel = await this.chatService.findChannelById(data.channel);
       const newMessage = await this.chatService.createMessage(
         inChannel,
@@ -168,9 +177,6 @@ export class ChatController {
       ) {
         return 'backend: you are not allowed to speak in this channel';
       }
-      const newMessageReply = await this.chatService.findMessageById(
-        newMessage.id,
-      );
       this.sendUploadedData();
       return 'backend: new message uploaded';
     } catch {
@@ -180,10 +186,11 @@ export class ChatController {
   }
 
   @Post('destroyChannelRequest')
-  async destroyChannel(@Body() data: { user: number; channelID: number }) {
+  @UseGuards(JwtGuard)
+  async destroyChannel( @Req() req: Request, @Body() data: { channelID: number }) {
     console.log('requete: destroy channel');
     try {
-      const fromUser = await this.chatService.findUserById(data.user);
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channelToDestroy = await this.chatService.findChannelById(
         data.channelID,
       );
@@ -191,7 +198,6 @@ export class ChatController {
       if (fromUser.id !== channelToDestroy.ownerID) {
         return 'backend: you must be channel owner to destroy this channel';
       }
-      const tmp = channelToDestroy.id;
       this.chatService.destroyChannel(channelToDestroy);
       this.sendUploadedData();
       return 'backend: channel destroyed';
@@ -202,15 +208,16 @@ export class ChatController {
   }
 
   @Post('leaveChannelRequest')
-  async leaveChannel(@Body() data: { userID: number; channelID: number }) {
+  @UseGuards(JwtGuard)
+  async leaveChannel(@Req() req: Request, @Body() data: { channelID: number }) {
     try {
       console.log('requete: leave channel');
       const channelToLeave = await this.chatService.findChannelById(
         data.channelID,
       );
-      const userLeaving = await this.chatService.findUserById(data.userID);
-      this.chatService.removeUserFromChannel(userLeaving, channelToLeave);
-      this.chatService.removeUserAdmin(channelToLeave, userLeaving.id);
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+      this.chatService.removeUserFromChannel(fromUser, channelToLeave);
+      this.chatService.removeUserAdmin(channelToLeave, fromUser.id);
       if (!channelToLeave.users) {
         this.chatService.destroyChannel(channelToLeave);
       }
@@ -222,10 +229,11 @@ export class ChatController {
     }
   }
   @Post('editChannelRequest')
+  @UseGuards(JwtGuard)
   async editChannel(
+    @Req() req: Request, 
     @Body()
     data: {
-      user: number;
       channelID: number;
       newChannelName: string;
       newChannelType: string;
@@ -234,7 +242,7 @@ export class ChatController {
   ) {
     try {
       console.log('requete: edit channel request');
-      const fromUser = await this.chatService.findUserById(data.user);
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channelToEdit = await this.chatService.findChannelById(
         data.channelID,
       );
@@ -257,12 +265,14 @@ export class ChatController {
   }
 
   @Post('makeUserAdminRequest')
+  @UseGuards(JwtGuard)
   async makeUserAdmin(
-    @Body() data: { user: number; channelID: number; newAdminID: number },
+    @Req() req: Request, 
+    @Body() data: { channelID: number; newAdminID: number },
   ) {
     try {
       console.log('requete: set user admin');
-      const fromUser = await this.chatService.findUserById(data.user);
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channel = await this.chatService.findChannelById(data.channelID);
 
       if (fromUser.id !== channel.ownerID) {
@@ -277,12 +287,11 @@ export class ChatController {
     }
   }
   @Post('removeUserAdminRequest')
-  async removeUserAdmin(
-    @Body() data: { user: number; channelID: number; removedAdminID: number },
-  ) {
+  @UseGuards(JwtGuard)
+  async removeUserAdmin(@Req() req: Request, @Body() data: { channelID: number; removedAdminID: number }) {
     try {
       console.log('requete: remove user admin');
-      const fromUser = await this.chatService.findUserById(data.user);
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channel = await this.chatService.findChannelById(data.channelID);
 
       if (fromUser.id !== channel.ownerID) {
@@ -296,11 +305,44 @@ export class ChatController {
       return 'backend: error removing user administrator';
     }
   }
-  @Post('muteUserRequest')
-  async muteUser(
+
+  @Post('kickUserRequest')
+  @UseGuards(JwtGuard)
+  async kickUser(
+    @Req() req: Request, 
     @Body()
     data: {
-      user: number;
+      channelID: number;
+      userID: number;
+    },
+  ) {
+    try {
+      console.log('requete: kick User');
+      const channel = await this.chatService.findChannelById(data.channelID);
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+      const userKicked = await this.chatService.findUserById(data.userID);
+
+      if (
+        (await !this.chatService.isAdmin(fromUser.id, channel)) ||
+        (await this.chatService.isAdmin(data.userID, channel)) ||
+        data.userID === channel.ownerID) {
+        return 'backend: cant kick user';
+      }
+      this.chatService.removeUserFromChannel(userKicked, channel);
+      this.sendUploadedData();
+      return 'backend: user kicked';
+    } catch {
+      console.log('error: kick user');
+      return 'backend: failed to kick user';
+    }
+  }
+
+  @Post('muteUserRequest')
+  @UseGuards(JwtGuard)
+  async muteUser(
+    @Req() req: Request, 
+    @Body()
+    data: {
       channelID: number;
       userID: number;
       timer: number;
@@ -308,7 +350,7 @@ export class ChatController {
   ) {
     console.log('requete: mute User');
     const channel = await this.chatService.findChannelById(data.channelID);
-    const fromUser = await this.chatService.findUserById(data.user);
+    const fromUser = await this.chatService.findUserById((req.user as User).id);
 
     if (
       (await !this.chatService.isAdmin(fromUser.id, channel)) ||
@@ -337,10 +379,11 @@ export class ChatController {
     ); // Délai de 100 millisecondes
   }
   @Post('unmuteUserRequest')
+  @UseGuards(JwtGuard)
   async unmuteUser(
+    @Req() req: Request, 
     @Body()
     data: {
-      user: number;
       channelID: number;
       userID: number;
       timer: number;
@@ -349,7 +392,7 @@ export class ChatController {
     try {
       console.log('requete: set user admin');
       const channel = await this.chatService.findChannelById(data.channelID);
-      const fromUser = await this.chatService.findUserById(data.user);
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
 
       if (await !this.chatService.isAdmin(fromUser.id, channel)) {
         return 'backend: cant unmute user';
@@ -364,10 +407,11 @@ export class ChatController {
   }
 
   @Post('banUserRequest')
+  @UseGuards(JwtGuard)
   async banUser(
+    @Req() req: Request, 
     @Body()
     data: {
-      user: number;
       channelID: number;
       userID: number;
       timer: number;
@@ -375,7 +419,7 @@ export class ChatController {
   ) {
     console.log('requete: ban User');
     const channel = await this.chatService.findChannelById(data.channelID);
-    const fromUser = await this.chatService.findUserById(data.user);
+    const fromUser = await this.chatService.findUserById((req.user as User).id);
 
     if (
       (await !this.chatService.isAdmin(fromUser.id, channel)) ||
@@ -405,10 +449,11 @@ export class ChatController {
     ); // Délai de 100 millisecondes
   }
   @Post('unbanUserRequest')
+  @UseGuards(JwtGuard)
   async unbanUser(
+    @Req() req: Request, 
     @Body()
     data: {
-      user: number;
       channelID: number;
       userID: number;
       timer: number;
@@ -417,7 +462,7 @@ export class ChatController {
     try {
       console.log('requete: unban user');
       const channel = await this.chatService.findChannelById(data.channelID);
-      const fromUser = await this.chatService.findUserById(data.user);
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
 
       if (await !this.chatService.isAdmin(fromUser.id, channel)) {
         return 'backend: cant unmute user';
@@ -485,6 +530,17 @@ export class ChatController {
       console.log('error: unblocking user');
       return 'backend: error while unblocking user';
     }
+  }
+
+  @Post('getMessageList')
+  @UseGuards(JwtGuard)
+  async getListMessage(@Req() req: Request, @Body() data: { channelID: number }) {
+    const fromUser = await this.chatService.findUserById((req.user as User).id);
+    const channel = await this.chatService.findChannelById(data.channelID);
+
+    // console.log(this.chatService.getMessagesInChannel(channel))
+    if (!channel) return null;
+    return (await this.chatService.getMessagesInChannel(channel));
   }
 
   sendUploadedData() {

@@ -69,13 +69,12 @@ export class ChatService {
             // console.log('chatService: getChannelsList');
             const channelList = await this.prismaService.channel.findMany({
                 include: {
-                    messages: {
-                        include: {
-                            user: true,
-                        },
-                    },
+                    // messages: {
+                    //     include: {
+                    //         user: true,
+                        // },
+                    // },
                     users: true,
-                    
                 },
             });
             const channelsWithAdminID: Channel[] = [];
@@ -103,6 +102,29 @@ export class ChatService {
                 throw error;
             }
     }
+
+    async getMessagesInChannel(channel: Channel): Promise<Message[]> {
+        try {
+            console.log('chatService: getMessagesInChannel');
+            if (!channel) {return null}
+            const messages = await this.prismaService.message.findMany({
+                where: {
+                    channelID: channel.id,
+                },
+                include: {
+                    user: true, // Inclure les informations sur l'utilisateur qui a envoyé le message
+                    channel: true, // Inclure les informations sur le canal
+                },
+                orderBy: {
+                    createdAt: 'asc', // Vous pouvez changer 'asc' en 'desc' pour trier par ordre décroissant si nécessaire
+                },
+            });
+            return messages;
+        } catch (error) {
+            console.log('error: getMessagesInChannel', error);
+            throw error;
+        }
+    }   
 
     async getUsersList(): Promise<User[]> {
         try {
@@ -402,7 +424,7 @@ export class ChatService {
             return channel;
         }
         catch {
-            console.log('error: set user admin');
+            console.log('error: findChannelById');
             throw error 
         }
     }   
@@ -418,7 +440,7 @@ export class ChatService {
             return user;
         }
         catch {
-            console.log('error: set user admin');
+            console.log('error: findUserById');
             throw error 
         }
     }
@@ -438,7 +460,7 @@ export class ChatService {
             return message;
         }
         catch {
-            console.log('error: set user admin');
+            console.log('error: findMessageById');
             throw error        
         }
     }

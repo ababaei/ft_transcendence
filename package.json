@@ -3,8 +3,9 @@
     "@nestjs/cli": "^10.1.17",
     "@nestjs/platform-express": "^10.2.5",
     "@nestjs/platform-socket.io": "^10.2.5",
-    "@nestjs/websockets": "^10.2.5",
     "@nestjs/schedule": "^3.0.4",
+    "@nestjs/websockets": "^10.2.5",
+    "axios": "^1.5.1",
     "socket.io-client": "^4.7.2",
     "vue-material-design-icons": "^5.2.0",
     "vuetify": "^3.3.20"

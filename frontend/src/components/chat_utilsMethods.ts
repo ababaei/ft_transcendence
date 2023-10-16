@@ -13,6 +13,7 @@ export interface User {
     friendsID: friendRelation[];
     name: string;
     email: string;
+    avatar: string;
     messages: Message[];
     channels: Channel[];  
 }
@@ -41,7 +42,8 @@ export function isUserInChannel(userID: number, channel: Channel): number {
   if (!channel || !userID || !channel.users) {
     return 0;
   }
-  const ret = channel.users.find((user) => user.id == userID);
+  const list = channel.users as User[];
+  const ret = list.find((user) => user.id == userID);
   return ret ? 1 : 0;
 }
 

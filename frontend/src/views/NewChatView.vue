@@ -2,36 +2,34 @@
   <v-responsive>
     <v-container fluid>  
       <v-main>
-        <v-row>
-          <v-col cols="6"> <!-- Colonne de la boîte de chat -->
-            <p v-if="logedUser.id!=0"> {{ logedUser.name }}</p>
+        <v-row class="d-flex justify-space-evenly w-100" flex-wrap>
+          <p v-if="this.profileUser.id!=0"> {{ this.profileUser.name }}</p>
 
+          <v-col v-if="this.channelInChatBoxID!=0"> <!-- Colonne de la boîte de chat -->
 <!-- CHATBOX                      @components/chat_chatboxComponent.vue -->
             <chat_chatboxComponent
-            v-if="logedUser.id!=0 && channelInChatBoxID != 0"
-            :channelInChatBox="channelInChatBox"
-            :logedUser="logedUser"/>
+            v-if="this.profileUser.id!=0 && this.channelInChatBoxID != 0"
+            :channelInChatBox="this.channelInChatBox"/>
           </v-col>
-          <v-col cols="6">
+
+
+          <v-col> <!-- colonne de la liste channel -->
             <v-row>
               <v-col>
-
   <!-- LOGIN -->
-                <chat_BetaLoginForm v-if="logedUser.id==0"
-                @user-loged="userLoged"/>
+                <!-- <chat_BetaLoginForm v-if="this.fe_user.id==0"
+                @user-loged="this.userLoged"/> -->
 
 <!-- CHANNEL LIST                 @component/channelList.vue -->
                 <chat_channelList
-                 v-if="logedUser.id != 0"
-                 :channelList="channelList" 
-                 :logedUser="logedUser"
-                 @channel-selected="selectChannel" />
+                 v-if="this.profileUser.id != 0"
+                 :channelList="this.channelList" 
+                 @channel-selected="this.selectChannel" />
 
 
 <!-- CHANNEL CREATION FORM        @component/channelCreationComponent.vue-->
                  <Chat_channelCreationComponent
-                 v-if="logedUser.id!=0"
-                 :logedUserID="logedUser.id" />
+                 v-if="this.profileUser.id!=0"/>
               </v-col>
             </v-row>
           </v-col>
@@ -45,6 +43,7 @@
 <script lang="ts">
 import chat_BetaLoginForm from "@/components/chat_loginComponant.vue";
 import { io } from 'socket.io-client';
+import axios from 'axios';
 import Chat_channelCreationComponent from "@/components/chat_channelCreationComponent.vue";
 import chat_channelList from "@/components/chat_channelList.vue";
 import chat_chatboxComponent from "@/components/chat_chatboxComponent.vue"
@@ -62,13 +61,32 @@ export default {
 },
     data() {
         return {
-            logedUser: { name: '', id: 0 } as User,
             socket: io('http://localhost:3000'),
             channelList: [] as Channel[],
             userList: [] as User[],
             channelInChatBox: { id: 0 } as Channel,
             channelInChatBoxID: 0 as number,
+            messagesInChatbox: [] as Message[],
         }
+    },
+    computed: {
+      profileUser() {
+        const user = localStorage.getItem('currentUser')
+        if (user)
+          return (JSON.parse(user))
+        return null
+      },
+      jwt_token() {
+        const userTkn = localStorage.getItem('jwt_token')
+        if (userTkn)
+          return userTkn
+        return null
+      }      
+    },
+    created() {
+      const user: any = localStorage.getItem('currentUser');
+      console.log("fe_user: ", user)
+      console.log("CURRENT: ", localStorage.getItem('currentUser'))
     },
 
 
@@ -79,19 +97,17 @@ export default {
         this.channelInChatBoxID = channelId;
     },
 
-    userLoged(user: {data: {userid: number, name: string}}) {
-      console.log("Methods: logedUser: ", user.data)
-      console.log(this.getUserFromId(user.data.userid));
-      this.logedUser = this.getUserFromId(user.data.userid);
-      console.log("logedUser: ", this.logedUser)
-    },
 
-
-    selectChannel(channel: Channel) {
-      console.log(channel)
+    async selectChannel(channel: Channel) {
+      // console.log(channel)
       this.channelInChatBox = channel;
       this.channelInChatBoxID = channel.id;
-      console.log(this.channelInChatBox)
+      // this.channelInChatBox.messages = [];
+      const tmp = (await this.getMessageList()).data as Message[];
+      if (tmp) {
+        this.channelInChatBox.messages = tmp;
+      }
+      console.log('messageiNCHatBox: ',this.messagesInChatbox);
       // if (channel.isDirect || this.isUserInChannel(this.logedUser.id, this.chatboxOnChannel)) {this.chatboxWindow = 1}
       console.log('methods: selectChannel:', this.channelInChatBox);
     },
@@ -106,10 +122,25 @@ export default {
         return (userFounded);
       return {id: 0, name: ''} as User;
     },
+
+    async getMessageList(): Promise<Message[]> {
+      console.log('method: get message in channel');
+      try {
+        const reponse = await axios.post('/api/chat/getMessageList', {
+          channelID: this.channelInChatBoxID,
+        }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}}) as Message[];
+        // console.log('messageList:', reponse);
+        return (reponse as Message[]);
+      }
+      catch {
+        console.error();
+        return null;
+      }
+    },
   },
     mounted() {
 
-    this.socket.on('updateChannelList', (data) => {
+    this.socket.on('updateChannelList', async (data) => {
         console.log('Socket.io: updateChanList: chatboxOnChannelID: ', this.channelInChatBoxID);
         console.log('data:', data);
 
@@ -135,13 +166,17 @@ export default {
 
         // mise a jour de channel in chat box
         if (this.channelInChatBoxID !== 0) {
-            this.channelInChatBox = this.channelList.find(channel => channel.id === this.channelInChatBoxID) as Channel;
+          const tmp = this.channelList.find(channel => channel.id === this.channelInChatBoxID)
+          if (tmp) {
+            this.selectChannel(tmp)
+          }
         }
-        if (!isUserInChannel(this.logedUser.id, this.channelInChatBox)) {
+        if (!isUserInChannel(this.profileUser.id, this.channelInChatBox)) {
           this.channelInChatBox = {id: 0 } as Channel;
           this.channelInChatBoxID = 0;
         }
         console.log('listChannel at the end of updateListChannel: ', this.channelList);
+        console.log('chatBoxOnChannel: ', this.channelInChatBox)
     })
 
     this.socket.on('updateUsersList', (data) => {
@@ -150,10 +185,6 @@ export default {
         for (let i = 0; i < data.length; i++) {
             let userInList = data[i];
             this.userList.push(userInList);
-        }
-        if (this.logedUser.id) {
-            let tmp = this.logedUser.id;
-            this.logedUser = this.userList.find(user => user.id == tmp) as User;
         }
         console.log('userList : ', this.userList);
       })
