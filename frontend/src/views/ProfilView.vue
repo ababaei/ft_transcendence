@@ -6,7 +6,9 @@ import axios from 'axios';
 export default defineComponent({
     data() {
       return {
-        // jwtToken: null,
+        twoFaActivated: false as boolean,
+        qrcodeSrc: '' as string,
+        googleAuthCode: '' as string
       };
     },
     computed: {
@@ -44,10 +46,11 @@ export default defineComponent({
     },
     methods: {
       getUser() {
-        axios.get('/api/users/' + this.profileUser.id,
+        axios.post('/api/2fa/generate',{},
         { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
         .then((res) => {
-          console.log(res);
+          this.qrcodeSrc = res.data
+          console.log(res.data);
         })
       },
       logOut() {
@@ -57,7 +60,23 @@ export default defineComponent({
         router.push('/login')
       },
       activate2fa() {
-        
+        axios.post('/api/2fa/generate', this.profileUser,
+        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`},
+          responseType: 'arraybuffer'})
+        .then((res) => {
+          // this.qrcodeSrc = `data:image/png;base64,${res.data}`;
+          this.twoFaActivated = true;
+
+          const blob = new Blob([res.data], { type: 'image/png' });
+          const dataUrl = URL.createObjectURL(blob);
+
+          this.qrcodeSrc = dataUrl;
+        })
+      },
+      verify2fa() {
+        axios.post('/api/2fa/turn-on',
+        {twoFaCode: this.googleAuthCode, user: this.profileUser },
+        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
       }
     }
   })
@@ -72,6 +91,13 @@ export default defineComponent({
     <!-- LOGGED USER: {{profileUser.avatar}} -->
     <v-btn class="mt-5" @click="getUser">USER</v-btn>
     <v-btn class="mt-5" @click="activate2fa">Enable 2FA</v-btn>
+    <v-container class="align-center" v-if="twoFaActivated">
+        <img :src="qrcodeSrc" >
+        <v-form @submit.prevent="verify2fa">
+          <v-text-field v-model="googleAuthCode" label="Google Auth Code"></v-text-field>
+          <v-btn type="submit">verify</v-btn>
+        </v-form>
+    </v-container>
     <v-btn class="mt-5" @click="logOut">Log out</v-btn>
   </main>
 </template>

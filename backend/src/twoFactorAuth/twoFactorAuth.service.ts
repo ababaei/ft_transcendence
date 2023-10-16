@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { Response } from 'express';
 import { authenticator } from 'otplib';
-import { toFileStream } from 'qrcode';
+import { toDataURL, toFileStream } from 'qrcode';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
