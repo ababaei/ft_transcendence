@@ -130,7 +130,7 @@ export class ChatService {
         try {
             const userList = await this.prismaService.user.findMany({
                 include: {
-                    friendsID: true
+                    friends: true
                 },                
             },)
             return userList;
@@ -140,6 +140,28 @@ export class ChatService {
             throw error;
         }
     }
+
+    async getFriendsList(user: User): Promise<User[]> {
+        try {
+          if (!user) {
+            return [];
+          }
+          const friendsList = await this.prismaService.user.findMany({
+            where: {
+              friends: {
+                some: {
+                  id: user.id,
+                },
+              },
+            },
+          });
+      
+          return friendsList;
+        } catch (error) {
+          console.error('Error in getFriendsList:', error);
+          throw error;
+        }
+      }
 
     async destroyChannel(channel: Channel)
     {
@@ -313,101 +335,97 @@ export class ChatService {
 
     async addUserInFriends(user1: User, user2: User, conv: number) {
         try {
-            console.log('chatService: make friends');
-            await this.prismaService.friendRelation.create({
+            await this.prismaService.user.update({
+                where: { id: user1.id },
                 data: {
-                    userID: user1.id,
-                    friendID: user2.id,
-                    convID: conv
-                },
-            })
-            await this.prismaService.friendRelation.create({
+                    friends: { connect: [{ id: user2.id }] }
+                }
+            });
+            await this.prismaService.user.update({
+                where: { id: user2.id },
                 data: {
-                    userID: user2.id,
-                    friendID: user1.id,
-                    convID: conv
-                },
-            })
-        }
-        catch {
-            console.log('error: set user admin');
-            throw error 
+                    friends: { connect: [{ id: user1.id }] }
+                }
+            });
+        } catch (error) {
+            console.log('Error: Adding friends', error);
+            throw error;
         }
     }
 
-    async setBlockedRelation(user1: User, user2: User) {
-        console.log('chatService: set Blocked Relation');
-        try {
-            const relation = await this.prismaService.friendRelation.findFirst({
-                where: {
-                    userID: user1.id,
-                    friendID: user2.id,
-                }
-            });
-            console.log(relation);
-            if (!relation) {
-                console.log("!relation")
-                await this.prismaService.friendRelation.create({
-                    data: {
-                        userID: user1.id,
-                        friendID: user2.id,
-                        convID: 0,
-                        isBlocked: true
-                    },
-                })
-                await this.prismaService.friendRelation.create({
-                    data: {
-                        userID: user2.id,
-                        friendID: user1.id,
-                        convID: 0,
-                    },
-                })
-            }
-            else {
-                await this.prismaService.friendRelation.update({
-                    where: { id: relation.id },
-                    data: {
-                        isBlocked: true,
-                    },
-                })
-            }
-        }
-        catch {
-            console.log('error: set user admin');
-            throw error 
-        }
-    }
-    async removeBlockedRelation(user1: User, user2: User) {
-        try {
-            console.log('chatService: set Blocked Relation');
-            const relation = await this.prismaService.friendRelation.findFirst({
-                where: {
-                    userID: user1.id,
-                    friendID: user2.id,
-                }
-            });
-            console.log(relation);
-            if (relation) {
-                await this.prismaService.friendRelation.delete({
-                    where: {id: relation.id}
-                })
-            }
-            const relation2 = await this.prismaService.friendRelation.findFirst({
-                where: {
-                    userID: user2.id,
-                    friendID: user1.id,
-                }
-            });
-            if (relation2) {
-                await this.prismaService.friendRelation.delete({
-                    where: {id: relation2.id}
-                })
-            }
-        } catch {
-            console.log('error: set user admin');
-            throw error 
-        }
-    }
+    // async setBlockedRelation(user1: User, user2: User) {
+    //     console.log('chatService: set Blocked Relation');
+    //     try {
+    //         const relation = await this.prismaService.friendRelation.findFirst({
+    //             where: {
+    //                 userID: user1.id,
+    //                 friendID: user2.id,
+    //             }
+    //         });
+    //         console.log(relation);
+    //         if (!relation) {
+    //             console.log("!relation")
+    //             await this.prismaService.friendRelation.create({
+    //                 data: {
+    //                     userID: user1.id,
+    //                     friendID: user2.id,
+    //                     convID: 0,
+    //                     isBlocked: true
+    //                 },
+    //             })
+    //             await this.prismaService.friendRelation.create({
+    //                 data: {
+    //                     userID: user2.id,
+    //                     friendID: user1.id,
+    //                     convID: 0,
+    //                 },
+    //             })
+    //         }
+    //         else {
+    //             await this.prismaService.friendRelation.update({
+    //                 where: { id: relation.id },
+    //                 data: {
+    //                     isBlocked: true,
+    //                 },
+    //             })
+    //         }
+    //     }
+    //     catch {
+    //         console.log('error: set user admin');
+    //         throw error 
+    //     }
+    // }
+    // async removeBlockedRelation(user1: User, user2: User) {
+    //     try {
+    //         console.log('chatService: set Blocked Relation');
+    //         const relation = await this.prismaService.friendRelation.findFirst({
+    //             where: {
+    //                 userID: user1.id,
+    //                 friendID: user2.id,
+    //             }
+    //         });
+    //         console.log(relation);
+    //         if (relation) {
+    //             await this.prismaService.friendRelation.delete({
+    //                 where: {id: relation.id}
+    //             })
+    //         }
+    //         const relation2 = await this.prismaService.friendRelation.findFirst({
+    //             where: {
+    //                 userID: user2.id,
+    //                 friendID: user1.id,
+    //             }
+    //         });
+    //         if (relation2) {
+    //             await this.prismaService.friendRelation.delete({
+    //                 where: {id: relation2.id}
+    //             })
+    //         }
+    //     } catch {
+    //         console.log('error: set user admin');
+    //         throw error 
+    //     }
+    // }
 
     async findChannelById(channelId: number) {
         try {
@@ -427,7 +445,22 @@ export class ChatService {
             console.log('error: findChannelById');
             throw error 
         }
-    }   
+    }
+
+    async findUserByName(username: string): Promise<User | null> {
+        try {
+          const user = await this.prismaService.user.findFirst({
+            where: {
+              name: username,
+            },
+          });
+          return user;
+        } catch (error) {
+          console.error('Error in findUserByName:', error);
+          throw error;
+        }
+      }
+      
 
     async findUserById(userId: number) {
         try {

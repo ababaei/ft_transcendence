@@ -39,17 +39,6 @@ CREATE TABLE "Message" (
 );
 
 -- CreateTable
-CREATE TABLE "friendRelation" (
-    "id" SERIAL NOT NULL,
-    "userID" INTEGER NOT NULL,
-    "friendID" INTEGER NOT NULL,
-    "convID" INTEGER NOT NULL,
-    "isBlocked" BOOLEAN NOT NULL DEFAULT false,
-
-    CONSTRAINT "friendRelation_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "Waiting" (
     "id" SERIAL NOT NULL,
     "socket" TEXT,
@@ -73,6 +62,12 @@ CREATE TABLE "Game" (
     "active" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "Game_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "_friends" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
 );
 
 -- CreateTable
@@ -100,6 +95,12 @@ CREATE UNIQUE INDEX "Waiting_socket_key" ON "Waiting"("socket");
 CREATE UNIQUE INDEX "Player_socket_key" ON "Player"("socket");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "_friends_AB_unique" ON "_friends"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_friends_B_index" ON "_friends"("B");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_UserChannels_AB_unique" ON "_UserChannels"("A", "B");
 
 -- CreateIndex
@@ -112,10 +113,13 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_channelID_fkey" FOREIGN KEY ("chan
 ALTER TABLE "Message" ADD CONSTRAINT "Message_userID_fkey" FOREIGN KEY ("userID") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "friendRelation" ADD CONSTRAINT "friendRelation_userID_fkey" FOREIGN KEY ("userID") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Player" ADD CONSTRAINT "Player_gameID_fkey" FOREIGN KEY ("gameID") REFERENCES "Game"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Player" ADD CONSTRAINT "Player_gameID_fkey" FOREIGN KEY ("gameID") REFERENCES "Game"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "_friends" ADD CONSTRAINT "_friends_A_fkey" FOREIGN KEY ("A") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_friends" ADD CONSTRAINT "_friends_B_fkey" FOREIGN KEY ("B") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_UserChannels" ADD CONSTRAINT "_UserChannels_A_fkey" FOREIGN KEY ("A") REFERENCES "Channel"("id") ON DELETE CASCADE ON UPDATE CASCADE;

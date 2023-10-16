@@ -477,60 +477,58 @@ export class ChatController {
   }
 
   @Post('addFriendRequest')
-  async addFriend(@Body() data: { userID: number; friendID: number }) {
-    try {
-      console.log('requete: set user admin');
-      const user1 = await this.chatService.findUserById(data.userID);
-      const user2 = await this.chatService.findUserById(data.friendID);
-      const newChannel = await this.chatService.createNewChannel(
-        '',
-        'direct',
-        '',
-        0,
-        true,
-      );
-      await this.chatService.addUserInChannel(newChannel, user1);
-      await this.chatService.addUserInChannel(newChannel, user2);
-      this.chatService.addUserInFriends(user1, user2, newChannel.id);
-
-      this.sendUploadedData();
-      return 'backend: friend added';
-    } catch {
-      console.log('error: adding friend');
-      return 'backend: error while adding friend';
-    }
+  @UseGuards(JwtGuard)
+  async addFriend(@Req() req: Request, @Body() data: { friendName: string }) {
+      try {
+          console.log('Request: Add friend');
+          const fromUser = await this.chatService.findUserById((req.user as User).id);
+          const user2 = await this.chatService.findUserByName(data.friendName);
+          if (!user2) {
+            return 'backend: user not found'
+          }
+          const newChannel = await this.chatService.createNewChannel('', 'direct', '', 0, true);
+          await this.chatService.addUserInChannel(newChannel, fromUser);
+          await this.chatService.addUserInChannel(newChannel, user2);
+          await this.chatService.addUserInFriends(fromUser, user2, newChannel.id);
+  
+          this.sendUploadedData();
+          return 'Backend: Friend added';
+      } catch (error) {
+          console.log('Error: Adding friend', error);
+          return 'Backend: Error while adding friend';
+      }
   }
 
-  @Post('blockUserRequest')
-  async blockUser(@Body() data: { userID: number; blockedID: number }) {
-    try {
-      console.log('requete: block ');
-      const userBlocking = await this.chatService.findUserById(data.userID);
-      const userBlocked = await this.chatService.findUserById(data.blockedID);
-      this.chatService.setBlockedRelation(userBlocking, userBlocked);
+  // @Post('blockUserRequest')
+  // async blockUser(@Body() data: { userID: number; blockedID: number }) {
+  //   try {
+  //     console.log('requete: block ');
+  //     const userBlocking = await this.chatService.findUserById(data.userID);
+  //     const userBlocked = await this.chatService.findUserById(data.blockedID);
+  //     this.chatService.setBlockedRelation(userBlocking, userBlocked);
 
-      this.sendUploadedData();
-      return 'backend: user blocked';
-    } catch {
-      console.log('error: blocking user');
-      return 'backend: error while blocking user';
-    }
-  }
-  @Post('unblockUserRequest')
-  async unblockUser(@Body() data: { userID: number; blockedID: number }) {
-    try {
-      console.log('requete: unblock');
-      const userBlocking = await this.chatService.findUserById(data.userID);
-      const userBlocked = await this.chatService.findUserById(data.blockedID);
-      this.chatService.removeBlockedRelation(userBlocking, userBlocked);
+  //     this.sendUploadedData();
+  //     return 'backend: user blocked';
+  //   } catch {
+  //     console.log('error: blocking user');
+  //     return 'backend: error while blocking user';
+  //   }
+  // }
+  // @Post('unblockUserRequest')
+  // async unblockUser(@Body() data: { userID: number; blockedID: number }) {
+  //   try {
+  //     console.log('requete: unblock');
+  //     const userBlocking = await this.chatService.findUserById(data.userID);
+  //     const userBlocked = await this.chatService.findUserById(data.blockedID);
+  //     this.chatService.removeBlockedRelation(userBlocking, userBlocked);
 
-      this.sendUploadedData();
-      return 'backend: user unblocked';
-    } catch {
-      console.log('error: unblocking user');
-      return 'backend: error while unblocking user';
-    }
-  }
+  //     this.sendUploadedData();
+  //     return 'backend: user unblocked';
+  //   } catch {
+  //     console.log('error: unblocking user');
+  //     return 'backend: error while unblocking user';
+  //   }
+  // }
 
   @Post('getMessageList')
   @UseGuards(JwtGuard)
@@ -541,6 +539,18 @@ export class ChatController {
     // console.log(this.chatService.getMessagesInChannel(channel))
     if (!channel) return null;
     return (await this.chatService.getMessagesInChannel(channel));
+  }
+
+  @Post('getFriendsList')
+  @UseGuards(JwtGuard)
+  async getFriendsList(@Req() req: Request) {
+    const fromUser = await this.chatService.findUserById((req.user as User).id);
+    if (fromUser) {
+      const friendsList = await this.chatService.getFriendsList(fromUser);
+      return friendsList;
+    } else {
+      return [];
+    }
   }
 
   sendUploadedData() {
