@@ -63,7 +63,7 @@ export default {
     data() {
         return {
             logedUser: { name: '', id: 0 } as User,
-            socket: io('http://localhost:3000'),
+            socket: io('http://10.34.9.8:3000'),
             channelList: [] as Channel[],
             userList: [] as User[],
             channelInChatBox: { id: 0 } as Channel,

@@ -25,19 +25,19 @@ export default defineComponent({
     },
     created() {
       const user: any = localStorage.getItem('currentUser');
-      console.log("fe_user: ", user)
-      console.log("CURRENT: ", localStorage.getItem('currentUser'))
+      // console.log("fe_user: ", user)
+      // console.log("CURRENT: ", localStorage.getItem('currentUser'))
     },
     mounted() {
       if (this.profileUser)
       {
         const avatar = this.profileUser.avatar;
-        console.log('avatar :', avatar);
+        // console.log('avatar :', avatar);
         // const profilePic = document.getElementsByTagName('img')[1];
         const profilePic = document.getElementsByTagName('img')[0];
         if (profilePic)
         {
-          console.log('profilePic')
+          // console.log('profilePic')
           profilePic.src = avatar;
         }
       }
@@ -47,7 +47,7 @@ export default defineComponent({
         axios.get('/api/users/' + this.profileUser.id,
         { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
         .then((res) => {
-          console.log(res);
+          // console.log(res);
         })
       },
       logOut() {
@@ -70,8 +70,7 @@ export default defineComponent({
     <h1>{{ profileUser.name }}</h1>
     <!-- <v-avatar v-bind:src="profileUser.avatar" rounded="0" id="avatar"></v-avatar> -->
     <!-- LOGGED USER: {{profileUser.avatar}} -->
-    <h2>bonjour</h2>
-    <font-awesome-icon icon="fa-solid fa-spinner" spin style="color: #5b466d;" />
+    <!-- <font-awesome-icon icon="fa-solid fa-spinner" spin style="color: #5b466d;" /> -->
     <v-btn class="mt-5" @click="getUser">USER</v-btn>
     <v-btn class="mt-5" @click="activate2fa">Enable 2FA</v-btn>
     <v-btn class="mt-5" @click="logOut">Log out</v-btn>

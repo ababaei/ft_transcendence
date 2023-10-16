@@ -17,7 +17,7 @@ export class AuthController {
 
   @Get('test')
   test(@Req() req: Request, @Res() res: Response) {
-    console.log('b_cookies: ', req.cookies.userData.token);
+    // console.log('b_cookies: ', req.cookies.userData.token);
     res.cookie('userData', req.cookies.userData.token, {
       httpOnly: true,
       secure: false,
@@ -27,7 +27,7 @@ export class AuthController {
   @Get('user/:id')
   @UseGuards(AuthGuard('42'))
   async getUser(@Param() params: { login: string }) {
-    console.log('LOGIN: ', params.login);
+    // console.log('LOGIN: ', params.login);
 
     const user = await this.prismaService.user.findFirst({
       where: { name: params.login },
@@ -38,7 +38,7 @@ export class AuthController {
   @Get('42')
   @UseGuards(AuthGuard('42'))
   async login() {
-    console.log('entry');
+    // console.log('entry');
     passport.authenticate('42');
   }
 
@@ -48,11 +48,11 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    console.log('______________________callback__________________');
+    // console.log('______________________callback__________________');
     passport.authenticate('42', { failureRedirect: '/fail' });
     // const ret: any = req.user;
     res.cookie('userData', JSON.stringify(req.user), { secure: false });
-    return res.status(302).redirect('http://localhost:8080/login');
+    return res.status(302).redirect('http://10.34.9.8:8080/login');
   }
 
   @Get('logout')

@@ -32,9 +32,9 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     profile: any,
     done: Function,
   ): Promise<any> {
-    console.log('PROFILE: ', profile);
+    // console.log('PROFILE: ', profile);
     const validUser = await this.authService.validateUser(profile);
-    console.log('TOKEN: ', validUser.user.id);
+    // console.log('TOKEN: ', validUser.user.id);
     if (!validUser) {
       throw new UnauthorizedException();
     }

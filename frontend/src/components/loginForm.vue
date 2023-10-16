@@ -11,8 +11,10 @@ import router from '@/router';
         },
         mounted() {
             const cookies = this.$cookies.get("userData")
-            const tmpUser = JSON.stringify(cookies.user)
-            console.log("USERID", tmpUser);
+            var tmpUser = '';
+            if (cookies)
+                tmpUser = JSON.stringify(cookies.user)
+            // console.log("USERID", tmpUser);
             if (cookies) {
                 localStorage.setItem('isAuthenticated', 'true')
                 localStorage.setItem('currentUser', tmpUser)
@@ -25,7 +27,7 @@ import router from '@/router';
         },
         methods: {
             schoolLogin() {               
-                window.location.href = 'http://localhost:8080/api/auth/42'
+                window.location.href = 'http://10.34.9.8:8080/api/auth/42'
             },
         }
     })

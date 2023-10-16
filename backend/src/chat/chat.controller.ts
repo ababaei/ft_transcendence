@@ -18,9 +18,9 @@ export class ChatController {
 
   @Post('setUsername')
   async handleUsername(@Body() data: { username: string }) {
-    console.log('requete: setUsernameRequest', data.username);
+    // console.log('requete: setUsernameRequest', data.username);
 
-    console.log('socket.io: emit updateChanList');
+    // console.log('socket.io: emit updateChanList');
     this.gateway.server.emit(
       'updateChannelList',
       await this.chatService.getChannelsList(),
@@ -48,7 +48,7 @@ export class ChatController {
       }, 100); // Délai de 100 millisecondes
       return { userid: foundedUser.id, username: foundedUser.name };
     } else {
-      console.log('create new user', data.username);
+      // console.log('create new user', data.username);
       try {
         const newUser = await this.prismaService.user.create({
           data: {
@@ -70,7 +70,7 @@ export class ChatController {
         }, 100); // Délai de 100 millisecondes
         return { userid: newUser.id, username: newUser.name };
       } catch {
-        console.log('error while creating new user');
+        // console.log('error while creating new user');
       }
     }
     return;
@@ -85,7 +85,7 @@ export class ChatController {
       password: string;
     },
   ) {
-    console.log('requete: createChannelRequest: ', data.channelName);
+    // console.log('requete: createChannelRequest: ', data.channelName);
     try {
       if (!data.channelName || !data.userid || !data.mode) {
         return 1;
@@ -110,7 +110,7 @@ export class ChatController {
 
       return 'backend: channel created';
     } catch {
-      console.log('error: create channel');
+      // console.log('error: create channel');
       return 'backend: error creating channel';
     }
   }

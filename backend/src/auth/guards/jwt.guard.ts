@@ -13,10 +13,10 @@ export class JwtGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    console.log('request: ', request);
+    // console.log('request: ', request);
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      console.log('1');
+      // console.log('1');
       throw new UnauthorizedException();
     }
     try {
@@ -27,7 +27,7 @@ export class JwtGuard implements CanActivate {
       // so that we can access it in our route handlers
       request['user'] = payload;
     } catch {
-      console.log('2');
+      // console.log('2');
       throw new UnauthorizedException();
     }
     return true;
@@ -35,8 +35,8 @@ export class JwtGuard implements CanActivate {
 
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ');
-    console.log('type :', type);
-    console.log('token :', token);
+    // console.log('type :', type);
+    // console.log('token :', token);
     return type === 'Bearer' ? token : undefined;
   }
 }

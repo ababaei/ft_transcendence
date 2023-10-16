@@ -10,14 +10,14 @@
 </script>
 
 <template>
-  <v-main>
+  <v-main class="notLogged">
     <loginForm />
   </v-main>
 </template>
 
 <style>
 
-.v-main {
+.notLogged {
   background: linear-gradient(to bottom right, rgb(34, 24, 36), rgb(178, 143, 206))
 }
 </style>

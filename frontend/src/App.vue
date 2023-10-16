@@ -1,6 +1,7 @@
 <script lang="ts">
   import { defineComponent } from 'vue';
   import appHeader from '@/components/AppHeader.vue'
+import { io } from 'socket.io-client';
 
   export default defineComponent ({
     components: {
@@ -16,7 +17,7 @@
 <template>
   <v-app>
     <appHeader v-show="$route.name == 'profil' || $route.name == 'chat' || $route.name == 'pong'"></appHeader>
-    <RouterView class="mt-16"/>
+    <RouterView/>
   </v-app>
 </template>
 

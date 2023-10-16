@@ -15,9 +15,9 @@ export class AuthService {
   ) {}
 
   async validateUser(profile: any): Promise<any> {
-    console.log('______________________validate_USER_____________________');
+    // console.log('______________________validate_USER_____________________');
     // console.log("login: ", profile)
-    console.log('VALID_PROFIL: ', profile._json.image.link);
+    // console.log('VALID_PROFIL: ', profile._json.image.link);
     const user = await this.prisma.user.upsert({
       where: {
         name: profile.username,
@@ -32,11 +32,11 @@ export class AuthService {
       },
     });
     if (user) {
-      console.log('User validated: ', user.id);
+      // console.log('User validated: ', user.id);
       const token = await this.signToken({ id: user.id });
       return { token, user };
     }
-    console.log('User not validated');
+    // console.log('User not validated');
     return null;
   }
 

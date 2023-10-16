@@ -11,7 +11,7 @@ export class SessionSerializer extends PassportSerializer {
     }
 
     serializeUser(user: any, done: (err: Error, user: any) => void) {
-        console.log('SERIALIZING USER')
+        // console.log('SERIALIZING USER')
         return done(null, {
             id: user.id,
             name: user.name,
@@ -19,7 +19,7 @@ export class SessionSerializer extends PassportSerializer {
     }
 
     deserializeUser(user: any, done: (err: Error, user: any) => void) {
-        console.log('SERIALIZING USER')
+        // console.log('SERIALIZING USER')
         const fullUser = this.prisma.user.findUnique({
             where: {
                 id: user.id
