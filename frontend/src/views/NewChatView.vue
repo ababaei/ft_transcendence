@@ -61,7 +61,7 @@ export default {
 },
     data() {
         return {
-            socket: io('http://localhost:3000'),
+            socket: io('/api'),
             channelList: [] as Channel[],
             userList: [] as User[],
             channelInChatBox: { id: 0 } as Channel,

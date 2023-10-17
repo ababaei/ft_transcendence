@@ -1,22 +1,23 @@
 <script lang="ts">
   import { defineComponent } from 'vue';
   import appHeader from '@/components/AppHeader.vue'
+import { io } from 'socket.io-client';
 
   export default defineComponent ({
     components: {
       appHeader
     },
     name: "app",
-    mounted() {
+    created() {
       localStorage.setItem('isAuthenticated', 'false')
-    }
+    },
   });
 </script>
 
 <template>
   <v-app>
-    <appHeader></appHeader>
-    <RouterView />
+    <appHeader v-show="$route.name == 'profil' || $route.name == 'chat' || $route.name == 'pong'"></appHeader>
+    <RouterView/>
   </v-app>
 </template>
 

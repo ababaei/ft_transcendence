@@ -11,8 +11,10 @@ import router from '@/router';
         },
         mounted() {
             const cookies = this.$cookies.get("userData")
-            const tmpUser = JSON.stringify(cookies.user)
-            console.log("USERID", tmpUser);
+            var tmpUser = '';
+            if (cookies)
+                tmpUser = JSON.stringify(cookies.user)
+            // console.log("USERID", tmpUser);
             if (cookies) {
                 localStorage.setItem('isAuthenticated', 'true')
                 localStorage.setItem('currentUser', tmpUser)
@@ -25,14 +27,20 @@ import router from '@/router';
         },
         methods: {
             schoolLogin() {               
-                window.location.href = 'http://localhost:8080/api/auth/42'
+                window.location.href = '/front/api/auth/42'
             },
         }
     })
 </script>
 
 <template>
-    <v-container class="pt-10">
-        <v-btn class="mt-5" @click="schoolLogin">Log with 42</v-btn>
-    </v-container>
+    <v-btn rounded="xl" size="x-large" variant="outlined" @click="schoolLogin" id="connect">Log with 42</v-btn>
 </template>
+
+<style>
+
+
+#connect, #connect span {
+    color: whitesmoke;
+}
+</style>
