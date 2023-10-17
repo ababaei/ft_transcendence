@@ -27,7 +27,7 @@ import router from '@/router';
         },
         methods: {
             schoolLogin() {               
-                window.location.href = 'http://10.34.9.8:8080/api/auth/42'
+                window.location.href = '/front/api/auth/42'
             },
         }
     })

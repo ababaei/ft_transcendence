@@ -24,6 +24,27 @@
         </v-dialog>
 
 
+      <v-dialog v-model="alreadyWaiting">
+          <v-card title="DOUBLE CONNEXION">
+            <v-card-text>
+              Il semblerait que vous soyez deja en train de chercher un adversaire... 
+              <v-spacer></v-spacer>
+              Verifiez que vous n'etes pas connecte sur un autre onglet puis retentez votre chance            </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+        
+                <v-btn
+                  text="Fermer"
+                  @click="alreadyWaiting = false">
+                </v-btn>
+              </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+
+
+
         <v-dialog v-model="endGame">
           <v-card title="VICTOIRE">
             <v-card-text>
@@ -38,6 +59,44 @@
                 <v-btn
                   text="Fermer"
                   @click="endGame = false">
+                </v-btn>
+              </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="victory">
+          <v-card title="GAGNÉ !">
+            <v-card-text>
+              La partie est terminée car vous avez atteint 3 points.
+              <v-spacer></v-spacer>
+              Vous remportez la partie !
+            </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+        
+                <v-btn
+                  text="Fermer"
+                  @click="victory = false">
+                </v-btn>
+              </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="defeat">
+          <v-card title="PERDU !">
+            <v-card-text>
+              La partie est terminée car votre adversaire a marqué 3 points.
+              <v-spacer></v-spacer>
+              Vous perdez la partie !
+            </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+        
+                <v-btn
+                  text="Fermer"
+                  @click="defeat = false">
                 </v-btn>
               </v-card-actions>
           </v-card>
@@ -58,8 +117,7 @@
     components: ({}),
     data() {
       return {
-        socket: io('http://10.34.9.8:3000', { transports : ['websocket'] }),
-        // socket: io('http://10.34.9.8:3000'),
+        socket: io(process.env.VITE_HOST, { transports : ['websocket'] }),
         key: 'aucune',
         canvas: {
           width: 700,
@@ -94,7 +152,10 @@
         arrowup : false,
         arrowdown : false,
         justPressed : false,
-        endGame: false
+        endGame: false,
+        victory: false,
+        defeat: false,
+        alreadyWaiting: false
       }
     },
     mounted() {
@@ -110,6 +171,12 @@
         this.game = false;
         this.socket.emit('endGame');
       })
+      this.socket.on('alreadyWaiting', () => {
+        this.loading = false;
+        this.alreadyWaiting = true;
+        const text = <HTMLInputElement>document.getElementsByClassName('v-btn__content')[3];
+        text.innerHTML = 'Trouver un adversaire aléatoire'
+      })
       window.addEventListener('keyup', this.KeyUpEvt);
       this.socket.on('initGame', () => {     
         const text = <HTMLInputElement>document.getElementsByClassName('v-btn__content')[3];
@@ -118,6 +185,14 @@
         this.game = true;
         this.loading = false;
         requestAnimationFrame(this.renderGame);
+      })
+      this.socket.on('Winner', (winner: any) => {
+        this.game = false;
+        const user = this.getParseUser();
+        if (winner.id == user.id)
+          this.victory = true;
+        else
+          this.defeat = true;
       })
       this.socket.on('posUpdate', (data: any) =>{
           if (data.side === 'left') {
@@ -131,9 +206,7 @@
             this.right.score = data.score;
           }
       })
-      this.socket.on('goal', (leftPlayer: any, rightPlayer: any) => {
-        this.left.score = leftPlayer.score;
-        this.right.score = rightPlayer.score;
+      this.socket.on('goal', (Winner: any) => {
       })
       this.socket.on('ballPos', (data: any) => {
         this.ball.x = data.x;

@@ -146,6 +146,8 @@ export class MyPonGateway {
             {
               this.server.to(element.roomNo).emit('goal', leftPlayer, rightPlayer);
               this.reinitEl(element);
+              if (leftPlayer.score === 3 || rightPlayer.score === 3)
+                leftPlayer.score === 3 ? this.server.to(element.roomNo).emit('Winner', leftPlayer) : this.server.to(element.roomNo).emit('Winner', leftPlayer);
             }
             element.y += element.velY;
             element.x += element.velX;
@@ -163,72 +165,80 @@ export class MyPonGateway {
 
     @SubscribeMessage('newPlayer')
     playerJoinRoom(client: Socket, userID: string) {
-      this.playerNo++;
-      let roomNo = Math.round(this.playerNo / 2).toString();
-      client.join(roomNo);
-      if(this.playerNo % 2 === 1){
-        const newPlayer = {
-          id: userID,
-          socket: client.id,
-          x: 4,
-          y: 110,
-          roomNo: roomNo,
-          score: 0,
-          side: 'left',
-          up: false,
-          down: false,
-          active: false,
-          waiting: true
-        }
-        this.player.push(newPlayer);
-      }
-      if(this.playerNo % 2 === 0){
-        const newPlayer = {
-          id: userID,
-          socket: client.id,
-          x: 681,
-          y: 110,
-          roomNo : roomNo,
-          score: 0,
-          side: 'right',
-          up: false,
-          down: false,
-          active: false,
-          waiting: true
-        }
-        this.player.push(newPlayer);
-        const newBall = {
-          roomNo: roomNo,
-          x: 350,
-          y: 150,
-          size: 5,
-          speed: 2,
-          velX: 2,
-          velY: 0
-        }
-        this.ball.push(newBall)
-        this.server.to(roomNo).emit('initBall', newBall);
-        this.player.forEach(element => {
-          if (element.roomNo === roomNo)
-          {
-            element.waiting = false;
-            element.active = true;
+      const player = this.player.findIndex(item => {
+        return (item.id === userID && item.waiting === true)
+      })
+      if (player != -1)
+        this.server.to(client.id).emit('alreadyWaiting');
+      else
+      {
+        this.playerNo++;
+        let roomNo = Math.round(this.playerNo / 2).toString();
+        client.join(roomNo);
+        if(this.playerNo % 2 === 1){
+          const newPlayer = {
+            id: userID,
+            socket: client.id,
+            x: 4,
+            y: 110,
+            roomNo: roomNo,
+            score: 0,
+            side: 'left',
+            up: false,
+            down: false,
+            active: false,
+            waiting: true
           }
-        });
-        this.server.to(roomNo).emit('initGame');
+          this.player.push(newPlayer);
+        }
+        if(this.playerNo % 2 === 0){
+          const newPlayer = {
+            id: userID,
+            socket: client.id,
+            x: 681,
+            y: 110,
+            roomNo : roomNo,
+            score: 0,
+            side: 'right',
+            up: false,
+            down: false,
+            active: false,
+            waiting: true
+          }
+          this.player.push(newPlayer);
+          const newBall = {
+            roomNo: roomNo,
+            x: 350,
+            y: 150,
+            size: 5,
+            speed: 2,
+            velX: 2,
+            velY: 0
+          }
+          this.ball.push(newBall)
+          this.server.to(roomNo).emit('initBall', newBall);
+          this.player.forEach(element => {
+            if (element.roomNo === roomNo)
+            {
+              element.waiting = false;
+              element.active = true;
+            }
+          });
+          this.server.to(roomNo).emit('initGame');
+        }
       }
     }
 
     @SubscribeMessage('deletePlayer')
     deletePlayer(client:Socket){
-      const player = this.player.findIndex(item => {
-        return (item.socket === client.id && item.waiting === true)
-      })
-      if (player != -1)
-      {
-        this.playerNo--;
-        this.player.splice(player, 1);
-      }
+        const player = this.player.findIndex(item => {
+          return (item.socket === client.id && item.waiting === true)
+        })
+        if (player != -1)
+        {
+          this.playerNo--;
+          this.player.splice(player, 1);
+        }
     }
 
     @SubscribeMessage('pageChanged')

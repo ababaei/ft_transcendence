@@ -6,7 +6,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 
 @WebSocketGateway({
 cors: {
-        origin: ['http://10.34.9.8:8080', 'http://10.34.9.8:3000/'],
+        origin: '*',
         methods: ["GET", "POST"]
     },
 })

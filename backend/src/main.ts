@@ -14,10 +14,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    // origin: "http://10.34.9.8:8080",
-    // credentials: true
     origin: '*',
-    methods: ['GET', 'POST', 'DELETE'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     allowedHeaders: 'Content-Type, Authorization',
     preflightContinue: false,
     optionsSuccessStatus: 204,
@@ -34,7 +32,7 @@ async function bootstrap() {
   app.use(passport.initialize());
 
   app.enableCors({
-    origin: 'http://10.34.9.8:8080',
+    origin: '*',
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     // allowedHeaders: "Content-Type, Authorization",

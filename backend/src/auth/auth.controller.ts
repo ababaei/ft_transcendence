@@ -52,7 +52,7 @@ export class AuthController {
     passport.authenticate('42', { failureRedirect: '/fail' });
     // const ret: any = req.user;
     res.cookie('userData', JSON.stringify(req.user), { secure: false });
-    return res.status(302).redirect('http://10.34.9.8:8080/login');
+    return res.status(302).redirect(process.env.REDIRECT);
   }
 
   @Get('logout')
