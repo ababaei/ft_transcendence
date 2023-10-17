@@ -13,11 +13,11 @@
 
 <!-- CARTE DE DESCRIPTION D'UN CHANNEL -->
     <v-card id="channelDescriptionBar"
-    v-if="item.id !== -1"
+    v-if="item.id !== -1 && !(item.isDirect && !this.isUserInChannel(this.profileUser.id, item))"
     @click="this.selectChannel(item)"
     >
     <v-row flex-wrap class="d-flex justify-center">
-        <v-col class="3"> <v-card-text>{{ item.name }}</v-card-text> </v-col>
+        <v-col class="3"> <v-card-text> {{ this.getChannelName(item, this.profileUser) }}</v-card-text> </v-col>
         <v-col class="3"> <v-chip> {{ item.mode }} </v-chip> </v-col>
         <v-col class="3">
         <v-card-actions  v-if="!this.isUserInChannel(this.profileUser.id, item) && !this.isBan(this.profileUser.id, item)">
@@ -46,8 +46,8 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from 'axios';
-import { isUserInChannel, isBan } from './chat_utilsMethods';
-import type { Channel, friendRelation, User, Message } from './chat_utilsMethods';
+import { isUserInChannel, isBan, getChannelName } from './chat_utilsMethods';
+import type { Channel, User, Message } from './chat_utilsMethods';
 
     export default defineComponent ({
         name: "chat_channelList",
@@ -93,7 +93,6 @@ import type { Channel, friendRelation, User, Message } from './chat_utilsMethods
 
             async joinChannel(channel: Channel) {
               console.log('methods: joinChannel');
-              console.log(channel);
               try {
                 const reponse = await axios.post('/api/chat/joinChannelRequest', {
                   channelID: channel.id,
@@ -107,6 +106,7 @@ import type { Channel, friendRelation, User, Message } from './chat_utilsMethods
             // imports 
             isUserInChannel(userID: number, channel: Channel) { return isUserInChannel(userID, channel); },
             isBan(userID: number, channel: Channel): boolean { return isBan(userID, channel); },
+            getChannelName(channel: Channel, self: User): string { return getChannelName(channel, self); }
         }
     })
 </script>

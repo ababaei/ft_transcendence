@@ -3,7 +3,7 @@
 <!-- HEADER DU CHANNEL AVEC EDIT LEAVE ET DESTROY -->
       <v-card class="mx-auto" max-width="500">
         <v-row>
-        <v-card-title> {{ this.channelInChatBox.name }} </v-card-title>
+        <v-card-title> {{ this.getChannelName(this.channelInChatBox, this.profileUser) }} </v-card-title>
         <v-menu>
             <template v-slot:activator="{ props }">
               <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
@@ -26,18 +26,33 @@
 
 <!-- ONGLETS DE LA CHATBOX -->
         <v-window v-model="this.tab">
-          <v-col>
   <!-- FENETRE DE MESSAGES DU CHANNEL -->
           <v-window-item value="one">
             <v-virtual-scroll :items="(this.channelInChatBox.messages as Message[])"  height="420" item-height="48" style="overflow-x: hidden;">
             <template v-slot:default="{ item: message }">
-              <v-row>
-                <v-col :class="{ 'text-right': message.user.id === this.profileUser.id }">
-                  <v-list-item>
+
+              <v-row class="w-100" 
+              :class="{ 'justify-end': message.user.id === this.profileUser.id,
+              'justify-start': message.user.id !== this.profileUser.id }">
+
+              <!-- avatar -->
+                <v-col cols="1" v-if="message.user.id !== this.profileUser.id"><v-avatar size="40px">
+                <v-img :src="message.user.avatar" alt="Avatar" />
+                </v-avatar></v-col>
+
+              <!-- text et emeteur -->
+                <v-col cols="6" class="w-100"
+                :class="{ 'text-right': message.user.id === this.profileUser.id,
+                'text-left': message.user.id !== this.profileUser.id }"><v-list-item>
                     <v-list-item-title  style="white-space: pre-wrap;">{{ message.text }}</v-list-item-title>
                     <v-list-item-subtitle>from  {{ message.user.name }}</v-list-item-subtitle>
-                  </v-list-item>
-                </v-col>
+                </v-list-item></v-col>
+
+              <!-- avatar -->
+                <v-col cols="1" class="justify-end" v-if="message.user.id === this.profileUser.id"><v-avatar size="40px">
+                <v-img :src="message.user.avatar" alt="Avatar" />
+                </v-avatar></v-col>
+
               </v-row>
             </template>
             </v-virtual-scroll>
@@ -46,8 +61,9 @@
     <!-- ENVOIE DE MESSAGES -->
           <v-card height="100">
             <v-card-actions>
-            <v-form @submit.prevent="this.sendMessage" method="POST" v-if="!this.isMute(this.profileUser.id, this.channelInChatBox)">
-              <v-row>
+            <v-form class="w-100" @submit.prevent="this.sendMessage" method="POST"
+            v-if="!this.isMute(this.profileUser.id, this.channelInChatBox)">
+              <v-row class="align-center">
               <v-col cols="9">
                 <v-text-field
                     v-model="this.messageToSend"
@@ -65,7 +81,6 @@
             <v-card-text v-if="this.isMute(this.profileUser.id, this.channelInChatBox)">You are mute</v-card-text>
           </v-card>
           </v-window-item>
-        </v-col>
 <!-- FENETRE D'INFO DU CHANNEL -->
           <v-window-item value="two">
 
@@ -185,8 +200,8 @@
 import { defineComponent } from 'vue';
 import axios from 'axios';
 import { VListItem } from 'vuetify/components';
-import type { Channel, friendRelation, User, Message } from './chat_utilsMethods';
-import { isAdmin, isMute, isBan } from './chat_utilsMethods'
+import type { Channel, User, Message } from './chat_utilsMethods';
+import { isAdmin, isMute, isBan, getChannelName } from './chat_utilsMethods'
 
     export default defineComponent ({
         name: "chat_chatboxComponent",
@@ -392,6 +407,7 @@ import { isAdmin, isMute, isBan } from './chat_utilsMethods'
           isAdmin(userID: number, channel: Channel) { return isAdmin(userID, channel); },
           isMute(userID: number, channel: Channel): boolean { return isMute(userID, channel); },
           isBan(userID: number, channel: Channel): boolean { return isBan(userID, channel); },
+          getChannelName(channel: Channel, self: User): string { return getChannelName(channel, self); }
         }
     })
 </script>

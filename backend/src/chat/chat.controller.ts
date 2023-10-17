@@ -8,6 +8,7 @@ import { error } from 'console';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { User } from '@prisma/client';
 import { Request } from 'express';
+import { from } from 'rxjs';
 
 @Controller('chat')
 export class ChatController {
@@ -486,6 +487,13 @@ export class ChatController {
           if (!user2) {
             return 'backend: user not found'
           }
+          if (fromUser.id === user2.id) {
+            return 'backend: user is you'
+          }
+          if (await this.chatService.isFriend(fromUser, user2)) {
+            return 'backend: users already friends'
+          }
+          await this.chatService.removeUserFromBlocked(fromUser, user2);
           const newChannel = await this.chatService.createNewChannel('', 'direct', '', 0, true);
           await this.chatService.addUserInChannel(newChannel, fromUser);
           await this.chatService.addUserInChannel(newChannel, user2);
@@ -499,36 +507,31 @@ export class ChatController {
       }
   }
 
-  // @Post('blockUserRequest')
-  // async blockUser(@Body() data: { userID: number; blockedID: number }) {
-  //   try {
-  //     console.log('requete: block ');
-  //     const userBlocking = await this.chatService.findUserById(data.userID);
-  //     const userBlocked = await this.chatService.findUserById(data.blockedID);
-  //     this.chatService.setBlockedRelation(userBlocking, userBlocked);
-
-  //     this.sendUploadedData();
-  //     return 'backend: user blocked';
-  //   } catch {
-  //     console.log('error: blocking user');
-  //     return 'backend: error while blocking user';
-  //   }
-  // }
-  // @Post('unblockUserRequest')
-  // async unblockUser(@Body() data: { userID: number; blockedID: number }) {
-  //   try {
-  //     console.log('requete: unblock');
-  //     const userBlocking = await this.chatService.findUserById(data.userID);
-  //     const userBlocked = await this.chatService.findUserById(data.blockedID);
-  //     this.chatService.removeBlockedRelation(userBlocking, userBlocked);
-
-  //     this.sendUploadedData();
-  //     return 'backend: user unblocked';
-  //   } catch {
-  //     console.log('error: unblocking user');
-  //     return 'backend: error while unblocking user';
-  //   }
-  // }
+  @Post('blockUserRequest')
+  @UseGuards(JwtGuard)
+  async blockUser(@Req() req: Request, @Body() data: { blockedName: string }) {
+    try {
+      console.log('Method: blockUser');
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+      const userBlocked = await this.chatService.findUserByName(data.blockedName);
+  
+      if (!userBlocked) {
+        return 'backend: user not found';
+      }
+      if (await this.chatService.isBlocked(fromUser, userBlocked)) {
+        return 'backend: user already blocked';
+      }
+      await this.chatService.removeUserFromFriends(fromUser, userBlocked);
+      await this.chatService.addUserInBlockedList(userBlocked, fromUser);
+  
+      this.sendUploadedData(); // Mettez à jour les données pour les clients.
+  
+      return 'backend: user blocked';
+    } catch (error) {
+      console.log('Error: blocking user', error);
+      return 'backend: error while blocking user';
+    }
+  }
 
   @Post('getMessageList')
   @UseGuards(JwtGuard)
@@ -548,6 +551,17 @@ export class ChatController {
     if (fromUser) {
       const friendsList = await this.chatService.getFriendsList(fromUser);
       return friendsList;
+    } else {
+      return [];
+    }
+  }
+  @Post('getBlockedList')
+  @UseGuards(JwtGuard)
+  async getBlockedList(@Req() req: Request) {
+    const fromUser = await this.chatService.findUserById((req.user as User).id);
+    if (fromUser) {
+      const blockedlist = await this.chatService.getBlockedList(fromUser);
+      return blockedlist;
     } else {
       return [];
     }

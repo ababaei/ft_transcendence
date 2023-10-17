@@ -71,6 +71,12 @@ CREATE TABLE "_friends" (
 );
 
 -- CreateTable
+CREATE TABLE "_block" (
+    "A" INTEGER NOT NULL,
+    "B" INTEGER NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "_UserChannels" (
     "A" INTEGER NOT NULL,
     "B" INTEGER NOT NULL
@@ -101,6 +107,12 @@ CREATE UNIQUE INDEX "_friends_AB_unique" ON "_friends"("A", "B");
 CREATE INDEX "_friends_B_index" ON "_friends"("B");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "_block_AB_unique" ON "_block"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_block_B_index" ON "_block"("B");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_UserChannels_AB_unique" ON "_UserChannels"("A", "B");
 
 -- CreateIndex
@@ -120,6 +132,12 @@ ALTER TABLE "_friends" ADD CONSTRAINT "_friends_A_fkey" FOREIGN KEY ("A") REFERE
 
 -- AddForeignKey
 ALTER TABLE "_friends" ADD CONSTRAINT "_friends_B_fkey" FOREIGN KEY ("B") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_block" ADD CONSTRAINT "_block_A_fkey" FOREIGN KEY ("A") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_block" ADD CONSTRAINT "_block_B_fkey" FOREIGN KEY ("B") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_UserChannels" ADD CONSTRAINT "_UserChannels_A_fkey" FOREIGN KEY ("A") REFERENCES "Channel"("id") ON DELETE CASCADE ON UPDATE CASCADE;

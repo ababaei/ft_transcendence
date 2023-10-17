@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <v-container class="pt-10">
         <v-form @submit.prevent="sendUsername" method="POST"> 
             <v-text-field
@@ -35,4 +35,4 @@ import type { Channel, friendRelation, User, Message } from './chat_utilsMethods
         },
     }
 })
-</script>
+</script> -->
