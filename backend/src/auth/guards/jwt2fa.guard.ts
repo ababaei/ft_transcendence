@@ -11,7 +11,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import jwt_decode from "jwt-decode";
 
 @Injectable()
-export class JwtGuard implements CanActivate {
+export class Jwt2faGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private prismaService: PrismaService,
@@ -24,13 +24,18 @@ export class JwtGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException();
     }
+    const decodedTkn: object = jwt_decode(token)
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_KEY,
       });
       const user: User = await this.prismaService.user.findUnique({
-        where: { id: payload.id },
+        where: { id: payload['id'] },
       });
+      
+      console.log('PAYLOAD: ', decodedTkn['twoFaAuthenticated']);
+      if (user.twoFaActivated && !decodedTkn['twoFaAuthenticated'])
+        throw new UnauthorizedException();
       request['user'] = user;
     } catch {
       throw new UnauthorizedException();

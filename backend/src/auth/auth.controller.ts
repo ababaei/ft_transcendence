@@ -51,6 +51,7 @@ export class AuthController {
     console.log('______________________callback__________________');
     passport.authenticate('42', { failureRedirect: '/fail' });
     // const ret: any = req.user;
+    console.log('COOKIE', req.user)
     res.cookie('userData', JSON.stringify(req.user), { secure: false });
     return res.status(302).redirect('http://localhost:8080/login');
   }
