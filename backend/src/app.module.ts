@@ -6,7 +6,6 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ChatModule } from './chat/chat.module';
 import { UsersModule } from './users/users.module';
-import { PlayersModule } from './players/players.module';
 import { GameModule } from './games/games.module';
 import { WaitingModule } from './waiting/waiting.module';
 import { GatewayModule } from './gateway/gateway.module';
@@ -20,7 +19,6 @@ import { GatewayPongModule } from './gatewayPong/Pongateway.module';
     ConfigModule.forRoot({ isGlobal: true }),
     ChatModule,
     UsersModule,
-    PlayersModule,
     GameModule,
     WaitingModule,
     GatewayPongModule

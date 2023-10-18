@@ -7,8 +7,8 @@ export class GamesController {
 
     constructor (private readonly gameService: GameService) {}
 
-    @Post()
-    async addGame(@Body() data: Game): Promise<Game>{
-        return this.gameService.createGame(data)
-    }
+    // @Post()
+    // async addGame(@Body() data: Game): Promise<Game>{
+    //     return this.gameService.createGame(data)
+    // }
 }

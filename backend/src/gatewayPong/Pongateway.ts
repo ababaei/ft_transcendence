@@ -5,9 +5,10 @@ import {Server, Socket} from 'socket.io';
 import { ChatService } from "src/chat/chat.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { GameService } from "src/games/games.service";
-import { PlayersService } from "src/players/players.service";
+// import { PlayersService } from "src/players/players.service";
 import { Paddles } from "./gateway.service";
 import { Interval } from "@nestjs/schedule";
+import { UsersService } from "src/users/users.service";
 
 @WebSocketGateway({
 cors: {
@@ -56,7 +57,7 @@ export class MyPonGateway {
   }
 
     constructor (private readonly gameService: GameService,
-                 private readonly playerService: PlayersService) {
+                private readonly userService: UsersService) {
                   this.playerNo = 0
                 }
 
@@ -164,7 +165,7 @@ export class MyPonGateway {
     }
 
     @SubscribeMessage('newPlayer')
-    playerJoinRoom(client: Socket, userID: string) {
+    async playerJoinRoom(client: Socket, userID: string) {
       const player = this.player.findIndex(item => {
         return (item.id === userID && item.waiting === true)
       })
@@ -215,11 +216,13 @@ export class MyPonGateway {
             velX: 2,
             velY: 0
           }
+          const game = await this.gameService.initGame()
           this.ball.push(newBall)
           this.server.to(roomNo).emit('initBall', newBall);
           this.player.forEach(element => {
             if (element.roomNo === roomNo)
             {
+              console.log('player = ', element);
               element.waiting = false;
               element.active = true;
             }
@@ -276,30 +279,27 @@ export class MyPonGateway {
       }
     }
 
+    // @SubscribeMessage('initGame')
+    // async InitGame(client: Socket, data: any): Promise<any> {
+    //     const game = await this.gameService.initGame();
+
+    //     const player1 = await this.playerService.newPlayer(game, data[0].socket);
+    //     const player2 = await this.playerService.newPlayer(game, data[1].socket);
+
+    //     this.server.to(data[0].socket).emit('gameStarted', game.id);
+    //     this.server.to(data[1].socket).emit('gameStarted', game.id);
+    // }
+
     async handleDisconnect(client: Socket) {
         console.log(`Client disconnected : ${client.id}`)
-        const playerIndex = this.player.findIndex(item => {
-          return (item.socket === client.id && item.active === true)
-        });
-        if (playerIndex != -1)
-        {
-            this.server.to(this.player[playerIndex].roomNo).emit('forceEndGame');
-            this.player.forEach(element => {
-              if (element.roomNo == this.player[playerIndex].roomNo)
-                element.active = false;
-            });
-          }
-        else {
-          const waitingPlayer = this.player.findIndex(item => {
-            return (item.socket === client.id && item.waiting === true)
-          })
-          if (waitingPlayer != -1)
-          {
-            this.playerNo--;
-            this.player.splice(waitingPlayer, 1);
-          }
-        }
-
+        // const player = await this.playerService.getPlayer(`${client.id}`)
+        // console.log(player);
+        // if (player)
+        // {
+        //     const players = await this.playerService.getPlayers(player.gameID);
+        //     this.server.to(players[0].socket).emit('gameEnded');
+        //     this.server.to(players[1].socket).emit('gameEnded');    
+        // }
     }
 
 

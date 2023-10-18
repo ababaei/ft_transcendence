@@ -1,11 +1,11 @@
-import { PlayersService } from "./players.service";
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
-import { Player } from "@prisma/client";
+// import { PlayersService } from "./players.service";
+// import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+// import { Player } from "@prisma/client";
 
-@Controller('player')
-export class PlayersController {
+// @Controller('player')
+// export class PlayersController {
 
-    constructor (private readonly playersService: PlayersService){}
+//     constructor (private readonly playersService: PlayersService){}
 
     // @Get()
     // async getAllPlayers():Promise<Player[]>{
@@ -31,4 +31,4 @@ export class PlayersController {
     // async deletePlayer(@Param('id') id:string):Promise<Player>{
     //     return this.playersService.deletePlayer(id)
     // }
-}
+// }
