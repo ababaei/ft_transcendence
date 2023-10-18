@@ -143,7 +143,9 @@ export default defineComponent({
       <!-- <h1>Page Profil</h1> -->
       <img src="" alt="" id="avatar" class="rounded-circle">
       <h1>{{ profileUser.name }}</h1>
-      <v-btn class="mt-5" @click="getUser">USER</v-btn>
+      <!-- <v-btn class="mt-5" @click="getUser">USER</v-btn> -->
+      <v-btn class="mt-5" @click="getUser">Modifier photo</v-btn>
+      <v-btn class="mt-5" @click="getUser">Modifier pseudo</v-btn>
       <v-btn class="mt-5" @click="activate2fa">Enable 2FA</v-btn>
       <v-btn class="mt-5" @click="logOut">Log out</v-btn>
     </div>
