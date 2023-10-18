@@ -19,9 +19,9 @@ export class UsersService {
     
   }
 
-  async addGame(game: Game, user: User): Promise<User>{
+  async addGame(game: Game, id: number): Promise<User>{
     return this.prisma.user.update({
-        where: {id: user.id},
+        where: {id: id},
         data: {
             games: {
                 connect: {
@@ -30,5 +30,13 @@ export class UsersService {
             }
         }
     });
-}
+  }
+
+  async findGames(id: number): Promise<User>{
+    return this.prisma.user.findUnique({
+      where: {id: id},
+      include: {games: true}
+    })
+  }
+
 }

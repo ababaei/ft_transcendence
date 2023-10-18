@@ -76,5 +76,7 @@ model Waiting {
 model Game {
   id        Int      @id @default(autoincrement())
   active    Boolean  @default(true)
+  scoreLeft Int?
+  scoreRight  Int?
   Players   User[]   @relation("UserGames")
 }

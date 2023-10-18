@@ -25,6 +25,16 @@ export class GameService {
     //     })
     // }
 
+    updateGame(id: number, leftPlayerScore: number, rightPlayerScore: number){
+        this.prisma.game.update({
+            where: {id: id},
+            data: {
+                scoreLeft: leftPlayerScore,
+                scoreRight: rightPlayerScore
+            }
+        })
+    }
+
     async initGame(): Promise<Game> {
         return this.prisma.game.create({
             data:{}

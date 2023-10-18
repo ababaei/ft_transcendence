@@ -15,8 +15,9 @@ export class UsersController {
   async getUser(@Param() params: { id: string }) {
     // console.log('__________________GETTING USER_______________');
     const userID: number = Number(params.id);
-    const user = await this.prismaService.user.findFirst({
+    const user = await this.prismaService.user.findUnique({
       where: { id: userID },
+      include: {games: true}
     });
     // console.log(user);
     return user;

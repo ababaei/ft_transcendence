@@ -33,6 +33,7 @@ export class MyPonGateway {
     waiting: boolean
   }[] = []
   ball: {
+    gameNo: number,
     roomNo: string,
     x: number,
     y: number,
@@ -148,7 +149,13 @@ export class MyPonGateway {
               this.server.to(element.roomNo).emit('goal', leftPlayer, rightPlayer);
               this.reinitEl(element);
               if (leftPlayer.score === 3 || rightPlayer.score === 3)
-                leftPlayer.score === 3 ? this.server.to(element.roomNo).emit('Winner', leftPlayer) : this.server.to(element.roomNo).emit('Winner', leftPlayer);
+              {
+                leftPlayer.score === 3 ? this.server.to(element.roomNo).emit('Winner', leftPlayer) : this.server.to(element.roomNo).emit('Winner', rightPlayer);
+                this.gameService.updateGame(element.gameNo, leftPlayer.score, rightPlayer.score);
+                leftPlayer.active = false;
+                rightPlayer.active = false;
+                return;
+              }
             }
             element.y += element.velY;
             element.x += element.velX;
@@ -207,7 +214,9 @@ export class MyPonGateway {
             waiting: true
           }
           this.player.push(newPlayer);
+          const game = await this.gameService.initGame()
           const newBall = {
+            gameNo: game.id,
             roomNo: roomNo,
             x: 350,
             y: 150,
@@ -216,13 +225,12 @@ export class MyPonGateway {
             velX: 2,
             velY: 0
           }
-          const game = await this.gameService.initGame()
           this.ball.push(newBall)
           this.server.to(roomNo).emit('initBall', newBall);
           this.player.forEach(element => {
-            if (element.roomNo === roomNo)
+          if (element.roomNo === roomNo)
             {
-              console.log('player = ', element);
+              this.userService.addGame(game, parseInt(element.id))
               element.waiting = false;
               element.active = true;
             }
