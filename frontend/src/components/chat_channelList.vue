@@ -2,7 +2,12 @@
     <v-container>
       <v-card id="channelListCard"
       class="mx-auto" max-width="500">
-      <v-card-title> Channel list </v-card-title>
+      <v-col>
+          <v-card-title>Channel list</v-card-title>
+        </v-col>
+        <v-col>
+          <v-btn @click="this.openDirectMessageDialog" color="primary">Direct Message</v-btn>
+        </v-col>
 
     <v-divider></v-divider>
     <v-virtual-scroll
@@ -41,6 +46,22 @@
     </v-virtual-scroll>
     </v-card>
     </v-container>
+  <!-- Boîte de dialogue pour le message direct -->
+  <v-dialog v-model="directMessageDialog" max-width="400">
+    <v-card>
+      <v-card-title>Direct Message</v-card-title>
+      <v-card-text>
+        <v-form @submit.prevent="this.sendDirectMessage">
+          <v-text-field v-model="directMessageTarget" label="user"></v-text-field>
+          <v-text-field v-model="directMessageContent" label="Message" multi-line></v-text-field>
+          <v-btn type="submit">Send</v-btn>
+        </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn @click="closeDirectMessageDialog">Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script lang="ts">
@@ -56,6 +77,9 @@ import type { Channel, User, Message } from './chat_utilsMethods';
         data() {
           return {
             password: '',
+            directMessageDialog: false,
+            directMessageTarget: "",
+            directMessageContent: "",
           };
         },
         computed: {
@@ -83,6 +107,7 @@ import type { Channel, User, Message } from './chat_utilsMethods';
               default: () => []
           },
         },
+        emits: ['channelSelected'],
         methods: {
             selectChannel(channel: Channel) {
                 console.log('methods: selectChannel', channel)
@@ -101,6 +126,26 @@ import type { Channel, User, Message } from './chat_utilsMethods';
                 console.log(reponse.data);
               }
               catch { console.error(); }
+            },
+
+            async sendDirectMessage() {
+              try {
+                const reponse = await axios.post('/api/chat/directMessageRequest', {
+                  target: this.directMessageTarget,
+                  text: this.directMessageContent,
+                }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+                console.log(reponse.data);
+                this.closeDirectMessageDialog()
+              }
+              catch { console.error(); }
+            },
+            openDirectMessageDialog() {
+              this.directMessageDialog = true;
+            },
+            closeDirectMessageDialog() {
+              this.directMessageDialog = false;
+              this.directMessageContent = '';
+              this.directMessageTarget = '';
             },
 
             // imports 

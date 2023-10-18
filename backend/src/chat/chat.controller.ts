@@ -166,11 +166,6 @@ export class ChatController {
     try {
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const inChannel = await this.chatService.findChannelById(data.channel);
-      const newMessage = await this.chatService.createMessage(
-        inChannel,
-        fromUser,
-        data.text,
-      );
 
       if (
         (await !this.chatService.isUserInChannel(fromUser.id, inChannel)) ||
@@ -178,6 +173,48 @@ export class ChatController {
       ) {
         return 'backend: you are not allowed to speak in this channel';
       }
+      const newMessage = await this.chatService.createMessage(
+        inChannel,
+        fromUser,
+        data.text,
+      );
+
+      this.sendUploadedData();
+      return 'backend: new message uploaded';
+    } catch {
+      console.log('Error handling new message');
+      return 'backend: error with new message';
+    }
+  }
+
+  @Post('directMessageRequest')
+  @UseGuards(JwtGuard)
+  async handleDirectMessageRequest(
+    @Req() req: Request,
+    @Body() data: { target: string; text: string },
+  ) {
+    console.log('Direct Message request');
+    try {
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+      const toUser = await this.chatService.findUserByName(data.target);
+
+      if (!fromUser || !toUser) {
+        return 'backend: User not found';
+      }
+      let newChannel = await this.chatService.findDirectChannelByUserIds(fromUser.id, toUser.id);
+      console.log(newChannel);
+      if (!newChannel) {
+        newChannel = await this.chatService.createNewChannel('', 'direct', '', 0, true);
+        await this.chatService.addUserInChannel(newChannel, fromUser);
+        await this.chatService.addUserInChannel(newChannel, toUser);
+        console.log(newChannel);
+      }
+      console.log(newChannel);
+      const newMessage = await this.chatService.createMessage(
+        newChannel,
+        fromUser,
+        data.text,
+      );
       this.sendUploadedData();
       return 'backend: new message uploaded';
     } catch {
@@ -490,6 +527,9 @@ export class ChatController {
           if (fromUser.id === user2.id) {
             return 'backend: user is you'
           }
+          if (await this.chatService.isBlocked(user2, fromUser)) {
+            return 'backend: this user dont want to be your friend'
+          }
           if (await this.chatService.isFriend(fromUser, user2)) {
             return 'backend: users already friends'
           }
@@ -509,17 +549,24 @@ export class ChatController {
 
   @Post('blockUserRequest')
   @UseGuards(JwtGuard)
-  async blockUser(@Req() req: Request, @Body() data: { blockedName: string }) {
+  async blockUser(@Req() req: Request, @Body() data: { blockedName: string}) {
     try {
       console.log('Method: blockUser');
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const userBlocked = await this.chatService.findUserByName(data.blockedName);
+      const channelToDestroy = await this.chatService.findDirectChannelByUserIds(fromUser.id, userBlocked.id);
   
       if (!userBlocked) {
         return 'backend: user not found';
       }
+      if (userBlocked.id === fromUser.id) {
+        return 'backend: cant block yourself';
+      }
       if (await this.chatService.isBlocked(fromUser, userBlocked)) {
         return 'backend: user already blocked';
+      }
+      if (channelToDestroy) {
+        await this.chatService.destroyChannel(channelToDestroy);
       }
       await this.chatService.removeUserFromFriends(fromUser, userBlocked);
       await this.chatService.addUserInBlockedList(userBlocked, fromUser);
@@ -533,12 +580,77 @@ export class ChatController {
     }
   }
 
+  @Post('unblockUserRequest')
+  @UseGuards(JwtGuard)
+  async unblockUser(@Req() req: Request, @Body() data: { unblockedId: number }) {
+    try {
+      console.log('Method: unblockUser');
+      console.log(data.unblockedId)
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+      const userUnblocked = await this.chatService.findUserById(data.unblockedId);
+  
+      if (!userUnblocked) {
+        return 'backend: user not found';
+      }
+      if (userUnblocked.id === fromUser.id) {
+        return 'backend: you cannot unblock yourself';
+      }
+      if (!await this.chatService.isBlocked(fromUser, userUnblocked)) {
+        return 'backend: user is not blocked';
+      }
+  
+      await this.chatService.removeUserFromBlocked(fromUser, userUnblocked);
+  
+      this.sendUploadedData(); // Mettez à jour les données pour les clients.
+  
+      return 'backend: user unblocked';
+    } catch (error) {
+      console.log('Error: unblocking user', error);
+      return 'backend: error while unblocking user';
+    }
+  }
+
+  @Post('removeFriendRequest')
+  @UseGuards(JwtGuard)
+  async rmoveFriendUser(@Req() req: Request, @Body() data: { removedFriendId: number }) {
+    try {
+      console.log('Method: remove Friend');
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+      const removedFriend = await this.chatService.findUserById(data.removedFriendId);
+      const channelToDestroy = await this.chatService.findDirectChannelByUserIds(fromUser.id, removedFriend.id);
+  
+      if (!removedFriend) {
+        return 'backend: user not found';
+      }
+      if (removedFriend.id === fromUser.id) {
+        return 'backend: you cannot do what ever you try to do to yourself';
+      }
+      if (!await this.chatService.isFriend(fromUser, removedFriend)) {
+        return 'backend: user is not your friend :\'(';
+      }
+      if (channelToDestroy) {
+        await this.chatService.destroyChannel(channelToDestroy);
+      }
+      await this.chatService.removeUserFromFriends(fromUser, removedFriend);
+  
+      this.sendUploadedData(); // Mettez à jour les données pour les clients.
+  
+      return 'backend: user unfriended';
+    } catch (error) {
+      console.log('Error: unblocking user', error);
+      return 'backend: error while unfriending user';
+    }
+  }
+
   @Post('getMessageList')
   @UseGuards(JwtGuard)
   async getListMessage(@Req() req: Request, @Body() data: { channelID: number }) {
     const fromUser = await this.chatService.findUserById((req.user as User).id);
     const channel = await this.chatService.findChannelById(data.channelID);
 
+    if (! await this.chatService.isUserInChannel(fromUser.id, channel)) {
+      return 'backend: youre not in the channel'
+    }
     // console.log(this.chatService.getMessagesInChannel(channel))
     if (!channel) return null;
     return (await this.chatService.getMessagesInChannel(channel));

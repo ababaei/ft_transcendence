@@ -163,15 +163,11 @@ export class ChatService {
           if (!user) {
             return [];
           }
-          const blockedList = await this.prismaService.user.findMany({
+          const blockedList = await this.prismaService.user.findUnique({
             where: {
-              blocked: {
-                some: {
-                  id: user.id,
-                },
-              },
+              id: user.id,
             },
-          });
+          }).blocked();
       
           return blockedList;
         } catch (error) {
@@ -411,6 +407,30 @@ export class ChatService {
         }
     }
 
+    async findDirectChannelByUserIds(userId1: number, userId2: number): Promise<Channel | null> {
+        try {
+          // Recherchez le canal direct où les deux utilisateurs sont membres
+          const directChannel = await this.prismaService.channel.findFirst({
+            where: {
+              isDirect: true,
+              users: {
+                every: {
+                  OR: [
+                    { id: userId1 },
+                    { id: userId2 },
+                  ],
+                },
+              },
+            },
+          });
+      
+          return directChannel;
+        } catch (error) {
+          console.error('Error in findDirectChannelByUserIds:', error);
+          throw error;
+        }
+      }
+
     async findUserByName(username: string): Promise<User | null> {
         try {
           const user = await this.prismaService.user.findFirst({
@@ -488,6 +508,9 @@ export class ChatService {
     }
     async isUserInChannel(userID: number, channel: Channel): Promise<boolean> {
         try {
+            if (!channel || !userID) {
+                return false;
+            }
             const channelWithUsers = await this.prismaService.channel.findUnique({
                 where: { id: channel.id },
                 include: {

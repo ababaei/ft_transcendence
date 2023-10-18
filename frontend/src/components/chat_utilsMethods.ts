@@ -94,10 +94,11 @@ export function isFriend(userID: number, user: User): boolean {
   return user.friends.some((friend) => friend.id === userID);
 }
 
-export function isBlocked(userID: number, user: User): boolean {
-  if (!user.blocked || user.blocked.length === 0) {
+export function isBlocked(userID: number, blockedList: User[]): boolean {
+  console.log('exported: isBlocked', userID, blockedList);
+  if (!blockedList || blockedList.length === 0) {
     return false;
   }
 
-  return user.blocked.some((blocked) => blocked.id === userID);
+  return blockedList.some((blocked) => blocked.id === userID);
 }

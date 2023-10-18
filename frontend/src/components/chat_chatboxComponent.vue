@@ -30,8 +30,8 @@
           <v-window-item value="one">
             <v-virtual-scroll :items="(this.channelInChatBox.messages as Message[])"  height="420" item-height="48" style="overflow-x: hidden;">
             <template v-slot:default="{ item: message }">
-
-              <v-row class="w-100" 
+            <div id="messageCard" v-if="!this.isBlocked(message.user.id, this.blockedList)">
+              <v-row class="w-100"
               :class="{ 'justify-end': message.user.id === this.profileUser.id,
               'justify-start': message.user.id !== this.profileUser.id }">
 
@@ -54,6 +54,7 @@
                 </v-avatar></v-col>
 
               </v-row>
+            </div>
             </template>
             </v-virtual-scroll>
             <v-divider></v-divider>
@@ -201,7 +202,7 @@ import { defineComponent } from 'vue';
 import axios from 'axios';
 import { VListItem } from 'vuetify/components';
 import type { Channel, User, Message } from './chat_utilsMethods';
-import { isAdmin, isMute, isBan, getChannelName } from './chat_utilsMethods'
+import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsMethods'
 
     export default defineComponent ({
         name: "chat_chatboxComponent",
@@ -239,6 +240,14 @@ import { isAdmin, isMute, isBan, getChannelName } from './chat_utilsMethods'
           channelInChatBox: {
             type: Object as () => Channel,
             default: () => ({ id: 0, name: '' }),
+          },
+          friendList: {
+            type: Array,
+            default: () => [],
+          },
+          blockedList: {
+            type: Array,
+            default: () => [],
           },
         },
         methods: {
@@ -407,6 +416,7 @@ import { isAdmin, isMute, isBan, getChannelName } from './chat_utilsMethods'
           isAdmin(userID: number, channel: Channel) { return isAdmin(userID, channel); },
           isMute(userID: number, channel: Channel): boolean { return isMute(userID, channel); },
           isBan(userID: number, channel: Channel): boolean { return isBan(userID, channel); },
+          isBlocked(userID: number, blockedList: User[]): boolean { return isBlocked(userID, blockedList); },
           getChannelName(channel: Channel, self: User): string { return getChannelName(channel, self); }
         }
     })

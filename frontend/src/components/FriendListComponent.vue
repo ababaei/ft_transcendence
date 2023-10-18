@@ -44,13 +44,13 @@
                 <v-list-item @click="this.sendDirectMessage(friend.id)">
                   Send Message
                 </v-list-item>
-                <!-- Block user -->   
-                <v-list-item @click="">
-                  Block User
-                </v-list-item>
                 <!-- Challenge user -->
                 <v-list-item @click="">
                   Challenge User
+                </v-list-item>
+                <!-- Remove friend -->
+                <v-list-item @click="this.removeFriend(friend.id)">
+                  Remove friend
                 </v-list-item>
               </div>
             </v-list>
@@ -92,7 +92,7 @@
             <v-list>
               <div>
                 <!-- Block user -->   
-                <v-list-item @click="">
+                <v-list-item @click="this.unblockUser(blocked.id)">
                   Unblock User
                 </v-list-item>
               </div>
@@ -152,6 +152,10 @@ import type { Channel, User, Message } from './chat_utilsMethods';
           blockedList: {
             type: Array,
             default: () => []
+          },
+          channelList: {
+            type: Array,
+            default: () => []
           }
         },
         methods: {
@@ -169,12 +173,33 @@ import type { Channel, User, Message } from './chat_utilsMethods';
               console.log('method: blockUser')
               try {
                   const reponse = await axios.post('/api/chat/blockUserRequest', {
-                  blockedName: this.blockedName
+                  blockedName: this.blockedName,
               }, { headers: { "Authorization": `Bearer ${this.jwt_token}` }})
               console.log(reponse);
               this.blockedName = '';
             } catch { console.error(); }
           },
+          async removeFriend(userID: number) {
+              console.log('method: removeFriend')
+              try {
+                console.log(userID);
+                  const reponse = await axios.post('/api/chat/removeFriendRequest', {
+                  removedFriendId: userID,
+              }, { headers: { "Authorization": `Bearer ${this.jwt_token}` }})
+              console.log(reponse);
+            } catch { console.error(); }
+          },
+          async unblockUser(userID: number) {
+              console.log('method: unblockUser')
+              try {
+                console.log(userID);
+                  const reponse = await axios.post('/api/chat/unblockUserRequest', {
+                  unblockedId: userID,
+              }, { headers: { "Authorization": `Bearer ${this.jwt_token}` }})
+              console.log(reponse);
+            } catch { console.error(); }
+          },
+
           sendDirectMessage(userid: number) {
             this.$emit('send-direct', userid);
           }

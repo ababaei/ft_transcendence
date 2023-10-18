@@ -9,7 +9,9 @@
 <!-- CHATBOX                      @components/chat_chatboxComponent.vue -->
             <chat_chatboxComponent
             v-if="this.profileUser.id!=0 && this.channelInChatBoxID != 0"
-            :channelInChatBox="this.channelInChatBox"/>
+            :channelInChatBox="this.channelInChatBox"
+            :friendList="this.friendsList"
+            :blockedList="this.blockedList"/>
           </v-col>
 
 
@@ -40,6 +42,7 @@
             <friendListComponent
             :friendList="this.friendsList"
             :blockedList="this.blockedList"
+            :channelList="this.channelList"
             @send-direct="this.selectDirectConv" />
           </v-col>
         </v-row>
