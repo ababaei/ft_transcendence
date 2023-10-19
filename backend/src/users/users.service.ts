@@ -6,7 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class UsersService {
   constructor(
-    private prisma: PrismaService,
+    private prismaService: PrismaService,
   ) {}
 
   generateSecretKey(): string {
@@ -15,12 +15,30 @@ export class UsersService {
     return secretKey;
   }
 
-  saveSecretKey(userID: string, key: string) {
-    
+  async turnOn2FA(userID: number) {
+    return this.prismaService.user.update({
+      where: {
+        id: userID,
+      },
+      data: {
+        twoFaActivated: true,
+      },
+    });
+  }
+
+  async turnOff2FA(userID: number) {
+    return this.prismaService.user.update({
+      where: {
+        id: userID,
+      },
+      data: {
+        twoFaActivated: false,
+      },
+    });
   }
 
   async addGame(game: Game, id: number): Promise<User>{
-    return this.prisma.user.update({
+    return this.prismaService.user.update({
         where: {id: id},
         data: {
             games: {
@@ -33,10 +51,20 @@ export class UsersService {
   }
 
   async findGames(id: number): Promise<User>{
-    return this.prisma.user.findUnique({
+    return this.prismaService.user.findUnique({
       where: {id: id},
       include: {games: true}
     })
   }
 
+  async saveSecretKey(key: string, userID: number) {
+    return this.prismaService.user.update({
+      where: {
+        id: userID,
+      },
+      data: {
+        twoFaSecret: key,
+      },
+    });
+  }
 }

@@ -22,9 +22,7 @@ export class AuthService {
       where: {
         name: profile.username,
       },
-      update: {
-        avatar: profile._json.image.link,
-      },
+      update: {},
       create: {
         name: profile.username,
         email: profile.emails[0].value,
@@ -32,8 +30,8 @@ export class AuthService {
       },
     });
     if (user) {
-      // console.log('User validated: ', user.id);
-      const token = await this.signToken({ id: user.id });
+      console.log('User validated: ', user.id);
+      const token = await this.signToken({ id: user.id, twoFaAuthenticated: false });
       return { token, user };
     }
     // console.log('User not validated');

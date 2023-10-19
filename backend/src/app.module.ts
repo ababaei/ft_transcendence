@@ -12,6 +12,7 @@ import { GatewayModule } from './gateway/gateway.module';
 import { GatewayPongModule } from './gatewayPong/Pongateway.module';
 import { PlayersService } from './players/players.service';
 import { PlayersModule } from './players/players.module';
+import { TwoFactorAuthModule } from './twoFactorAuth/twoFactorAuth.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { PlayersModule } from './players/players.module';
     GameModule,
     PlayersModule,
     WaitingModule,
-    GatewayPongModule
+    GatewayPongModule,
+    TwoFactorAuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

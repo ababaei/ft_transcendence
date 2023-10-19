@@ -8,6 +8,7 @@
       <v-btn class="mt-5" @click="changePseudo">Modifier pseudo</v-btn>
       <v-btn v-if="FActivated" class="mt-5" @click="update2fa(false)">Désactiver 2FA</v-btn>
       <v-btn v-else class="mt-5" @click="update2fa(true)">Activer 2FA</v-btn>
+      <two-fa-form />
       <v-btn class="mt-5" @click="logOut">Se déconnecter</v-btn>
     </div>
 
@@ -79,6 +80,7 @@ import { defineComponent } from 'vue';
 import router from '@/router';
 import axios from 'axios';
 import { faL } from '@fortawesome/free-solid-svg-icons';
+import twoFaForm from '@/components/TwoFaForm.vue'
 
 export interface friendRelation {
     id: number
@@ -146,8 +148,14 @@ export default defineComponent({
         userData: [] as User[],
         history: false,
         showHistory: false,
-        FActivated: false
+        FActivated: false,
+        qrcodeSrc: '' as string,
+        googleAuthCode: '' as string,
+        twoFaActivated: false as boolean,
       };
+    },
+    components: {
+      twoFaForm
     },
     computed: {
       profileUser() {
@@ -169,6 +177,7 @@ export default defineComponent({
     async mounted() {
       if (this.profileUser)
       {
+        this.twoFaActivated = this.profileUser.twoFaActivated;
         const avatar = this.profileUser.avatar;
         const profilePic = document.getElementsByTagName('img')[0];
         if (profilePic)
@@ -212,6 +221,13 @@ export default defineComponent({
           this.userData = res.data
         })
       },
+      getUser() {
+        axios.post('/api/2fa/generate',{},
+        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+        .then((res) => {
+          this.qrcodeSrc = res.data
+          console.log(res.data)})
+      },
       getAvatar(userID:number){
         const user = this.userData.find(user => user.id == userID);
         return user?.avatar;
@@ -223,6 +239,7 @@ export default defineComponent({
       logOut() {
         localStorage.setItem('isAuthenticated', 'false')
         localStorage.removeItem('currentUser')
+        localStorage.removeItem('jwt_token')
         this.$cookies.remove('userData')
         router.push('/login')
       },
