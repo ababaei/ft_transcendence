@@ -59,11 +59,21 @@ CREATE TABLE "Waiting" (
 );
 
 -- CreateTable
+CREATE TABLE "Player" (
+    "id" SERIAL NOT NULL,
+    "gameID" INTEGER NOT NULL,
+    "userID" INTEGER NOT NULL,
+    "score" INTEGER NOT NULL,
+    "side" TEXT NOT NULL,
+
+    CONSTRAINT "Player_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Game" (
     "id" SERIAL NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
-    "scoreLeft" INTEGER,
-    "scoreRight" INTEGER,
+    "idWinner" INTEGER,
 
     CONSTRAINT "Game_pkey" PRIMARY KEY ("id")
 );
@@ -115,6 +125,12 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_userID_fkey" FOREIGN KEY ("userID"
 
 -- AddForeignKey
 ALTER TABLE "friendRelation" ADD CONSTRAINT "friendRelation_userID_fkey" FOREIGN KEY ("userID") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Player" ADD CONSTRAINT "Player_gameID_fkey" FOREIGN KEY ("gameID") REFERENCES "Game"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Player" ADD CONSTRAINT "Player_userID_fkey" FOREIGN KEY ("userID") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_UserChannels" ADD CONSTRAINT "_UserChannels_A_fkey" FOREIGN KEY ("A") REFERENCES "Channel"("id") ON DELETE CASCADE ON UPDATE CASCADE;

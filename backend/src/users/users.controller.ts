@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from './users.service';
@@ -27,6 +27,15 @@ export class UsersController {
     });
     // console.log(user);
     return user;
+  }
+
+  @Put('/:id')
+  async updateFA(@Param() params: {id: string}, @Body() body: {active: boolean})
+  {
+    await this.prismaService.user.update({
+      where: {id: parseInt(params.id)},
+      data: {twoFaActivated:body.active}
+    })
   }
 
   @UseGuards(JwtGuard)

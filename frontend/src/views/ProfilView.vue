@@ -6,7 +6,8 @@
       <h1>{{ profileUser.name }}</h1>
       <v-btn class="mt-5" @click="changePhoto">Modifier photo</v-btn>
       <v-btn class="mt-5" @click="changePseudo">Modifier pseudo</v-btn>
-      <v-btn class="mt-5" @click="activate2fa">Activer 2FA</v-btn>
+      <v-btn v-if="FActivated" class="mt-5" @click="update2fa(false)">Désactiver 2FA</v-btn>
+      <v-btn v-else class="mt-5" @click="update2fa(true)">Activer 2FA</v-btn>
       <v-btn class="mt-5" @click="logOut">Se déconnecter</v-btn>
     </div>
 
@@ -77,6 +78,7 @@
 import { defineComponent } from 'vue';
 import router from '@/router';
 import axios from 'axios';
+import { faL } from '@fortawesome/free-solid-svg-icons';
 
 export interface friendRelation {
     id: number
@@ -143,7 +145,8 @@ export default defineComponent({
         gameData: [] as Game[],
         userData: [] as User[],
         history: false,
-        showHistory: false
+        showHistory: false,
+        FActivated: false
       };
     },
     computed: {
@@ -170,6 +173,10 @@ export default defineComponent({
         const profilePic = document.getElementsByTagName('img')[0];
         if (profilePic)
         profilePic.src = avatar;
+        axios.get('/api/users/' + this.profileUser.id)
+        .then((res) => {
+          this.FActivated = res.data.twoFaActivated
+        })
       } 
       await this.logData()
     },
@@ -222,8 +229,11 @@ export default defineComponent({
       Jouer() {
         this.$router.push('/pong')
       },
-      activate2fa() {
-        
+      async update2fa(active: boolean) {
+        await axios.put('/api/users/' + this.profileUser.id, {active})
+        .then(() => {
+          this.FActivated = active
+        })
       },
       changePhoto(){
 
@@ -236,7 +246,6 @@ export default defineComponent({
       },
       async showGame(id : string) {
         const game = await axios.get('/api/games/' + id);
-        console.log(game.data.Players);
         return (game.data.id)
       }
     }
