@@ -39,7 +39,7 @@ export class AuthController {
   @UseGuards(AuthGuard('42'))
   async login() {
     // console.log('entry');
-    passport.authenticate('42');
+    passport.authenticate('42', { failureRedirect: '/' });
   }
 
   @Get('42/callback')
@@ -49,8 +49,8 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     // console.log('______________________callback__________________');
-    passport.authenticate('42', { failureRedirect: '/fail' });
-    // const ret: any = req.user;
+    passport.authenticate('42', { failureRedirect: '/' });
+    // console.log(res.status);
     res.cookie('userData', JSON.stringify(req.user), { secure: false });
     return res.status(302).redirect(process.env.REDIRECT);
   }

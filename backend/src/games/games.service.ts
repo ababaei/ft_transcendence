@@ -8,20 +8,29 @@ export class GameService {
         private prisma: PrismaService,
     ){}
 
-    async findGame(id: number): Promise<Game[] | null> {
-        return this.prisma.game.findMany({
-            where: {
-                id: id
-            },
-            include: {
-                PlayersID: true
-            }
-        })
-    }
+    // async findGame(id: number): Promise<Game[] | null> {
+    //     return this.prisma.game.findMany({
+    //         where: {
+    //             id: id
+    //         },
+    //         include: {
+    //             PlayersID: true
+    //         }
+    //     })
+    // }
 
-    async createGame(data: Game): Promise<Game> {
-        return this.prisma.game.create({
-            data
+    // async createGame(data: Game): Promise<Game> {
+    //     return this.prisma.game.create({
+    //         data
+    //     })
+    // }
+
+    async updateGame(id: number, winnerID: number){
+        await this.prisma.game.update({
+            where: {id: id},
+            data: {
+                idWinner: winnerID
+            }
         })
     }
 

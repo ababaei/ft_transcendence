@@ -282,7 +282,7 @@
     components:({}),
     data() {
       return {
-        // socket: io('http://10.34.9.10:3000'),
+        // socket: io('http://10.12.1.4:3000'),
         usernameToSend: '' as string,
         logedUser: { name: '', id: 0 } as User,
         channelCreationName: '' as string,
