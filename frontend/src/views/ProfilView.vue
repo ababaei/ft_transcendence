@@ -47,6 +47,8 @@ export interface Game {
   id: number;
   active: boolean;
   Players: User[];
+  scoreLeft: number;
+  scoreRight: number;
 }
 
 export default defineComponent({
@@ -157,9 +159,9 @@ export default defineComponent({
           <img :src="game.Players[0].avatar" class="rounded-circle">
           <span>{{ game.Players[0].name }}</span>
         </div>
-        <span> score </span>
+        <span> {{ game.scoreLeft }} </span>
         <h2> - </h2>
-        <span> score </span>
+        <span> {{ game.scoreRight }} </span>
         <div class="player">
           <img :src="game.Players[1].avatar" class="rounded-circle">
           <span>{{ game.Players[1].name }}</span>

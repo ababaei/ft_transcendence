@@ -21,6 +21,7 @@ model User {
   friendsID friendRelation[] @relation("UserRelation")
   channels  Channel[]        @relation("UserChannels")
   games   Game[]              @relation("UserGames")
+  player  Player[]            @relation("PlayerRelation")
 
   @@map("users")
 }
@@ -64,19 +65,20 @@ model Waiting {
   private Boolean?
 }
 
-// model Player {
-//   id     Int     @id @default(autoincrement())
-//   gameID Int?
-//   userID Int
-//   side   String
-//   user   User   @relation("PlayerRelation", fields: [userID], references: [id])
-//   game   Game?   @relation(fields: [gameID], references: [id])
-// }
+model Player {
+  id     Int     @id @default(autoincrement())
+  gameID  Int
+  userID  Int
+  side    String
+  game Game    @relation("gamePlayers", fields: [gameID], references: [id])
+  user   User   @relation("PlayerRelation", fields: [userID], references: [id])
+}
 
 model Game {
   id        Int      @id @default(autoincrement())
   active    Boolean  @default(true)
-  scoreLeft Int?
-  scoreRight  Int?
-  Players   User[]   @relation("UserGames")
+  scoreLeft Int
+  scoreRight  Int
+  Players   Player[]   @relation("gamePlayers")
+  users     User[]    @relation("UserGames")
 }
