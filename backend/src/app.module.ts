@@ -10,6 +10,8 @@ import { GameModule } from './games/games.module';
 import { WaitingModule } from './waiting/waiting.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { GatewayPongModule } from './gatewayPong/Pongateway.module';
+import { PlayersService } from './players/players.service';
+import { PlayersModule } from './players/players.module';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { GatewayPongModule } from './gatewayPong/Pongateway.module';
     ChatModule,
     UsersModule,
     GameModule,
+    PlayersModule,
     WaitingModule,
     GatewayPongModule
   ],

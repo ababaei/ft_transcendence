@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Redirect, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-42';
 import { AuthService } from '../auth.service';
@@ -32,6 +32,12 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     profile: any,
     done: Function,
   ): Promise<any> {
+    // console.log(profile);
+    if (!profile)
+    {
+      // console.log('ici')
+      Redirect(process.env.FAIL)
+    }
     // console.log('PROFILE: ', profile);
     const validUser = await this.authService.validateUser(profile);
     // console.log('TOKEN: ', validUser.user.id);

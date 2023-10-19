@@ -8,9 +8,10 @@ import { Paddles } from "./gateway.service";
 import { ScheduleModule } from "@nestjs/schedule";
 import { GameModule } from "src/games/games.module";
 import { UsersService } from "src/users/users.service";
+import { PlayersService } from "src/players/players.service";
 
 @Module({
     imports: [ScheduleModule.forRoot(), GameModule],
-    providers: [MyPonGateway, GameService, PrismaService, Paddle, Ball, UsersService],
+    providers: [MyPonGateway, GameService, PlayersService, PrismaService, Paddle, Ball, UsersService],
 })
 export class GatewayPongModule {}

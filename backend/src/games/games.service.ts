@@ -25,25 +25,18 @@ export class GameService {
     //     })
     // }
 
-    async updateGame(id: number, leftPlayerScore: number, rightPlayerScore: number){
-        console.log("id : ",id);
-        console.log("left score : ", leftPlayerScore);
-        console.log("right score : ", rightPlayerScore)
+    async updateGame(id: number, winnerID: number){
         await this.prisma.game.update({
             where: {id: id},
             data: {
-                scoreLeft: leftPlayerScore,
-                scoreRight: rightPlayerScore
+                idWinner: winnerID
             }
         })
     }
 
     async initGame(): Promise<Game> {
         return this.prisma.game.create({
-            data:{
-                scoreLeft: 0,
-                scoreRight: 0
-            }
+            data:{}
         })
     }
 }

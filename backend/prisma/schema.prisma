@@ -70,6 +70,7 @@ model Player {
   gameID  Int
   userID  Int
   score   Int
+  side    String
   game Game    @relation("gamePlayers", fields: [gameID], references: [id])
   user   User   @relation("PlayerRelation", fields: [userID], references: [id])
 }
@@ -77,6 +78,7 @@ model Player {
 model Game {
   id        Int      @id @default(autoincrement())
   active    Boolean  @default(true)
+  idWinner  Int?
   Players   Player[]   @relation("gamePlayers")
   users     User[]    @relation("UserGames")
 }

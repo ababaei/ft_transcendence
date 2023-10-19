@@ -18,17 +18,25 @@ export class PlayersService {
     //     return this.prisma.player.findUnique({where: {socket:socket}})
     // }
 
-    async createPlayer(data: Player): Promise<Player>{
-        return this.prisma.player.create({
-            data
+    async createPlayer(gameID: number, userID: number, side: string): Promise<Player>{
+        const player = await this.prisma.player.create({
+            data: {
+                gameID: gameID,
+                userID: userID,
+                score: 0,
+                side: side
+            }
         })
+        return player;
     }
 
-    async updatePlayer(player: Player, score: number): Promise<Player>{
-        return this.prisma.player.update({
-            where: {id:player.id},
+    async updatePlayer(gameID: number, side:string, score: number): Promise<Player>{
+        const updatedPlayer = await this.prisma.player.updateMany({
+            where: {gameID: gameID,
+                side: side},
             data: {score:score}
         })
+        return updatedPlayer[0];
     }
 
     // async newPlayer(game: Game, socket: string): Promise<Player>{

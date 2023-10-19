@@ -9,6 +9,7 @@ import { GameService } from "src/games/games.service";
 import { Paddles } from "./gateway.service";
 import { Interval } from "@nestjs/schedule";
 import { UsersService } from "src/users/users.service";
+import { PlayersService } from "src/players/players.service";
 
 @WebSocketGateway({
 cors: {
@@ -58,7 +59,8 @@ export class MyPonGateway {
   }
 
     constructor (private readonly gameService: GameService,
-                private readonly userService: UsersService) {
+                private readonly userService: UsersService,
+                private readonly playerService: PlayersService) {
                   this.playerNo = 0
                 }
 
@@ -150,8 +152,12 @@ export class MyPonGateway {
               this.reinitEl(element);
               if (leftPlayer.score === 3 || rightPlayer.score === 3)
               {
-                leftPlayer.score === 3 ? this.server.to(element.roomNo).emit('Winner', leftPlayer) : this.server.to(element.roomNo).emit('Winner', rightPlayer);
-                this.gameService.updateGame(element.gameNo, leftPlayer.score, rightPlayer.score);
+                var winner = null;
+                leftPlayer.score === 3 ? winner = leftPlayer : winner = rightPlayer;
+                this.server.to(element.roomNo).emit('Winner', winner);
+                this.playerService.updatePlayer(element.gameNo, 'left', leftPlayer.score);
+                this.playerService.updatePlayer(element.gameNo, 'right', rightPlayer.score);
+                this.gameService.updateGame(element.gameNo, winner.id);
                 leftPlayer.active = false;
                 rightPlayer.active = false;
                 return;
@@ -225,11 +231,12 @@ export class MyPonGateway {
             velX: 2,
             velY: 0
           }
-          this.ball.push(newBall)
+          this.ball.push(newBall);
           this.server.to(roomNo).emit('initBall', newBall);
           this.player.forEach(element => {
-          if (element.roomNo === roomNo)
+            if (element.roomNo === roomNo)
             {
+              this.playerService.createPlayer(game.id, parseInt(element.id), element.side)
               this.userService.addGame(game, parseInt(element.id))
               element.waiting = false;
               element.active = true;
