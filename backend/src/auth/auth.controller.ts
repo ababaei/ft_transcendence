@@ -5,6 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Request, Response } from 'express';
 import { SessionSerializer } from './utils/serializer';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { SchoolAuthGuard } from './guards/42auth.guard';
 // import { SchoolStrategy } from './strategy/school.strategy';
 
 @Controller('auth')
@@ -39,7 +40,7 @@ export class AuthController {
   @UseGuards(AuthGuard('42'))
   async login() {
     console.log('entry');
-    passport.authenticate('42');
+    passport.authenticate('42', { failureRedirect: 'http://localhost:8080/login' });
   }
 
   @Get('42/callback')
@@ -49,9 +50,12 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     console.log('______________________callback__________________');
-    passport.authenticate('42', { failureRedirect: '/fail' });
+    passport.authenticate('42', { failureRedirect: 'http://localhost:8080/login' });
     // const ret: any = req.user;
     console.log('COOKIE', req.user)
+    if (req.query.error) {
+      return res.redirect('http://localhost:8080/login');
+    }
     res.cookie('userData', JSON.stringify(req.user), { secure: false });
     return res.status(302).redirect('http://localhost:8080/login');
   }

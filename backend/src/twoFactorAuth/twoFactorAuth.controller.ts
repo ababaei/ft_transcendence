@@ -15,6 +15,7 @@ import { User } from '@prisma/client';
 import { UsersService } from 'src/users/users.service';
 import TwoFaCodeDto from './dto/twoFaCode.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { Jwt2faGuard } from 'src/auth/guards/jwt2fa.guard';
 
 @Controller('2fa')
 export class TwoFactorAuthController {
@@ -75,5 +76,19 @@ export class TwoFactorAuthController {
     const user = req.user as User;
     res.cookie('userData', JSON.stringify({ token, user }), { secure: false })
     return res.status(200).json({message: 'successfully 2 factor authenticated'})
+  }
+
+  @Post('disable')
+  @HttpCode(200)
+  @UseGuards(Jwt2faGuard)
+  async disable(@Req() req: Request, @Res() res: Request) {
+    console.log('----DISABLING 2FA----')
+    await this.usersService.turnOff2FA(req.user['id']);
+    // const { user } = JSON.parse(req.cookies.userData);
+    const user = req.user as User;
+    user.twoFaActivated = false;
+    user.twoFaSecret = '';
+    const token = await this.authService.signToken({id: user.id, twoFaAuthenticated: false})
+    res.cookies('userData', JSON.stringify({}))
   }
 }

@@ -2,13 +2,18 @@
 import { defineComponent } from 'vue';
 import router from '@/router';
 import axios from 'axios';
+import twoFaForm from '@/components/TwoFaForm.vue'
 
 export default defineComponent({
     data() {
       return {
         qrcodeSrc: '' as string,
-        googleAuthCode: '' as string
+        googleAuthCode: '' as string,
+        twoFaActivated: false as boolean,
       };
+    },
+    components: {
+      twoFaForm
     },
     computed: {
       profileUser() {
@@ -32,6 +37,7 @@ export default defineComponent({
     mounted() {
       if (this.profileUser)
       {
+        this.twoFaActivated = this.profileUser.twoFaActivated;
         const avatar = this.profileUser.avatar;
         console.log('avatar :', avatar);
         // const profilePic = document.getElementsByTagName('img')[1];
@@ -55,38 +61,11 @@ export default defineComponent({
       logOut() {
         localStorage.setItem('isAuthenticated', 'false')
         localStorage.removeItem('currentUser')
+        localStorage.removeItem('jwt_token')
         this.$cookies.remove('userData')
         router.push('/login')
       },
-      async activate2fa() {
-        await axios.post('/api/2fa/generate', this.profileUser,
-        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`},
-          responseType: 'arraybuffer'})
-        .then((res) => {
-          // this.qrcodeSrc = `data:image/png;base64,${res.data}`;
-          
-          const blob = new Blob([res.data], { type: 'image/png' });
-          const dataUrl = URL.createObjectURL(blob);
-          
-          this.qrcodeSrc = dataUrl;
-        })
-      },
-      async verify2fa() {
-        await axios.post('/api/2fa/turn-on',
-        {twoFaCode: this.googleAuthCode, user: this.profileUser },
-        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-        .then((res) => {
-          const cookies = this.$cookies.get('userData')
-          console.log('FRONT', cookies)
-          localStorage.setItem('currentUser', JSON.stringify(cookies.user))
-        })
-        .catch((e) => {
-          console.error(e);
-        })
-      },
-      disable2fa() {
 
-      }
     }
   })
 </script>
@@ -99,17 +78,7 @@ export default defineComponent({
     <!-- <v-avatar v-bind:src="profileUser.avatar" rounded="0" id="avatar"></v-avatar> -->
     <!-- LOGGED USER: {{profileUser.avatar}} -->
     <v-btn class="mt-5" @click="getUser">USER</v-btn>
-    <v-container class="align-center" v-if=!profileUser.twoFaActivated>
-      <v-btn class="mt-5" @click="activate2fa">Enable 2FA</v-btn>
-      <img :src="qrcodeSrc" >
-      <v-form @submit.prevent="verify2fa">
-        <v-text-field v-model="googleAuthCode" label="Google Auth Code"></v-text-field>
-        <v-btn type="submit">verify</v-btn>
-      </v-form>
-    </v-container>
-    <v-container v-else-if=profileUser.twoFaActivated>
-      <v-btn class="mt-5" @click="disable2fa">Disable 2FA</v-btn>
-    </v-container>
+    <two-fa-form />
     <v-btn class="mt-5" @click="logOut">Log out</v-btn>
   </main>
 </template>

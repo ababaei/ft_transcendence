@@ -74,8 +74,8 @@ import axios from 'axios';
 <template>
     <v-container class="pt-10">
         <v-btn class="mt-5" @click="schoolLogin">Log with 42</v-btn>
-        <v-form v-if='promptTwoFaCode' @submit.prevent="auth2fa">
-            <v-text-field v-model="googleAuthCode" label="Google Auth Code"></v-text-field>
+        <v-form class='w-100' v-if='promptTwoFaCode' @submit.prevent="auth2fa">
+            <v-text-field class='w-100' v-model="googleAuthCode" label="Google Auth Code"></v-text-field>
             <v-btn type="submit">Authenticate</v-btn>
       </v-form>
     </v-container>

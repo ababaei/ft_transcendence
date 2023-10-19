@@ -15,6 +15,17 @@ export class UsersService {
     });
   }
 
+  async turnOff2FA(userID: number) {
+    return this.prismaService.user.update({
+      where: {
+        id: userID,
+      },
+      data: {
+        twoFaActivated: false,
+      },
+    });
+  }
+
   async saveSecretKey(key: string, userID: number) {
     return this.prismaService.user.update({
       where: {

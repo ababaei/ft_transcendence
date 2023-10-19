@@ -8,7 +8,7 @@
     },
     name: "app",
     mounted() {
-      localStorage.setItem('isAuthenticated', 'false')
+      // localStorage.setItem('isAuthenticated', 'false')
     }
   });
 </script>
