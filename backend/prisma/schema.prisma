@@ -69,7 +69,7 @@ model Player {
   id     Int     @id @default(autoincrement())
   gameID  Int
   userID  Int
-  side    String
+  score   Int
   game Game    @relation("gamePlayers", fields: [gameID], references: [id])
   user   User   @relation("PlayerRelation", fields: [userID], references: [id])
 }
@@ -77,8 +77,6 @@ model Player {
 model Game {
   id        Int      @id @default(autoincrement())
   active    Boolean  @default(true)
-  scoreLeft Int
-  scoreRight  Int
   Players   Player[]   @relation("gamePlayers")
   users     User[]    @relation("UserGames")
 }
