@@ -52,7 +52,7 @@ import axios from 'axios';
             }
         },
         methods: {
-            schoolLogin() {               
+            schoolLogin() {        
                 window.location.href = '/front/api/auth/42'
             },
             auth2fa() {
@@ -77,16 +77,28 @@ import axios from 'axios';
 
 <template>
     <v-btn rounded="xl" size="x-large" variant="outlined" @click="schoolLogin" id="connect">Log with 42</v-btn>
-    <v-container class="pt-10">
-        <v-btn class="mt-5" @click="schoolLogin">Log with 42</v-btn>
-        <v-form class='w-100' v-if='promptTwoFaCode' @submit.prevent="auth2fa">
-            <v-text-field class='w-100' v-model="googleAuthCode" label="Google Auth Code"></v-text-field>
-            <v-btn type="submit">Authenticate</v-btn>
-    </v-form>
-    </v-container>
+
+    <v-dialog
+          v-model="promptTwoFaCode"
+          :scrim="false"
+          persistent
+          width="30vw"
+        >
+          <v-card
+            color="white"
+          >
+            <v-card-text id="authenticator">
+                <v-form class='w-100' @submit.prevent="auth2fa">
+                    <v-text-field class='w-100' v-model="googleAuthCode" label="Google Auth Code"></v-text-field>
+                    <v-btn class="w-100" type="submit">Authenticate</v-btn>
+                </v-form>
+            </v-card-text>
+          </v-card>
+    </v-dialog>
+
 </template>
 
-<style>
+<style scoped>
 
 
 #connect, #connect span {

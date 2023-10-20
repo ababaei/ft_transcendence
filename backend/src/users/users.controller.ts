@@ -42,7 +42,7 @@ export class UsersController {
   @Post('enable2FA')
   enable2FA(@Body('userID') userID: string) {
     const secretKey = this.userService.generateSecretKey();
-    this.userService.saveSecretKey(userID, secretKey);
+    this.userService.saveSecretKey(secretKey, parseInt(userID));
   }
 
   // @UseGuards(JwtGuard)

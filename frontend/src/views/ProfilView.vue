@@ -4,12 +4,10 @@
     <div class="box rounded-lg" id="leftProfil">
       <img src="" alt="" id="avatar" class="rounded-circle">
       <h1>{{ profileUser.name }}</h1>
-      <v-btn class="mt-5" @click="changePhoto">Modifier photo</v-btn>
-      <v-btn class="mt-5" @click="changePseudo">Modifier pseudo</v-btn>
-      <v-btn v-if="FActivated" class="mt-5" @click="update2fa(false)">Désactiver 2FA</v-btn>
-      <v-btn v-else class="mt-5" @click="update2fa(true)">Activer 2FA</v-btn>
+      <v-btn class="mt-3" @click="changePhoto">Modifier photo</v-btn>
+      <v-btn class="mt-3" @click="changePseudo">Modifier pseudo</v-btn>
       <two-fa-form />
-      <v-btn class="mt-5" @click="logOut">Se déconnecter</v-btn>
+      <v-btn class="mt-3" @click="logOut">Se déconnecter</v-btn>
     </div>
 
     <div v-if="history" class="box rounded-lg" id="rightProfil">
@@ -28,7 +26,7 @@
             <span>{{ getName(game.Players[1].userID) }}</span>
           </div>
         </div>
-        <v-btn class="mt-5" @click="showHistoryBtn">Voir tout l'historique</v-btn>
+        <v-btn class="mt-3" @click="showHistoryBtn">Voir tout l'historique</v-btn>
     </div>
     <div v-else class="box rounded-lg" id="rightProfil">
       <div id="viensJouer">
@@ -320,7 +318,7 @@ main {
 
 #leftProfil {
   width: 30%;
-  padding: 5% 0;
+  padding: 2% 0;
 }
 
 #rightProfil {

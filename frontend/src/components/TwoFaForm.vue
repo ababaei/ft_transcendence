@@ -10,6 +10,7 @@ import axios from 'axios';
                 googleAuthCode: '' as string,
                 twoFaActivated: false as boolean,
                 FActivated: false,
+                activation: false
             };
         },
         computed: {
@@ -27,17 +28,17 @@ import axios from 'axios';
             }
         },
         mounted() {
-            if(this.profileUser)
+            if (this.profileUser)
             {
-                this.twoFaActivated = this.profileUser.twoFaActivated;
                 axios.get('/api/users/' + this.profileUser.id)
                 .then((res) => {
-                    this.FActivated = res.data.twoFaActivated
+                this.FActivated = res.data.twoFaActivated
                 })
             }
         },
         methods: {
             async activate2fa() {
+                this.activation = true;
                 await axios.post('/api/2fa/generate', this.profileUser,
                 { headers: {"Authorization" : `Bearer ${ this.jwt_token }`},
                 responseType: 'arraybuffer'})
@@ -51,8 +52,8 @@ import axios from 'axios';
             },
             async update2fa(active: boolean) {
                 await axios.put('/api/users/' + this.profileUser.id, {active})
-                .then(() => {
-                this.FActivated = active
+                    .then(() => {
+                    this.FActivated = active
                 })
             },
             async verify2fa() {
@@ -63,6 +64,8 @@ import axios from 'axios';
                     const cookies = this.$cookies.get('userData')
                     console.log('FRONT', cookies)
                     localStorage.setItem('currentUser', JSON.stringify(cookies.user))
+                    this.update2fa(true)
+                    this.activation = false
                     this.twoFaActivated = true;
                 })
                 .catch((e) => {
@@ -70,6 +73,7 @@ import axios from 'axios';
                 })
             },
             disable2fa() {
+                this.update2fa(false)
               //steps for 2fa to be disabled:
               //-send a GET request to /api/2fa/disable
               //-then get the cookie from the response
@@ -82,15 +86,26 @@ import axios from 'axios';
 </script>
 
 <template>
-    <v-container class="align-center" v-if="FActivated">
-        <v-btn class="mt-5" @click="activate2fa">Enable 2FA</v-btn>
-        <img :src="qrcodeSrc" >
-        <v-form @submit.prevent="verify2fa">
+        <v-btn class="mt-5" @click="activate2fa" v-if="FActivated == false">Enable 2FA</v-btn>
+        <img :src="qrcodeSrc" v-if="activation" class="activation">
+        <v-form v-if="activation" id="formActiv" class="activation" @submit.prevent="verify2fa">
             <v-text-field v-model="googleAuthCode" label="Google Auth Code"></v-text-field>
-            <v-btn type="submit">verify</v-btn>
+            <v-btn id="btnForm" type="submit">verify</v-btn>
         </v-form>
-    </v-container>
-    <v-container v-else>
-        <v-btn class="mt-5" @click="disable2fa">Disable 2FA</v-btn>
-    </v-container>
+        <v-btn v-if="FActivated" class="mt-5" @click="disable2fa">Disable 2FA</v-btn>
 </template>
+
+<style scoped>
+
+.activation {
+    margin-top: 1vh;
+}
+
+#formActiv {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+</style>
