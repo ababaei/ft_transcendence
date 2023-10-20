@@ -2,7 +2,12 @@
     <v-container>
       <v-card id="channelListCard"
       class="mx-auto" max-width="500">
-      <v-card-title> Channel list </v-card-title>
+      <v-col>
+          <v-card-title>Channel list</v-card-title>
+        </v-col>
+        <v-col>
+          <v-btn @click="this.openDirectMessageDialog" color="primary">Direct Message</v-btn>
+        </v-col>
 
     <v-divider></v-divider>
     <v-virtual-scroll
@@ -13,11 +18,13 @@
 
 <!-- CARTE DE DESCRIPTION D'UN CHANNEL -->
     <v-card id="channelDescriptionBar"
-    v-if="item.id !== -1"
+    v-if="item.id !== -1 &&
+    !(item.isDirect && !this.isUserInChannel(this.profileUser.id, item)) &&
+    !(item.mode==='private' && !this.isUserInChannel(this.profileUser.id, item))"
     @click="this.selectChannel(item)"
     >
     <v-row flex-wrap class="d-flex justify-center">
-        <v-col class="3"> <v-card-text>{{ item.name }}</v-card-text> </v-col>
+        <v-col class="3"> <v-card-text> {{ this.getChannelName(item, this.profileUser) }}</v-card-text> </v-col>
         <v-col class="3"> <v-chip> {{ item.mode }} </v-chip> </v-col>
         <v-col class="3">
         <v-card-actions  v-if="!this.isUserInChannel(this.profileUser.id, item) && !this.isBan(this.profileUser.id, item)">
@@ -41,13 +48,30 @@
     </v-virtual-scroll>
     </v-card>
     </v-container>
+  <!-- Boîte de dialogue pour le message direct -->
+  <v-dialog v-model="directMessageDialog" max-width="400">
+    <v-card>
+      <v-card-title>Direct Message</v-card-title>
+      <v-card-text>
+        <v-form @submit.prevent="this.sendDirectMessage">
+          <v-text-field v-model="directMessageTarget" label="user"></v-text-field>
+          <v-text-field v-model="directMessageContent" label="Message" multi-line></v-text-field>
+          <v-btn type="submit">Send</v-btn>
+        </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn @click="closeDirectMessageDialog">Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from 'axios';
-import { isUserInChannel, isBan } from './chat_utilsMethods';
-import type { Channel, friendRelation, User, Message } from './chat_utilsMethods';
+import { isUserInChannel, isBan, getChannelName } from './chat_utilsMethods';
+import type { Channel, User, Message } from './chat_utilsMethods';
+import { channel } from 'diagnostics_channel';
 
     export default defineComponent ({
         name: "chat_channelList",
@@ -56,6 +80,9 @@ import type { Channel, friendRelation, User, Message } from './chat_utilsMethods
         data() {
           return {
             password: '',
+            directMessageDialog: false,
+            directMessageTarget: "",
+            directMessageContent: "",
           };
         },
         computed: {
@@ -83,6 +110,7 @@ import type { Channel, friendRelation, User, Message } from './chat_utilsMethods
               default: () => []
           },
         },
+        emits: ['channel-selected'],
         methods: {
             selectChannel(channel: Channel) {
                 console.log('methods: selectChannel', channel)
@@ -93,20 +121,43 @@ import type { Channel, friendRelation, User, Message } from './chat_utilsMethods
 
             async joinChannel(channel: Channel) {
               console.log('methods: joinChannel');
-              console.log(channel);
               try {
                 const reponse = await axios.post('/api/chat/joinChannelRequest', {
                   channelID: channel.id,
                   password: channel.mode === 'protected' ? this.password : '',
                 }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
                 console.log(reponse.data);
+                this.password = ''
               }
               catch { console.error(); }
+            },
+
+            async sendDirectMessage() {
+              try {
+                console.log('method: send direct message')
+                const reponse = await axios.post('/api/chat/directMessageRequest', {
+                  target: this.directMessageTarget,
+                  text: this.directMessageContent,
+                }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+                console.log(reponse.data);
+                this.closeDirectMessageDialog()
+                console.log(reponse.data);
+              }
+              catch { console.error(); }
+            },
+            openDirectMessageDialog() {
+              this.directMessageDialog = true;
+            },
+            closeDirectMessageDialog() {
+              this.directMessageDialog = false;
+              this.directMessageContent = '';
+              this.directMessageTarget = '';
             },
 
             // imports 
             isUserInChannel(userID: number, channel: Channel) { return isUserInChannel(userID, channel); },
             isBan(userID: number, channel: Channel): boolean { return isBan(userID, channel); },
+            getChannelName(channel: Channel, self: User): string { return getChannelName(channel, self); }
         }
     })
 </script>

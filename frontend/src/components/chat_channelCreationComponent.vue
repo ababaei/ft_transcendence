@@ -34,7 +34,7 @@ v-radio-group {
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from 'axios';
-import type { Channel, friendRelation, User, Message } from './chat_utilsMethods';
+import type { Channel, User, Message } from './chat_utilsMethods';
 
 
     export default defineComponent ({

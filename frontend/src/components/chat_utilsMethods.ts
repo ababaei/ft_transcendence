@@ -1,16 +1,9 @@
-export interface friendRelation {
-    id: number
-    userID: number
-    friendID: number
-    convID: number
-    isBlocked: boolean
-}
-
 export interface User {
     id: number;
     createdAt: Date;
     updatedAt: Date;
-    friendsID: friendRelation[];
+    friends: User[];
+    blocked: User[];
     name: string;
     email: string;
     avatar: string;
@@ -83,4 +76,29 @@ console.log(channel.banID);
     return (true)
   }
   return false;
+}
+
+export function getChannelName(channel: Channel, self: User): string {
+  if (channel.isDirect) {
+    const otherUser = channel.users.find(user => user.id !== self.id);
+    if (otherUser) { return otherUser.name }
+  }
+  return channel.name
+}
+
+export function isFriend(userID: number, user: User): boolean {
+  if (!user.friends || user.friends.length === 0) {
+    return false;
+  }
+
+  return user.friends.some((friend) => friend.id === userID);
+}
+
+export function isBlocked(userID: number, blockedList: User[]): boolean {
+  console.log('exported: isBlocked', userID, blockedList);
+  if (!blockedList || blockedList.length === 0) {
+    return false;
+  }
+
+  return blockedList.some((blocked) => blocked.id === userID);
 }
