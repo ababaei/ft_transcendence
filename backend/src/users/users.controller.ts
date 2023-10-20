@@ -1,8 +1,16 @@
-import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from './users.service';
-import { User } from '@prisma/client';
+// import { User } from '@prisma/client';
 
 @Controller('users')
 export class UsersController {
@@ -13,7 +21,7 @@ export class UsersController {
 
   @Get()
   async getInfos() {
-    return await this.prismaService.user.findMany({})
+    return await this.prismaService.user.findMany({});
   }
 
   // @UseGuards(JwtGuard)
@@ -23,19 +31,21 @@ export class UsersController {
     const userID: number = Number(params.id);
     const user = await this.prismaService.user.findUnique({
       where: { id: userID },
-      include: {games: true}
+      include: { games: true },
     });
     // console.log(user);
     return user;
   }
 
   @Put('/:id')
-  async updateFA(@Param() params: {id: string}, @Body() body: {active: boolean})
-  {
+  async updateFA(
+    @Param() params: { id: string },
+    @Body() body: { active: boolean },
+  ) {
     await this.prismaService.user.update({
-      where: {id: parseInt(params.id)},
-      data: {twoFaActivated:body.active}
-    })
+      where: { id: parseInt(params.id) },
+      data: { twoFaActivated: body.active },
+    });
   }
 
   @UseGuards(JwtGuard)
@@ -52,4 +62,4 @@ export class UsersController {
   //   const isValid = this.userService.verifyOTP(otp, secretKey);
   //   return { isValid };
   // }
-} 
+}

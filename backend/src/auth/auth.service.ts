@@ -31,7 +31,10 @@ export class AuthService {
     });
     if (user) {
       console.log('User validated: ', user.id);
-      const token = await this.signToken({ id: user.id, twoFaAuthenticated: false });
+      const token = await this.signToken({
+        id: user.id,
+        twoFaAuthenticated: false,
+      });
       return { token, user };
     }
     // console.log('User not validated');
@@ -46,8 +49,6 @@ export class AuthService {
     });
     return token;
   }
-
-  
 
   /**********************************************************************************************/
   /*                                    LOGIN FUNCTIONS                                         */

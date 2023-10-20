@@ -40,7 +40,9 @@ export class AuthController {
   @UseGuards(AuthGuard('42'))
   async login() {
     console.log('entry');
-    passport.authenticate('42', { failureRedirect: 'http://localhost:8080/login' });
+    passport.authenticate('42', {
+      failureRedirect: 'http://localhost:8080/login',
+    });
   }
 
   @Get('42/callback')
@@ -50,9 +52,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     console.log('______________________callback__________________');
-    passport.authenticate('42', { failureRedirect: 'http://localhost:8080/login' });
+    passport.authenticate('42', {
+      failureRedirect: 'http://localhost:8080/login',
+    });
     // const ret: any = req.user;
-    console.log('COOKIE', req.user)
+    console.log('COOKIE', req.user);
     if (req.query.error) {
       return res.redirect('http://localhost:8080/login');
     }
