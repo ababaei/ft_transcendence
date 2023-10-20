@@ -5,6 +5,7 @@
     "@nestjs/platform-socket.io": "^10.2.5",
     "@nestjs/schedule": "^3.0.4",
     "@nestjs/websockets": "^10.2.5",
+    "argon2": "^0.31.1",
     "axios": "^1.5.1",
     "socket.io-client": "^4.7.2",
     "vue-material-design-icons": "^5.2.0",

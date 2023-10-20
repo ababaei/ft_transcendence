@@ -127,6 +127,7 @@ import { channel } from 'diagnostics_channel';
                   password: channel.mode === 'protected' ? this.password : '',
                 }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
                 console.log(reponse.data);
+                this.password = ''
               }
               catch { console.error(); }
             },

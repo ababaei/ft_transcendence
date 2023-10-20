@@ -10,6 +10,8 @@ import { User } from '@prisma/client';
 import { Request } from 'express';
 import { from } from 'rxjs';
 
+const argon2 = require('argon2');
+
 @Controller('chat')
 export class ChatController {
   constructor(
@@ -37,11 +39,11 @@ export class ChatController {
         return 1;
       }
       const fromUser = await this.chatService.findUserById((req.user as User).id);
-      console.log('req.user: ', req.user);
+      const hashedPassword = await argon2.hash(data.password);
       const newChannel = await this.chatService.createNewChannel(
         data.channelName,
         data.mode,
-        data.password,
+        hashedPassword,
         fromUser.id,
         false,
       );
@@ -83,9 +85,10 @@ export class ChatController {
       ) {
         return 'backend: you cant join this channel';
       }
+      const isPasswordCorrect = await argon2.verify(joinedChannel.password, data.password);
       if (
         joinedChannel.mode === 'protected' &&
-        data.password != joinedChannel.password
+        !isPasswordCorrect
       ) {
         return 'backend: wrong password';
       } else {

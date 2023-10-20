@@ -62,14 +62,8 @@ export class ChatService {
 
     async getChannelsList(): Promise<Channel[]> {
         try {
-            // console.log('chatService: getChannelsList');
             const channelList = await this.prismaService.channel.findMany({
                 include: {
-                    // messages: {
-                    //     include: {
-                    //         user: true,
-                        // },
-                    // },
                     users: true,
                 },
             });
@@ -108,11 +102,11 @@ export class ChatService {
                     channelID: channel.id,
                 },
                 include: {
-                    user: true, // Inclure les informations sur l'utilisateur qui a envoyé le message
-                    channel: true, // Inclure les informations sur le canal
+                    user: true,
+                    channel: true,
                 },
                 orderBy: {
-                    createdAt: 'asc', // Vous pouvez changer 'asc' en 'desc' pour trier par ordre décroissant si nécessaire
+                    createdAt: 'asc',
                 },
             });
             return messages;
