@@ -69,6 +69,35 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog
+      v-model="newUser"
+      width="auto"
+      persistent
+    >
+      <v-card>
+        <v-card-title primary-title>
+          <span class="text-h5">Premiere Connexion</span>
+        </v-card-title>
+        <v-card-text>
+          <v-file-input
+            name="photo"
+            label="photo"
+            id="photo"
+          >
+            Avatar
+          </v-file-input>
+          <v-text-field
+            name="pseudo "
+            label="pseudo"
+            id="pseudo"
+          ></v-text-field>
+          Tu peux laisser les informations par defaut et changer plus tard.
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="success" @click="updateProfil">Enregistrer</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </main>
 </template>
 
@@ -150,6 +179,9 @@ export default defineComponent({
         qrcodeSrc: '' as string,
         googleAuthCode: '' as string,
         twoFaActivated: false as boolean,
+        newUser:false as boolean,
+        newAvatar: '',
+        newPseudo: '' as string
       };
     },
     components: {
@@ -175,11 +207,13 @@ export default defineComponent({
     async mounted() {
       if (this.profileUser)
       {
+        if (this.profileUser.newUser)
+          this.newUser = true;
         this.twoFaActivated = this.profileUser.twoFaActivated;
         const avatar = this.profileUser.avatar;
         const profilePic = document.getElementsByTagName('img')[0];
         if (profilePic)
-        profilePic.src = avatar;
+          profilePic.src = avatar;
         axios.get('/api/users/' + this.profileUser.id)
         .then((res) => {
           this.FActivated = res.data.twoFaActivated
@@ -204,9 +238,9 @@ export default defineComponent({
               try {
                 axios.get('/api/games/' + res.data.games[i].id)
                   .then((res) => {
-                  this.gameData.push(res.data);
-                })
-              } catch (error) {
+                    this.gameData.push(res.data);
+                  })
+                } catch (error) {
                 console.log(error);
               }
             }
@@ -250,11 +284,29 @@ export default defineComponent({
           this.FActivated = active
         })
       },
-      changePhoto(){
-
+      async updateProfil() {
+        await this.changePhoto(this.newAvatar)
+        await this.changePseudo(this.newPseudo)
+        await axios.get('/api/users/' + this.profileUser.id + '/update',
+        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
       },
-      changePseudo(){
-
+      async changePhoto(avatar: any){
+        await axios.put('/api/users/' + this.profileUser.id + '/update-photo', { avatar },
+        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+        .then(() => {
+          const user = this.profileUser;
+          user.avatar = avatar
+          localStorage.setItem('currentUser', JSON.stringify(user))
+        })
+      },
+      async changePseudo(pseudo: string){
+        await axios.put('/api/users/' + this.profileUser.id + '/update-pseudo', { pseudo },
+        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+        .then(() => {
+          const user = this.profileUser;
+          user.name = pseudo
+          localStorage.setItem('currentUser', JSON.stringify(user))
+        })
       },
       showHistoryBtn() {
         this.showHistory = true;
