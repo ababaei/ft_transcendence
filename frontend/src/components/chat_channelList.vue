@@ -18,7 +18,9 @@
 
 <!-- CARTE DE DESCRIPTION D'UN CHANNEL -->
     <v-card id="channelDescriptionBar"
-    v-if="item.id !== -1 && !(item.isDirect && !this.isUserInChannel(this.profileUser.id, item))"
+    v-if="item.id !== -1 &&
+    !(item.isDirect && !this.isUserInChannel(this.profileUser.id, item)) &&
+    !(item.mode==='private' && !this.isUserInChannel(this.profileUser.id, item))"
     @click="this.selectChannel(item)"
     >
     <v-row flex-wrap class="d-flex justify-center">
@@ -69,6 +71,7 @@ import { defineComponent } from 'vue';
 import axios from 'axios';
 import { isUserInChannel, isBan, getChannelName } from './chat_utilsMethods';
 import type { Channel, User, Message } from './chat_utilsMethods';
+import { channel } from 'diagnostics_channel';
 
     export default defineComponent ({
         name: "chat_channelList",
@@ -107,7 +110,7 @@ import type { Channel, User, Message } from './chat_utilsMethods';
               default: () => []
           },
         },
-        emits: ['channelSelected'],
+        emits: ['channel-selected'],
         methods: {
             selectChannel(channel: Channel) {
                 console.log('methods: selectChannel', channel)
@@ -130,12 +133,14 @@ import type { Channel, User, Message } from './chat_utilsMethods';
 
             async sendDirectMessage() {
               try {
+                console.log('method: send direct message')
                 const reponse = await axios.post('/api/chat/directMessageRequest', {
                   target: this.directMessageTarget,
                   text: this.directMessageContent,
                 }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
                 console.log(reponse.data);
                 this.closeDirectMessageDialog()
+                console.log(reponse.data);
               }
               catch { console.error(); }
             },

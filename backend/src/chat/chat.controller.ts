@@ -20,65 +20,6 @@ export class ChatController {
   @WebSocketServer()
   server: Server;
 
-  @Post('setUsername')
-  async handleUsername(@Body() data: { username: string }) {
-    console.log('requete: setUsernameRequest', data.username);
-
-    console.log('socket.io: emit updateChanList');
-    this.gateway.server.emit(
-      'updateChannelList',
-      await this.chatService.getChannelsList(),
-    );
-    this.gateway.server.emit(
-      'updateUsersList',
-      await this.chatService.getUsersList(),
-    );
-
-    const foundedUser = await this.prismaService.user.findFirst({
-      where: {
-        name: data.username,
-      },
-    });
-    if (foundedUser) {
-      setTimeout(async () => {
-        this.gateway.server.emit(
-          'updateChannelList',
-          await this.chatService.getChannelsList(),
-        );
-        this.gateway.server.emit(
-          'updateUsersList',
-          await this.chatService.getUsersList(),
-        );
-      }, 100); // Délai de 100 millisecondes
-      return { userid: foundedUser.id, username: foundedUser.name };
-    } else {
-      console.log('create new user', data.username);
-      try {
-        const newUser = await this.prismaService.user.create({
-          data: {
-            email: data.username,
-            name: data.username,
-            avatar: '',
-          },
-        });
-        setTimeout(async () => {
-          this.gateway.server.emit(
-            'updateUsersList',
-            await this.chatService.getUsersList(),
-          );
-          this.gateway.server.emit(
-            'updateChannelList',
-            await this.chatService.getChannelsList(),
-          );
-          this.gateway.server.emit('logUser', newUser);
-        }, 100); // Délai de 100 millisecondes
-        return { userid: newUser.id, username: newUser.name };
-      } catch {
-        console.log('error while creating new user');
-      }
-    }
-    return;
-  }
   @Post('createChannelRequest')
   @UseGuards(JwtGuard)
   async handleChannelRequest(
@@ -136,7 +77,9 @@ export class ChatController {
 
       if (
         (await this.chatService.isBan(fromUser.id, joinedChannel)) ||
-        (await this.chatService.isUserInChannel(fromUser.id, joinedChannel))
+        (await this.chatService.isUserInChannel(fromUser.id, joinedChannel) ||
+        joinedChannel.mode == 'private' ||
+        joinedChannel.isDirect)
       ) {
         return 'backend: you cant join this channel';
       }
@@ -201,6 +144,9 @@ export class ChatController {
       if (!fromUser || !toUser) {
         return 'backend: User not found';
       }
+      if (fromUser.id === toUser.id) {
+        return 'backend: cant send a direct message to yourself';
+      }
       let newChannel = await this.chatService.findDirectChannelByUserIds(fromUser.id, toUser.id);
       console.log(newChannel);
       if (!newChannel) {
@@ -216,7 +162,7 @@ export class ChatController {
         data.text,
       );
       this.sendUploadedData();
-      return 'backend: new message uploaded';
+      return (newChannel);
     } catch {
       console.log('Error handling new message');
       return 'backend: error with new message';
@@ -253,10 +199,13 @@ export class ChatController {
       const channelToLeave = await this.chatService.findChannelById(
         data.channelID,
       );
+      // if (channelToLeave.isDirect) {
+      //   return 'cant leave a direct conversation';
+      // }
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       this.chatService.removeUserFromChannel(fromUser, channelToLeave);
       this.chatService.removeUserAdmin(channelToLeave, fromUser.id);
-      if (!channelToLeave.users) {
+      if (!channelToLeave.users || channelToLeave.isDirect) {
         this.chatService.destroyChannel(channelToLeave);
       }
       this.sendUploadedData();
@@ -284,7 +233,9 @@ export class ChatController {
       const channelToEdit = await this.chatService.findChannelById(
         data.channelID,
       );
-
+      if (channelToEdit.isDirect) {
+        return 'backend: cant do whatever youre trying to do in a direct conversion';
+      }
       if (fromUser.id !== channelToEdit.ownerID) {
         return 'backend: you must be channel owner to edit this channel';
       }
@@ -313,6 +264,9 @@ export class ChatController {
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channel = await this.chatService.findChannelById(data.channelID);
 
+      if (channel.isDirect) {
+        return 'backend: cant do whatever youre trying to do in a direct conversion';
+      }
       if (fromUser.id !== channel.ownerID) {
         return 'backend: you must be channel owner to make a user admin';
       }
@@ -332,6 +286,9 @@ export class ChatController {
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channel = await this.chatService.findChannelById(data.channelID);
 
+      if (channel.isDirect) {
+        return 'backend: cant do whatever youre trying to do in a direct conversion';
+      }
       if (fromUser.id !== channel.ownerID) {
         return 'backend: you must be channel owner to remove a user admin';
       }
@@ -360,6 +317,9 @@ export class ChatController {
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const userKicked = await this.chatService.findUserById(data.userID);
 
+      if (channel.isDirect) {
+        return 'backend: cant do whatever youre trying to do in a direct conversion';
+      }
       if (
         (await !this.chatService.isAdmin(fromUser.id, channel)) ||
         (await this.chatService.isAdmin(data.userID, channel)) ||
@@ -390,6 +350,9 @@ export class ChatController {
     const channel = await this.chatService.findChannelById(data.channelID);
     const fromUser = await this.chatService.findUserById((req.user as User).id);
 
+    if (channel.isDirect) {
+      return 'backend: cant do whatever youre trying to do in a direct conversion';
+    }
     if (
       (await !this.chatService.isAdmin(fromUser.id, channel)) ||
       (await this.chatService.isAdmin(data.userID, channel)) ||
@@ -432,6 +395,9 @@ export class ChatController {
       const channel = await this.chatService.findChannelById(data.channelID);
       const fromUser = await this.chatService.findUserById((req.user as User).id);
 
+      if (channel.isDirect) {
+        return 'backend: cant do whatever youre trying to do in a direct conversion';
+      }
       if (await !this.chatService.isAdmin(fromUser.id, channel)) {
         return 'backend: cant unmute user';
       }
@@ -459,6 +425,9 @@ export class ChatController {
     const channel = await this.chatService.findChannelById(data.channelID);
     const fromUser = await this.chatService.findUserById((req.user as User).id);
 
+    if (channel.isDirect) {
+      return 'backend: cant do whatever youre trying to do in a direct conversion';
+    }
     if (
       (await !this.chatService.isAdmin(fromUser.id, channel)) ||
       (await this.chatService.isAdmin(data.userID, channel)) ||
@@ -502,6 +471,9 @@ export class ChatController {
       const channel = await this.chatService.findChannelById(data.channelID);
       const fromUser = await this.chatService.findUserById((req.user as User).id);
 
+      if (channel.isDirect) {
+        return 'backend: cant do whatever youre trying to do in a direct conversion';
+      }
       if (await !this.chatService.isAdmin(fromUser.id, channel)) {
         return 'backend: cant unmute user';
       }
@@ -676,6 +648,39 @@ export class ChatController {
       return blockedlist;
     } else {
       return [];
+    }
+  }
+  @Post('addFriendInChannelRequest')
+  @UseGuards(JwtGuard)
+  async addFriendInChannel(
+    @Req() req: Request,
+    @Body() data: { channelID: number, friendId: number }
+  ) {
+    try {
+      console.log('requete: add friend in channel')
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+      const channel = await this.chatService.findChannelById(data.channelID);
+      const friend = await this.chatService.findUserById(data.friendId);
+  
+      if (!channel || !friend) {
+        return 'backend: Channel or friend not found';
+      }
+      if (!this.chatService.isFriend(fromUser, friend)) {
+        return 'backend: not your friend';
+      }
+      if (await this.chatService.isUserInChannel(friend.id, channel)) {
+        return 'backend: user already in channel';
+      }
+      if (await this.chatService.isBan(data.friendId, channel)) {
+        return 'backend: Friend is banned from the channel';
+      }  
+      await this.chatService.addUserInChannel(channel, friend);
+  
+      this.sendUploadedData();
+      return 'backend: Friend added to the channel';
+    } catch {
+      console.log('Error: Adding friend to channel');
+      return 'backend: Error while adding friend to channel';
     }
   }
 

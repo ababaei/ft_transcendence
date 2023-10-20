@@ -10,9 +10,9 @@
             </template>
             <v-list>
               <v-list-item @click="this.leaveChannel">Leave Channel</v-list-item>
-              <v-list-item v-if="this.profileUser.id == this.channelInChatBox.ownerID"
+              <v-list-item v-if="this.profileUser.id == this.channelInChatBox.ownerID && !this.channelInChatBox.isDirect"
               @click="this.openEditChannelDialog">Edit Channel</v-list-item>
-              <v-list-item v-if="this.profileUser.id == this.channelInChatBox.ownerID"
+              <v-list-item v-if="this.profileUser.id == this.channelInChatBox.ownerID && !this.channelInChatBox.isDirect"
               @click="this.destroyChannel">Destroy Channel</v-list-item>
             </v-list>
         </v-menu>
@@ -87,7 +87,10 @@
 
       <!-- LISTE USERS -->
           <v-card>
+            <v-row>
             <v-card-title>Users in channel</v-card-title>
+            <v-btn @click="this.openInviteDialog()">+</v-btn>
+            </v-row>
             <v-divider></v-divider>
           <v-virtual-scroll :items="(this.channelInChatBox.users as User[])"  height="420" item-height="48" style="overflow-x: hidden;">
             <template v-slot:default="{ item: user }">
@@ -95,11 +98,11 @@
                     <v-row>
                       <v-col><v-list-item-title>{{ user.name }}</v-list-item-title></v-col>
                       <v-col>
-                        <v-chip v-if="user.id==this.channelInChatBox.ownerID"> owner </v-chip>
-                        <v-chip v-if="this.isAdmin(user.id, this.channelInChatBox)"> admin </v-chip>
+                        <v-chip v-if="user.id==this.channelInChatBox.ownerID && !this.channelInChatBox.isDirect"> owner </v-chip>
+                        <v-chip v-if="this.isAdmin(user.id, this.channelInChatBox) && !this.channelInChatBox.isDirect"> admin </v-chip>
                       </v-col>
               <!-- ACTIONS SUR USER -->
-                    <v-menu>
+                    <v-menu v-if="!this.channelInChatBox.isDirect">
                       <template v-slot:activator="{ props }">
                         <v-btn icon="mdi-dots-vertical" v-bind="props" v-if="user.id!==this.profileUser.id"></v-btn>
                       </template>
@@ -195,6 +198,35 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+<!-- INVITE FRIENDS DIALOG -->
+<v-dialog v-model="this.inviteDialog" max-width="500">
+    <v-card>
+      <v-card-title> Add friend in channel</v-card-title>
+      <v-card-text>
+      <v-form @submit.prevent="this.addFriendInchannel">
+        <div>
+          <v-list>
+          <v-card
+            v-for="friend in this.friendList"
+            :key="friend.id" @click="this.openInviteDialog(friend.id)"
+            v-bind:class="{ 'selected-card': friend.id === selectedFriend }">
+            <v-row class="d-flex justify-center" @click="selectFriend(friend.id)">
+            <v-col><v-avatar size="40px">
+              <v-img :src="friend.avatar" alt="Avatar" />
+            </v-avatar></v-col>
+            <v-col><v-list-item-title>{{ friend.name }}</v-list-item-title></v-col>
+          </v-row>
+            </v-card>
+        </v-list>
+        </div>
+        <v-btn type="submit"> Add friend</v-btn>
+      </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn @click="this.closeInviteDialog">Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script lang="ts">
@@ -221,6 +253,8 @@ import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsM
               onUserID: 0,
               time: 0,
             },
+            selectedFriend: 0,
+            inviteDialog: false,
         }),
         computed: {
           profileUser() {
@@ -308,6 +342,16 @@ import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsM
             closeTimerDialog() {
               this.timerDialog = false;
               this.timerForm.time = 0;
+            },
+            openInviteDialog() {
+              this.inviteDialog = true;
+            },
+            closeInviteDialog() {
+              this.inviteDialog = false;
+              this.selectedFriend = 0;
+            },
+            selectFriend(friendID: number) {
+              this.selectedFriend = friendID;
             },
             async editChannel() {
               try {
@@ -403,6 +447,17 @@ import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsM
           console.log(reponse.data);
       } catch { console.error(); }
     },
+    async addFriendInchannel() {
+      try {
+        console.log('methosds: add user in channel');
+          const reponse = await axios.post('/api/chat/addFriendInChannelRequest', {
+            channelID: this.channelInChatBox.id,
+            friendId: this.selectedFriend,
+          }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+          console.log(reponse.data);
+          this.closeInviteDialog();
+      } catch { console.error(); }
+    },
     submitAction() {
       if (this.timerForm.action === 'mute') {
         this.muteUser(this.timerForm.onUserID, this.channelInChatBox.id, this.timerForm.time);
@@ -421,3 +476,10 @@ import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsM
         }
     })
 </script>
+
+<style>
+.selected-card {
+  background-color: #333;
+  color: #fff;
+}
+</style>
