@@ -27,7 +27,8 @@
           <v-card
             v-for="friend in this.friendList"
             :key="friend.id">
-            <v-row class="d-flex justify-center">
+            <v-row class="d-flex justify-center"
+            @click="profilePopup = true; userSelected = friend">
             <v-col><v-avatar size="40px">
               <v-img :src="friend.avatar" alt="Avatar" />
             </v-avatar></v-col>
@@ -78,7 +79,8 @@
           <v-card
             v-for="blocked in this.blockedList"
             :key="blocked.id">
-            <v-row class="d-flex justify-center">
+            <v-row class="d-flex justify-center"
+            @click="profilePopup = true; userSelected = blocked">
             <v-col><v-avatar size="40px">
               <v-img :src="blocked.avatar" alt="Avatar" />
             </v-avatar></v-col>
@@ -105,17 +107,25 @@
       </v-window>
       </v-card>
     </v-container>
+    <v-dialog v-model="profilePopup" max-width="400">
+      <UserProfilePopUp
+      :userRequested="this.userSelected"
+      :friendList="this.friendList"
+      :blockedList="this.blockedList"/>
+    </v-dialog>
   </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from 'axios';
+import UserProfilePopUp from './UserProfilePopUp.vue';
 import { isUserInChannel, isBan } from './chat_utilsMethods';
 import type { Channel, User, Message } from './chat_utilsMethods';
 
     export default defineComponent ({
         name: "friendListComponent",
         components: {
+          UserProfilePopUp,
         },
         data() {
           return {
@@ -123,6 +133,8 @@ import type { Channel, User, Message } from './chat_utilsMethods';
             password: '',
             friendName: '',
             blockedName: '',
+            profilePopup: false,
+            userSelected: 0,
           };
         },
         computed: {
@@ -199,10 +211,6 @@ import type { Channel, User, Message } from './chat_utilsMethods';
               console.log(reponse);
             } catch { console.error(); }
           },
-
-          sendDirectMessage(userid: number) {
-            this.$emit('send-direct', userid);
-          }
     },
   })
 </script>

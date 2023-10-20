@@ -42,8 +42,7 @@
             <friendListComponent
             :friendList="this.friendsList"
             :blockedList="this.blockedList"
-            :channelList="this.channelList"
-            @send-direct="this.selectDirectConv" />
+            :channelList="this.channelList" />
           </v-col>
         </v-row>
       </v-main>

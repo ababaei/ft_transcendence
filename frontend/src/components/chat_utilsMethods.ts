@@ -86,12 +86,12 @@ export function getChannelName(channel: Channel, self: User): string {
   return channel.name
 }
 
-export function isFriend(userID: number, user: User): boolean {
-  if (!user.friends || user.friends.length === 0) {
+export function isFriend(userID: number, friendList: User[]): boolean {
+  if (!friendList || friendList.length === 0) {
     return false;
   }
 
-  return user.friends.some((friend) => friend.id === userID);
+  return friendList.some((friend) => friend.id === userID);
 }
 
 export function isBlocked(userID: number, blockedList: User[]): boolean {

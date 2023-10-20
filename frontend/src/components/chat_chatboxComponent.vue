@@ -94,7 +94,8 @@
             <v-divider></v-divider>
           <v-virtual-scroll :items="(this.channelInChatBox.users as User[])"  height="420" item-height="48" style="overflow-x: hidden;">
             <template v-slot:default="{ item: user }">
-                    <v-list-item>
+                    <v-list-item
+                    @click="profilePopup = true; userSelected = user">
                     <v-row>
                       <v-col><v-list-item-title>{{ user.name }}</v-list-item-title></v-col>
                       <v-col>
@@ -227,21 +228,33 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-dialog v-model="profilePopup" max-width="400">
+      <UserProfilePopUp
+      :userRequested="this.userSelected"
+      :friendList="this.friendList"
+      :blockedList="this.blockedList"/>
+    </v-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 import axios from 'axios';
+import UserProfilePopUp from './UserProfilePopUp.vue';
 import { VListItem } from 'vuetify/components';
 import type { Channel, User, Message } from './chat_utilsMethods';
 import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsMethods'
 
     export default defineComponent ({
         name: "chat_chatboxComponent",
+        components: {
+          UserProfilePopUp,
+        },
         data: () => ({
             tab: null,
             messageToSend: '',
+            profilePopup: false,
             editChannelDialog: false,
+            userSelected: 0,
             channelEditForm: {
               name: '',
               type: 'public',
