@@ -10,7 +10,8 @@ import axios from 'axios';
                 googleAuthCode: '' as string,
                 twoFaActivated: false as boolean,
                 FActivated: false,
-                activation: false
+                activation: false,
+                wrongCode: false as boolean,
             };
         },
         computed: {
@@ -43,7 +44,6 @@ import axios from 'axios';
                 { headers: {"Authorization" : `Bearer ${ this.jwt_token }`},
                 responseType: 'arraybuffer'})
                 .then((res) => {
-                    // this.qrcodeSrc = `data:image/png;base64,${res.data}`;
                     const blob = new Blob([res.data], { type: 'image/png' });
                     const dataUrl = URL.createObjectURL(blob);
           
@@ -69,6 +69,7 @@ import axios from 'axios';
                     this.twoFaActivated = true;
                 })
                 .catch((e) => {
+                    this.wrongCode = true;
                     console.error(e);
                 })
             },
@@ -86,13 +87,26 @@ import axios from 'axios';
 </script>
 
 <template>
-        <v-btn class="mt-5" @click="activate2fa" v-if="FActivated == false">Enable 2FA</v-btn>
+        <v-btn class="mt-5" @click="activate2fa" v-if="FActivated == false && !activation">Activer 2FA</v-btn>
         <img :src="qrcodeSrc" v-if="activation" class="activation">
         <v-form v-if="activation" id="formActiv" class="activation" @submit.prevent="verify2fa">
             <v-text-field v-model="googleAuthCode" label="Google Auth Code"></v-text-field>
-            <v-btn id="btnForm" type="submit">verify</v-btn>
+            <v-btn id="btnForm" type="submit">Vérifier</v-btn>
         </v-form>
-        <v-btn v-if="FActivated" class="mt-5" @click="disable2fa">Disable 2FA</v-btn>
+        <v-dialog
+            v-model="wrongCode"
+            width="auto"
+        >
+            <v-card>
+                <v-card-text>
+                    Oups, il semblerait que tu aies rentré un mauvais code de vérification. 😩
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn color="primary" block @click="wrongCode = false">Fermer</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+        <v-btn v-if="FActivated" class="mt-5" @click="disable2fa">Désactiver 2FA</v-btn>
 </template>
 
 <style scoped>

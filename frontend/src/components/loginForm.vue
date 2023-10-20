@@ -9,7 +9,8 @@ import axios from 'axios';
         data() {
             return {
                 promptTwoFaCode: false as boolean,
-                googleAuthCode: '' as string
+                googleAuthCode: '' as string,
+                wrongCode: false as boolean
             }
         },
         computed: {
@@ -68,7 +69,8 @@ import axios from 'axios';
                         router.push('/profil/' + cookies.user.id)
                     })
                     .catch((err) => {
-                        console.log(err.response);
+                        this.wrongCode = true;
+                        console.log('ERROR', err.response);
                     })
             }
         }
@@ -79,21 +81,34 @@ import axios from 'axios';
     <v-btn rounded="xl" size="x-large" variant="outlined" @click="schoolLogin" id="connect">Log with 42</v-btn>
 
     <v-dialog
-          v-model="promptTwoFaCode"
-          :scrim="false"
-          persistent
-          width="30vw"
+        v-model="promptTwoFaCode"
+        :scrim="false"
+        persistent
+        width="30vw"
+    >
+        <v-card
+          color="white"
         >
-          <v-card
-            color="white"
-          >
             <v-card-text id="authenticator">
                 <v-form class='w-100' @submit.prevent="auth2fa">
                     <v-text-field class='w-100' v-model="googleAuthCode" label="Google Auth Code"></v-text-field>
                     <v-btn class="w-100" type="submit">Authenticate</v-btn>
                 </v-form>
+            </v-card-text> 
+        </v-card>
+    </v-dialog>
+    <v-dialog
+        v-model="wrongCode"
+        width="auto"
+    >
+        <v-card>
+            <v-card-text>
+                Oups, il semblerait que tu aies rentré un mauvais code de vérification. 😩
             </v-card-text>
-          </v-card>
+            <v-card-actions>
+                <v-btn color="primary" block @click="wrongCode = false">Fermer</v-btn>
+            </v-card-actions>
+        </v-card>
     </v-dialog>
 
 </template>

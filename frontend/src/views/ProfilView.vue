@@ -6,7 +6,7 @@
       <h1>{{ profileUser.name }}</h1>
       <v-btn class="mt-3" @click="changePhoto">Modifier photo</v-btn>
       <v-btn class="mt-3" @click="changePseudo">Modifier pseudo</v-btn>
-      <two-fa-form />
+      <twoFaForm />
       <v-btn class="mt-3" @click="logOut">Se déconnecter</v-btn>
     </div>
 
