@@ -26,7 +26,7 @@ export class AuthController {
   }
 
   @Get('user/:id')
-  @UseGuards(AuthGuard('42'))
+  @UseGuards(SchoolAuthGuard)
   async getUser(@Param() params: { login: string }) {
     // console.log('LOGIN: ', params.login);
 
@@ -37,7 +37,7 @@ export class AuthController {
   }
 
   @Get('42')
-  @UseGuards(AuthGuard('42'))
+  @UseGuards(SchoolAuthGuard)
   async login() {
     console.log('entry');
     passport.authenticate('42', {
@@ -46,7 +46,7 @@ export class AuthController {
   }
 
   @Get('42/callback')
-  @UseGuards(AuthGuard('42'))
+  @UseGuards(SchoolAuthGuard)
   async callback(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -55,11 +55,9 @@ export class AuthController {
     passport.authenticate('42', {
       failureRedirect: 'http://localhost:8080/login',
     });
-    // const ret: any = req.user;
-    console.log('COOKIE', req.user);
-    if (req.query.error) {
-      return res.redirect('http://localhost:8080/login');
-    }
+
+    if (req.query.error)
+      return;
     res.cookie('userData', JSON.stringify(req.user), { secure: false });
     return res.status(302).redirect(process.env.REDIRECT);
   }
@@ -69,17 +67,4 @@ export class AuthController {
     req.logout();
     res.redirect('/');
   }
-  // @UseGuards(SchoolAuthGuard
-  // @Get('42')
-  // login(@Request() req: any): any {
-  //     console.log(req.user)
-  //     return req.user
-  // }
-
-  // @Get('42')l
-  // login() {
-  //     console.log('authenticate_')
-  //     const handler = passport.authenticate('42');
-  //     handler();
-  // }
 }

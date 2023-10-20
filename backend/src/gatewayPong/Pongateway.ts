@@ -47,7 +47,7 @@ export class MyPonGateway {
     width: number,
     height: number
   } = {
-    width: 750,
+    width: 600,
     height: 300
   }
   paddle: {
@@ -82,6 +82,7 @@ export class MyPonGateway {
 
       if (b_left < p_right && b_right > p_left && b_top < p_bottom && b_bottom > p_top)
         coll = true;
+      if (b_bottom > p_top)
       return (coll);
     }
 
@@ -103,8 +104,8 @@ export class MyPonGateway {
 
     reinitEl(element: any)
     {
-      element.x = 350;
-      element.y = 150;
+      element.x = this.canvas.width / 2;
+      element.y = this.canvas.height / 2;
       element.velY = 0;
       element.velX = 1;
     }
@@ -209,7 +210,7 @@ export class MyPonGateway {
           const newPlayer = {
             id: userID,
             socket: client.id,
-            x: 681,
+            x: 581,
             y: 110,
             roomNo : roomNo,
             score: 0,
@@ -224,8 +225,8 @@ export class MyPonGateway {
           const newBall = {
             gameNo: game.id,
             roomNo: roomNo,
-            x: 350,
-            y: 150,
+            x: this.canvas.width / 2,
+            y: this.canvas.height / 2,
             size: 5,
             speed: 2,
             velX: 2,
@@ -262,7 +263,7 @@ export class MyPonGateway {
     @SubscribeMessage('pageChanged')
     forceDisconnection(client:Socket) {
       const playerIndex = this.player.findIndex(item => {
-        return (item.socket === client.id && item.active == true)
+        return (item.socket === client.id && (item.active == true || item.waiting == true))
       });
       if (playerIndex != -1)
       {
@@ -294,27 +295,28 @@ export class MyPonGateway {
       }
     }
 
-    // @SubscribeMessage('initGame')
-    // async InitGame(client: Socket, data: any): Promise<any> {
-    //     const game = await this.gameService.initGame();
-
-    //     const player1 = await this.playerService.newPlayer(game, data[0].socket);
-    //     const player2 = await this.playerService.newPlayer(game, data[1].socket);
-
-    //     this.server.to(data[0].socket).emit('gameStarted', game.id);
-    //     this.server.to(data[1].socket).emit('gameStarted', game.id);
-    // }
-
     async handleDisconnect(client: Socket) {
         console.log(`Client disconnected : ${client.id}`)
-        // const player = await this.playerService.getPlayer(`${client.id}`)
-        // console.log(player);
-        // if (player)
-        // {
-        //     const players = await this.playerService.getPlayers(player.gameID);
-        //     this.server.to(players[0].socket).emit('gameEnded');
-        //     this.server.to(players[1].socket).emit('gameEnded');    
-        // }
+        const playerIndex = this.player.findIndex(item => {
+          return (item.socket === client.id && (item.active == true || item.waiting == true))
+        });
+        if (playerIndex != -1)
+        {
+          if (this.player[playerIndex].active == true)
+          {
+            this.server.to(this.player[playerIndex].roomNo).emit('forceEndGame');
+            this.player.forEach(element => {
+              if (element.roomNo == this.player[playerIndex].roomNo)
+                element.active = false;
+            });
+          }
+          if (this.player[playerIndex].waiting == true)
+          {
+            this.playerNo--;
+            this.player.splice(playerIndex, 1);
+          }
+        }
+  
     }
 
 
