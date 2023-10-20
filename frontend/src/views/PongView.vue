@@ -103,7 +103,7 @@
         </v-dialog>
           <!-- <iframe src="https://giphy.com/embed/3o7bu3XilJ5BOiSGic" width="30" height="30" frameBorder="0" class="gif"></iframe> -->
         <!-- </div> -->
-        <canvas id="game" :class="{ invisible: !game }" width="700" height="300"></canvas>
+        <canvas id="game" :class="{ invisible: !game }" width="600" height="300"></canvas>
     </main>
   </template>
 
@@ -118,9 +118,10 @@
     data() {
       return {
         socket: io(process.env.VITE_HOST, { transports : ['websocket'] }),
+        ratio : 1,
         key: 'aucune',
         canvas: {
-          width: 700,
+          width: 600,
           height: 300
         },
         paddleSize: {
@@ -261,13 +262,26 @@
         var ctx = c.getContext("2d");
         if (!ctx)
           throw new Error('failed to get 2D context');
+        if (window.innerWidth < 700)
+        {
+          this.ratio = 600 / (window.innerWidth - 100)
+          c.width = 600 / this.ratio;
+          c.height = 300 / this.ratio;
+        }
+        else
+        {
+          this.ratio = 1
+          c.width = 600
+          c.height = 300
+        }
+        console.log(this.ratio)
         ctx.clearRect(0, 0, c.width, c.height);
         ctx.fillStyle = '#6d4db6';
-        ctx.fillRect(this.left.x, this.left.y, this.paddleSize.width, this.paddleSize.height);
-        ctx.fillRect(this.right.x, this.right.y, this.paddleSize.width, this.paddleSize.height);
+        ctx.fillRect(this.left.x / this.ratio, this.left.y / this.ratio, this.paddleSize.width / this.ratio, this.paddleSize.height / this.ratio);
+        ctx.fillRect(this.right.x / this.ratio, this.right.y / this.ratio, this.paddleSize.width / this.ratio, this.paddleSize.height / this.ratio);
         ctx.imageSmoothingEnabled = false;
         ctx.beginPath();
-        ctx.arc(this.ball.x, this.ball.y, this.ball.size, 0, Math.PI * 2, false);
+        ctx.arc(this.ball.x / this.ratio, this.ball.y / this.ratio, this.ball.size / this.ratio, 0, Math.PI * 2, false);
         ctx.fill();
         requestAnimationFrame(this.renderGame);
       },

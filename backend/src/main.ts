@@ -9,9 +9,12 @@ import * as cookieParser from 'cookie-parser';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 // import * as session from 'express-session'
 import session = require('express-session');
+import { CustomHttpExceptionFilter } from './auth/guards/42auth.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useGlobalFilters(new CustomHttpExceptionFilter());
 
   app.enableCors({
     origin: '*',
