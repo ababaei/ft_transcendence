@@ -73,7 +73,7 @@ export default {
 },
     data() {
         return {
-            socket: io('/api'),
+            socket: io(process.env.VITE_HOST, { transports : ['websocket'] }),
             channelList: [] as Channel[],
             userList: [] as User[],
             channelInChatBox: { id: 0 } as Channel,

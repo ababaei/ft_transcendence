@@ -89,7 +89,7 @@
           <v-card>
             <v-row>
             <v-card-title>Users in channel</v-card-title>
-            <v-btn @click="this.openInviteDialog()">+</v-btn>
+            <v-btn v-if="!this.channelInChatBox.isDirect" @click="this.openInviteDialog()">+</v-btn>
             </v-row>
             <v-divider></v-divider>
           <v-virtual-scroll :items="(this.channelInChatBox.users as User[])"  height="420" item-height="48" style="overflow-x: hidden;">
