@@ -4,8 +4,30 @@
     <div class="box rounded-lg" id="leftProfil">
       <img src="" alt="" id="avatar" class="rounded-circle">
       <h1>{{ profileUser.name }}</h1>
-      <v-btn class="mt-3" @click="changePhoto">Modifier photo</v-btn>
-      <v-btn class="mt-3" @click="changePseudo">Modifier pseudo</v-btn>
+      <v-text-field
+        v-if="toggleAvatar"
+        name="togglePhoto"
+        label="photo URL"
+        id="togglePhoto"
+        single-line
+        density="compact"
+        append-inner-icon="mdi-pencil"
+        v-model="newAvatar"
+        @click:append-inner="changePhoto"
+      ></v-text-field>
+      <v-btn class="mt-3" @click="toggleAvatar = !toggleAvatar">Modifier photo</v-btn>
+      <v-text-field
+        v-if="togglePseudo"
+        name="togglePseudo"
+        label="pseudo"
+        id="togglePseudo"
+        single-line
+        density="compact"
+        append-inner-icon="mdi-pencil"
+        v-model="newPseudo"
+        @click:append-inner="changePseudo"
+      ></v-text-field>
+      <v-btn class="mt-3" @click="togglePseudo = !togglePseudo">Modifier pseudo</v-btn>
       <twoFaForm />
       <v-btn class="mt-3" @click="logOut">Se déconnecter</v-btn>
     </div>
@@ -79,17 +101,18 @@
           <span class="text-h5">Premiere Connexion</span>
         </v-card-title>
         <v-card-text>
-          <v-file-input
+          <v-text-field
             name="photo"
-            label="photo"
+            label="photo URL"
             id="photo"
+            v-model="newAvatar"
           >
-            Avatar
-          </v-file-input>
+          </v-text-field>
           <v-text-field
             name="pseudo "
             label="pseudo"
             id="pseudo"
+            v-model="newPseudo"
           ></v-text-field>
           Tu peux laisser les informations par defaut et changer plus tard.
         </v-card-text>
@@ -180,8 +203,10 @@ export default defineComponent({
         googleAuthCode: '' as string,
         twoFaActivated: false as boolean,
         newUser:false as boolean,
-        newAvatar: '',
-        newPseudo: '' as string
+        newAvatar: '' as string,
+        newPseudo: '' as string,
+        togglePseudo: false as boolean,
+        toggleAvatar: false as boolean
       };
     },
     components: {
@@ -253,13 +278,13 @@ export default defineComponent({
           this.userData = res.data
         })
       },
-      getUser() {
-        axios.post('/api/2fa/generate',{},
-        { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-        .then((res) => {
-          this.qrcodeSrc = res.data
-          console.log(res.data)})
-      },
+      // getUser() {
+      //   axios.post('/api/2fa/generate',{},
+      //   { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+      //   .then((res) => {
+      //     this.qrcodeSrc = res.data
+      //     console.log(res.data)})
+      // },
       getAvatar(userID:number){
         const user = this.userData.find(user => user.id == userID);
         return user?.avatar;
@@ -289,8 +314,16 @@ export default defineComponent({
         await this.changePseudo(this.newPseudo)
         await axios.get('/api/users/' + this.profileUser.id + '/update',
         { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+        .then(() => {
+          const user = this.profileUser;
+          user.newUser = false
+          this.newUser = false;
+          localStorage.setItem('currentUser', JSON.stringify(user))
+        })
       },
-      async changePhoto(avatar: any){
+      async changePhoto(avatar: string){
+        if (avatar == '')
+         return;
         await axios.put('/api/users/' + this.profileUser.id + '/update-photo', { avatar },
         { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
         .then(() => {
@@ -300,6 +333,8 @@ export default defineComponent({
         })
       },
       async changePseudo(pseudo: string){
+        if (pseudo == '')
+         return;
         await axios.put('/api/users/' + this.profileUser.id + '/update-pseudo', { pseudo },
         { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
         .then(() => {

@@ -74,9 +74,21 @@ export class UsersController {
     @Param() params: { id: string },
     @Body() body: { pseudo: string },
   ) {
+    console.log('MAJPSEUDO', body.pseudo)
     await this.prismaService.user.update({
       where: { id: parseInt(params.id) },
       data: { name: body.pseudo },
+    });
+  }
+
+  @UseGuards(Jwt2faGuard)
+  @Get('/:id/update')
+  async update(
+    @Param() params: { id: string },
+  ) {
+    await this.prismaService.user.update({
+      where: { id: parseInt(params.id) },
+      data: { newUser: false },
     });
   }
 

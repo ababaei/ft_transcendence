@@ -17,7 +17,7 @@ export class AuthService {
   async validateUser(profile: any): Promise<any> {
     const user = await this.prisma.user.upsert({
       where: {
-        name: profile.username,
+        email: profile.emails[0].value,
       },
       update: {},
       create: {
