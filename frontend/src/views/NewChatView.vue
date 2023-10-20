@@ -229,6 +229,8 @@ export default {
           this.channelInChatBox = {id: 0 } as Channel;
           this.channelInChatBoxID = 0;
         }
+        console.log('listChannel at the end of updateListChannel: ', this.channelList);
+        console.log('chatBoxOnChannel: ', this.channelInChatBox)
     })
 
     this.socket.on('updateUsersList', async (data) => {

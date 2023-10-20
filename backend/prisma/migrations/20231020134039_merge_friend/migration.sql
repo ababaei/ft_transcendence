@@ -107,11 +107,6 @@ CREATE UNIQUE INDEX "Message_id_key" ON "Message"("id");
 CREATE UNIQUE INDEX "Waiting_socket_key" ON "Waiting"("socket");
 
 -- CreateIndex
-<<<<<<<< HEAD:backend/prisma/migrations/20231019220622_/migration.sql
-========
-CREATE UNIQUE INDEX "Player_socket_key" ON "Player"("socket");
-
--- CreateIndex
 CREATE UNIQUE INDEX "_friends_AB_unique" ON "_friends"("A", "B");
 
 -- CreateIndex
@@ -124,7 +119,6 @@ CREATE UNIQUE INDEX "_block_AB_unique" ON "_block"("A", "B");
 CREATE INDEX "_block_B_index" ON "_block"("B");
 
 -- CreateIndex
->>>>>>>> friendList:backend/prisma/migrations/20231017160920_added_blocked_list/migration.sql
 CREATE UNIQUE INDEX "_UserChannels_AB_unique" ON "_UserChannels"("A", "B");
 
 -- CreateIndex
@@ -143,15 +137,12 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_channelID_fkey" FOREIGN KEY ("chan
 ALTER TABLE "Message" ADD CONSTRAINT "Message_userID_fkey" FOREIGN KEY ("userID") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Player" ADD CONSTRAINT "Player_gameID_fkey" FOREIGN KEY ("gameID") REFERENCES "Game"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-<<<<<<<< HEAD:backend/prisma/migrations/20231019220622_/migration.sql
 ALTER TABLE "Player" ADD CONSTRAINT "Player_gameID_fkey" FOREIGN KEY ("gameID") REFERENCES "Game"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Player" ADD CONSTRAINT "Player_userID_fkey" FOREIGN KEY ("userID") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-========
+
+-- AddForeignKey
 ALTER TABLE "_friends" ADD CONSTRAINT "_friends_A_fkey" FOREIGN KEY ("A") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -162,7 +153,6 @@ ALTER TABLE "_block" ADD CONSTRAINT "_block_A_fkey" FOREIGN KEY ("A") REFERENCES
 
 -- AddForeignKey
 ALTER TABLE "_block" ADD CONSTRAINT "_block_B_fkey" FOREIGN KEY ("B") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
->>>>>>>> friendList:backend/prisma/migrations/20231017160920_added_blocked_list/migration.sql
 
 -- AddForeignKey
 ALTER TABLE "_UserChannels" ADD CONSTRAINT "_UserChannels_A_fkey" FOREIGN KEY ("A") REFERENCES "Channel"("id") ON DELETE CASCADE ON UPDATE CASCADE;
