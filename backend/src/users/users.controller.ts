@@ -75,10 +75,15 @@ export class UsersController {
     @Body() body: { pseudo: string },
   ) {
     console.log('MAJPSEUDO', body.pseudo)
-    await this.prismaService.user.update({
-      where: { id: parseInt(params.id) },
-      data: { name: body.pseudo },
-    });
+    try {
+      await this.prismaService.user.update({
+        where: { id: parseInt(params.id) },
+        data: { displayName: body.pseudo },
+      });
+    } catch(e) {
+      throw e;
+      // console.error('ERROR MAJ', e);
+    }
   }
 
   @UseGuards(Jwt2faGuard)
