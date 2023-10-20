@@ -308,13 +308,6 @@ export default defineComponent({
           this.userData = res.data
         })
       },
-      // getUser() {
-      //   axios.post('/api/2fa/generate',{},
-      //   { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-      //   .then((res) => {
-      //     this.qrcodeSrc = res.data
-      //     console.log(res.data)})
-      // },
       getAvatar(userID:number){
         const user = this.userData.find(user => user.id == userID);
         return user?.avatar;
