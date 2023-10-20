@@ -5,9 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private prismaService: PrismaService,
-  ) {}
+  constructor(private prismaService: PrismaService) {}
 
   generateSecretKey(): string {
     const buffer = speakeasy.generateSecret({ length: 20 });
@@ -33,28 +31,29 @@ export class UsersService {
       },
       data: {
         twoFaActivated: false,
+        twoFaSecret: '',
       },
     });
   }
 
-  async addGame(game: Game, id: number): Promise<User>{
+  async addGame(game: Game, id: number): Promise<User> {
     return this.prismaService.user.update({
-        where: {id: id},
-        data: {
-            games: {
-                connect: {
-                    id: game.id
-                }
-            }
-        }
+      where: { id: id },
+      data: {
+        games: {
+          connect: {
+            id: game.id,
+          },
+        },
+      },
     });
   }
 
-  async findGames(id: number): Promise<User>{
+  async findGames(id: number): Promise<User> {
     return this.prismaService.user.findUnique({
-      where: {id: id},
-      include: {games: true}
-    })
+      where: { id: id },
+      include: { games: true },
+    });
   }
 
   async saveSecretKey(key: string, userID: number) {

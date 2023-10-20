@@ -10,6 +10,7 @@ import {
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from './users.service';
+import { Jwt2faGuard } from 'src/auth/guards/jwt2fa.guard';
 // import { User } from '@prisma/client';
 
 @Controller('users')
@@ -53,6 +54,42 @@ export class UsersController {
   enable2FA(@Body('userID') userID: string) {
     const secretKey = this.userService.generateSecretKey();
     this.userService.saveSecretKey(secretKey, parseInt(userID));
+  }
+
+  @UseGuards(Jwt2faGuard)
+  @Put('/:id/update-photo')
+  async updatePhoto(
+    @Param() params: { id: string },
+    @Body() body: { avatar: string },
+  ) {
+    await this.prismaService.user.update({
+      where: { id: parseInt(params.id) },
+      data: { avatar: body.avatar },
+    });
+  }
+
+  @UseGuards(Jwt2faGuard)
+  @Put('/:id/update-pseudo')
+  async updatePseudo(
+    @Param() params: { id: string },
+    @Body() body: { pseudo: string },
+  ) {
+    console.log('MAJPSEUDO', body.pseudo)
+    await this.prismaService.user.update({
+      where: { id: parseInt(params.id) },
+      data: { name: body.pseudo },
+    });
+  }
+
+  @UseGuards(Jwt2faGuard)
+  @Get('/:id/update')
+  async update(
+    @Param() params: { id: string },
+  ) {
+    await this.prismaService.user.update({
+      where: { id: parseInt(params.id) },
+      data: { newUser: false },
+    });
   }
 
   // @UseGuards(JwtGuard)

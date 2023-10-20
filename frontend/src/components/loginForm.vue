@@ -1,7 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import router from '@/router';
-import jwt_decode from "jwt-decode";
 import axios from 'axios';
 
     export default defineComponent ({
@@ -29,10 +28,6 @@ import axios from 'axios';
         },
         mounted() {
             const cookies = this.$cookies.get("userData")
-            var tmpUser = '';
-            if (cookies)
-                tmpUser = JSON.stringify(cookies.user)
-            // console.log("USERID", tmpUser);
             if (cookies) {
                 const twoFaActivated = cookies.user.twoFaActivated
                 const tmpUser = JSON.stringify(cookies.user)

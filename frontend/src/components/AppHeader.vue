@@ -3,11 +3,6 @@ import { defineComponent } from 'vue';
 
     export default defineComponent ({
         name: "appHeader",
-        data() {
-            return {
-                profilUser: '' as string,
-            }
-        },
         computed: {
             currentUser() {
                 const user = localStorage.getItem('currentUser')
@@ -30,13 +25,9 @@ import { defineComponent } from 'vue';
             </RouterLink>
         </div>
         <v-spacer></v-spacer>
-
-            <!-- <RouterLink to="/login"><v-btn color="white">Login</v-btn></RouterLink> -->
-            <!-- <RouterLink to="/profil"><v-btn color="white">Profil</v-btn></RouterLink> -->
             <RouterLink v-bind:to=currentUser><v-btn color="white">Profil</v-btn></RouterLink>
             <RouterLink to="/chat"><v-btn color="white">Chat</v-btn></RouterLink>
             <RouterLink to="/pong"><v-btn color="white">Pong</v-btn></RouterLink>
-        <!-- <RouterLink to="/pong">Pong</RouterLink> -->
     </v-app-bar>
 </template>
 
@@ -44,5 +35,4 @@ import { defineComponent } from 'vue';
 header {
     background-color: rgb(255, 255, 255) !important;
 }
-
 </style>

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Post,
   Req,
@@ -91,13 +92,12 @@ export class TwoFactorAuthController {
       .json({ message: 'successfully 2 factor authenticated' });
   }
 
-  @Post('disable')
+  @Get('disable')
   @HttpCode(200)
   @UseGuards(Jwt2faGuard)
-  async disable(@Req() req: Request, @Res() res: Request) {
+  async disable(@Req() req: Request, @Res() res: Response) {
     console.log('----DISABLING 2FA----');
     await this.usersService.turnOff2FA(req.user['id']);
-    // const { user } = JSON.parse(req.cookies.userData);
     const user = req.user as User;
     user.twoFaActivated = false;
     user.twoFaSecret = '';
@@ -105,6 +105,9 @@ export class TwoFactorAuthController {
       id: user.id,
       twoFaAuthenticated: false,
     });
-    res.cookies('userData', JSON.stringify({}));
+    res.cookie('userData', JSON.stringify({ token, user }), {
+      secure: false,
+    });
+    return res.status(200).json({ message: '2FA has been deactivated' });
   }
 }

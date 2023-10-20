@@ -8,7 +8,6 @@ import axios from 'axios';
             return {
                 qrcodeSrc: '' as string,
                 googleAuthCode: '' as string,
-                twoFaActivated: false as boolean,
                 FActivated: false,
                 activation: false,
                 wrongCode: false as boolean,
@@ -33,7 +32,7 @@ import axios from 'axios';
             {
                 axios.get('/api/users/' + this.profileUser.id)
                 .then((res) => {
-                this.FActivated = res.data.twoFaActivated
+                    this.FActivated = res.data.twoFaActivated
                 })
             }
         },
@@ -66,21 +65,28 @@ import axios from 'axios';
                     localStorage.setItem('currentUser', JSON.stringify(cookies.user))
                     this.update2fa(true)
                     this.activation = false
-                    this.twoFaActivated = true;
                 })
                 .catch((e) => {
                     this.wrongCode = true;
                     console.error(e);
                 })
             },
-            disable2fa() {
-                this.update2fa(false)
-              //steps for 2fa to be disabled:
-              //-send a GET request to /api/2fa/disable
-              //-then get the cookie from the response
-              //-update currentUser with the one in the cookie
-              //-pass this.twoFaActivated to false
-              //-set localstorage jwt_token to the new 2fa disabled token.
+            async disable2fa() {
+                //steps for 2fa to be disabled:
+                //-send a GET request to /api/2fa/disable
+                //-then get the cookie from the response
+                //-update currentUser with the one in the cookie
+                //-pass this.twoFaActivated to false
+                //-set localstorage jwt_token to the new 2fa disabled token.
+                
+                await axios.get('/api/2fa/disable',
+                { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
+                .then(() => {
+                    const cookies = this.$cookies.get('userData');
+                    localStorage.setItem('currentUser', JSON.stringify(cookies.user));
+                    localStorage.setItem('jwt_token', cookies.token);
+                    this.update2fa(false);
+                })
             }
         }
     })
