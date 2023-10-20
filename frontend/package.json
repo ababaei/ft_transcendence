@@ -23,6 +23,7 @@
     "js-base64": "^3.7.5",
     "jwt-decode": "^3.1.2",
     "pinia": "^2.1.6",
+    "sharp": "^0.32.6",
     "socket.io": "^4.7.2",
     "socket.io-client": "^4.7.2",
     "vue": "^3.3.4",

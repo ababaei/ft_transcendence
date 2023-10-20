@@ -2,31 +2,9 @@
   <main>
 
     <div class="box rounded-lg" id="leftProfil">
-      <img src="" alt="" id="avatar" class="rounded-circle">
-      <h1>{{ profileUser.name }}</h1>
-      <v-text-field
-        v-if="toggleAvatar"
-        name="togglePhoto"
-        label="photo URL"
-        id="togglePhoto"
-        single-line
-        density="compact"
-        append-inner-icon="mdi-pencil"
-        v-model="newAvatar"
-        @click:append-inner="changePhoto"
-      ></v-text-field>
+      <img :src="avatar" alt="" id="avatar" class="rounded-circle">
+      <h1>{{ name }}</h1>
       <v-btn class="mt-3" @click="toggleAvatar = !toggleAvatar">Modifier photo</v-btn>
-      <v-text-field
-        v-if="togglePseudo"
-        name="togglePseudo"
-        label="pseudo"
-        id="togglePseudo"
-        single-line
-        density="compact"
-        append-inner-icon="mdi-pencil"
-        v-model="newPseudo"
-        @click:append-inner="changePseudo"
-      ></v-text-field>
       <v-btn class="mt-3" @click="togglePseudo = !togglePseudo">Modifier pseudo</v-btn>
       <twoFaForm />
       <v-btn class="mt-3" @click="logOut">Se déconnecter</v-btn>
@@ -57,6 +35,55 @@
         <v-btn @click="Jouer">Jouer</v-btn>
       </div>
     </div>
+
+
+    <v-dialog
+          v-model="togglePseudo"
+          :scrim="false"
+          width="20vw"
+        >
+          <v-card
+            color="white"
+          >
+            <v-card-text>
+      <v-text-field
+      v-if="togglePseudo"
+        name="togglePseudo"
+        label="Nouveau pseudo"
+        id="togglePseudo"
+        single-line
+        density="compact"
+        append-inner-icon="mdi-pencil"
+        v-model="newPseudo"
+        @click:append-inner="changePseudo(newPseudo)"
+      ></v-text-field>
+    </v-card-text>
+          </v-card>
+        </v-dialog>
+
+
+      <v-dialog
+        v-model="toggleAvatar"
+        :scrim="false"
+        width="20vw"
+      >
+        <v-card
+          color="white"
+        >
+          <v-card-text>
+      <v-text-field
+        name="togglePhoto"
+        label="photo URL"
+        id="togglePhoto"
+        single-line
+        density="compact"
+        append-inner-icon="mdi-pencil"
+        v-model="newAvatar"
+        @click:append-inner="changePhoto(newAvatar)"
+      ></v-text-field>
+  </v-card-text>
+        </v-card>
+      </v-dialog>
 
     <v-dialog
       v-model="showHistory"
@@ -206,7 +233,9 @@ export default defineComponent({
         newAvatar: '' as string,
         newPseudo: '' as string,
         togglePseudo: false as boolean,
-        toggleAvatar: false as boolean
+        toggleAvatar: false as boolean,
+        name: '',
+        avatar: ''
       };
     },
     components: {
@@ -234,11 +263,12 @@ export default defineComponent({
       {
         if (this.profileUser.newUser)
           this.newUser = true;
+        this.name = this.profileUser.name;
         this.twoFaActivated = this.profileUser.twoFaActivated;
-        const avatar = this.profileUser.avatar;
+        this.avatar = this.profileUser.avatar;
         const profilePic = document.getElementsByTagName('img')[0];
         if (profilePic)
-          profilePic.src = avatar;
+          profilePic.src = this.avatar;
         axios.get('/api/users/' + this.profileUser.id)
         .then((res) => {
           this.FActivated = res.data.twoFaActivated
@@ -329,7 +359,9 @@ export default defineComponent({
         .then(() => {
           const user = this.profileUser;
           user.avatar = avatar
+          this.avatar = avatar
           localStorage.setItem('currentUser', JSON.stringify(user))
+          this.toggleAvatar = false
         })
       },
       async changePseudo(pseudo: string){
@@ -339,8 +371,10 @@ export default defineComponent({
         { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
         .then(() => {
           const user = this.profileUser;
-          user.name = pseudo
+          user.name = pseudo;
+          this.name = pseudo;
           localStorage.setItem('currentUser', JSON.stringify(user))
+          this.togglePseudo = false;
         })
       },
       showHistoryBtn() {
@@ -355,9 +389,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-#avatar {
-  width: 30%;
-}
 
 main {
   width: 100%;
@@ -401,6 +432,7 @@ main {
 }
 .player img {
  height: 10vh;
+ width: 10vh;
 }
 
 #leftProfil {
@@ -410,6 +442,11 @@ main {
 
 #rightProfil {
   padding: 2% 0;
+}
+
+#leftProfil img {
+  width: 15vh;
+  height: 15vh;
 }
 
 h1 {

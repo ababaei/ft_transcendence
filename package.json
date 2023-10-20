@@ -11,6 +11,7 @@
     "@nestjs/schedule": "^3.0.4",
     "@nestjs/websockets": "^10.2.5",
     "axios": "^1.5.1",
+    "sharp": "^0.32.6",
     "socket.io-client": "^4.7.2",
     "vue-material-design-icons": "^5.2.0",
     "vuetify": "^3.3.20"
