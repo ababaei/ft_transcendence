@@ -313,9 +313,12 @@ export default defineComponent({
     async mounted() {
       if (this.profileUser)
       {
-        if (this.profileUser.newUser)
+        if (this.profileUser.newUser) {
           this.newUser = true;
-        this.name = this.profileUser.name;
+          this.name = this.profileUser.name
+        }
+        else
+          this.name = this.profileUser.displayName
         this.twoFaActivated = this.profileUser.twoFaActivated;
         this.avatar = this.profileUser.avatar;
         const profilePic = document.getElementsByTagName('img')[0];
