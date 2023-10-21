@@ -432,6 +432,7 @@ export default defineComponent({
         })
       },
       async changePseudo(pseudo: string){
+        pseudo = pseudo.replace(/\s+/g, '')
         if (pseudo == '')
          return;
         await axios.put('/api/users/' + this.profileUser.id + '/update-pseudo', { pseudo },
