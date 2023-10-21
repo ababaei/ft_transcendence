@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
@@ -64,7 +65,7 @@ export class UsersController {
     @Body() { avatar }: photoUrlDto,
   ) {
     console.log(avatar);
-    const url:any = avatar;
+    const url: any = avatar;
     await this.prismaService.user.update({
       where: { id: parseInt(params.id) },
       data: { avatar: url },
@@ -83,16 +84,14 @@ export class UsersController {
         where: { id: parseInt(params.id) },
         data: { displayName: body.pseudo },
       });
-    } catch(e) {
-      throw(e)
+    } catch (e) {
+      throw e;
     }
   }
 
   @UseGuards(Jwt2faGuard)
   @Get('/:id/update')
-  async update(
-    @Param() params: { id: string },
-  ) {
+  async update(@Param() params: { id: string }) {
     await this.prismaService.user.update({
       where: { id: parseInt(params.id) },
       data: { newUser: false },

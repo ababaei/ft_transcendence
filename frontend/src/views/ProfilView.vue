@@ -119,7 +119,7 @@
     </v-dialog>
 
     <v-dialog
-      v-model="newUser"
+      v-model=profileUser.newUser
       width="auto"
       persistent
     >
@@ -307,14 +307,14 @@ export default defineComponent({
         return null
       },
     },
-    async created() {
-      const user: any = localStorage.getItem('currentUser');
-    },
+    // async created() {
+    //   const user: any = localStorage.getItem('currentUser');
+    // },
     async mounted() {
       if (this.profileUser)
       {
         if (this.profileUser.newUser) {
-          this.newUser = true;
+          // this.newUser = true;
           this.name = this.profileUser.name
         }
         else
@@ -405,9 +405,10 @@ export default defineComponent({
         { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
         .then(() => {
           const user = this.profileUser;
-          user.newUser = false
+          user.newUser = false;
           this.newUser = false;
           localStorage.setItem('currentUser', JSON.stringify(user))
+          window.location.reload()
         })
         .catch((e) => {
           console.error(e);
@@ -437,7 +438,7 @@ export default defineComponent({
         { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
         .then(() => {
           const user = this.profileUser;
-          user.name = pseudo;
+          user.displayName = pseudo;
           this.name = pseudo;
           localStorage.setItem('currentUser', JSON.stringify(user))
           this.togglePseudo = false;
