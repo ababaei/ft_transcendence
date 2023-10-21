@@ -20,7 +20,7 @@ import { defineComponent } from 'vue';
 <template>
     <v-app-bar app class="px-10" dark>
         <div class="d-flex align-center">
-            <RouterLink to="/">
+            <RouterLink to="/profil">
                 <h2>ginpgonp</h2>
             </RouterLink>
         </div>
