@@ -81,7 +81,7 @@ export class UsersController {
     try {
       await this.prismaService.user.update({
         where: { id: parseInt(params.id) },
-        data: { name: body.pseudo },
+        data: { displayName: body.pseudo },
       });
     } catch(e) {
       throw(e)
