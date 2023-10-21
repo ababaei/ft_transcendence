@@ -328,7 +328,8 @@ export default defineComponent({
               try {
                 axios.get('/api/games/' + res.data.games[i].id)
                   .then((res) => {
-                    this.gameData.push(res.data);
+                    if (res.data.idWinner)
+                      this.gameData.push(res.data);
                   })
                 } catch (error) {
                 // console.log(error);

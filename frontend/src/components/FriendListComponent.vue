@@ -12,6 +12,7 @@
             <v-divider></v-divider>
 
                 <v-text-field
+                  v-model="friendName"
                   density="compact"
                   label="Ajouter un ami"
                   append-inner-icon="mdi-account-plus-outline"

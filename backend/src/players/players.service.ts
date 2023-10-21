@@ -39,6 +39,14 @@ export class PlayersService {
         return updatedPlayer[0];
     }
 
+    async updateUnfinished(gameID: number, id:number, score: number){
+        const updatedPlayer = await this.prisma.player.updateMany({
+            where: {gameID: gameID,
+                    userID: id},
+            data: {score:score}
+        })
+    }
+
     // async newPlayer(game: Game, socket: string): Promise<Player>{
     //     const newPlayer = await this.prisma.user.update({
     //         data: {

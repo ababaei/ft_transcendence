@@ -8,7 +8,7 @@ import { io } from 'socket.io-client';
       appHeader
     },
     name: "app",
-    create() {
+    created() {
       localStorage.setItem('isAuthenticated', 'false')
     },
   });

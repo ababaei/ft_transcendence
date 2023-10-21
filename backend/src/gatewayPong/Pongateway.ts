@@ -198,7 +198,7 @@ export class MyPonGateway {
             y: 110,
             roomNo: roomNo,
             score: 0,
-            side: 'left',
+            side: 'right',
             up: false,
             down: false,
             active: false,
@@ -214,7 +214,7 @@ export class MyPonGateway {
             y: 110,
             roomNo : roomNo,
             score: 0,
-            side: 'right',
+            side: 'left',
             up: false,
             down: false,
             active: false,
@@ -261,19 +261,31 @@ export class MyPonGateway {
     }
 
     @SubscribeMessage('pageChanged')
-    forceDisconnection(client:Socket) {
+    async forceDisconnection(client:Socket) {
       const playerIndex = this.player.findIndex(item => {
         return (item.socket === client.id && (item.active == true || item.waiting == true))
       });
       if (playerIndex != -1)
       {
+        var looserID:number
+        var winnerID:number
         if (this.player[playerIndex].active == true)
         {
-          this.server.to(this.player[playerIndex].roomNo).emit('forceEndGame');
           this.player.forEach(element => {
             if (element.roomNo == this.player[playerIndex].roomNo)
-              element.active = false;
-          });
+            element.active = false;
+            if (element.socket == client.id)
+              looserID = parseInt(element.id)
+            else
+              winnerID = parseInt(element.id)
+            });
+          const ball = this.ball.find(item => {
+            return (item.roomNo === this.player[playerIndex].roomNo)
+          })
+          await this.playerService.updateUnfinished(ball.gameNo, winnerID, 3);
+          await this.playerService.updateUnfinished(ball.gameNo, looserID, 0);
+          await this.gameService.updateGame(ball.gameNo, winnerID);
+          this.server.to(this.player[playerIndex].roomNo).emit('forceEndGame');
         }
         if (this.player[playerIndex].waiting == true)
         {
@@ -295,6 +307,7 @@ export class MyPonGateway {
       }
     }
 
+
     async handleDisconnect(client: Socket) {
         // console.log(`Client disconnected : ${client.id}`)
         const playerIndex = this.player.findIndex(item => {
@@ -302,13 +315,25 @@ export class MyPonGateway {
         });
         if (playerIndex != -1)
         {
+          var looserID:number
+          var winnerID:number
           if (this.player[playerIndex].active == true)
           {
-            this.server.to(this.player[playerIndex].roomNo).emit('forceEndGame');
             this.player.forEach(element => {
               if (element.roomNo == this.player[playerIndex].roomNo)
-                element.active = false;
-            });
+              element.active = false;
+              if (element.socket == client.id)
+                looserID = parseInt(element.id)
+              else
+                winnerID = parseInt(element.id)
+              });
+            const ball = this.ball.find(item => {
+              return (item.roomNo === this.player[playerIndex].roomNo)
+            })
+            await this.playerService.updateUnfinished(ball.gameNo, winnerID, 3);
+            await this.playerService.updateUnfinished(ball.gameNo, looserID, 0);
+            await this.gameService.updateGame(ball.gameNo, winnerID);
+            this.server.to(this.player[playerIndex].roomNo).emit('forceEndGame');
           }
           if (this.player[playerIndex].waiting == true)
           {

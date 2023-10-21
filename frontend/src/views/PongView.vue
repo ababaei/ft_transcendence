@@ -1,6 +1,12 @@
 <template>
-    <main>
+    <main class="mt-10">
         <v-btn variant="outlined" v-on:click="load" :class="{ invisible: game }" id="recherche">Trouver un adversaire aléatoire</v-btn>
+<div id="regles">
+  <h3>Tu peux diriger ta raquette avec les fleches du haut et du bas de ton clavier.</h3>
+  <h3>La partie se joue en 3 points.</h3>
+  <h3>Si tu quittes une partie en cours, tu perdras automatiquement 3 - 0.</h3>
+</div>
+
         <h1 :class="{ invisible: !game }">{{ left.score }} - {{ right.score }}</h1>
         <!-- <div :class="{ invisible: !loading }" id="loading"> -->
           <v-dialog
@@ -324,4 +330,12 @@ button {
 #spin {
   color: black !important;
 }
+
+#regles {
+  margin-top: 10vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 </style>
