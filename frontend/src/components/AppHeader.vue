@@ -11,8 +11,7 @@ import { defineComponent } from 'vue';
                     const objUser = JSON.parse(user)
                     return '/profil/' + objUser.id
                 }
-                console.log('APPHEADER nouser')
-                return '/profil'
+                return '/login'
             },
         }
     })
@@ -22,7 +21,7 @@ import { defineComponent } from 'vue';
     <v-app-bar app class="px-10" dark>
         <div class="d-flex align-center">
             <RouterLink to="/">
-                <h2>ginpgonp</h2>
+                <h2>ginpgonp</h2>e .
             </RouterLink>
         </div>
         <v-spacer></v-spacer>
