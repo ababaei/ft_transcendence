@@ -58,7 +58,7 @@ export class UsersController {
     this.userService.saveSecretKey(secretKey, parseInt(userID));
   }
 
-  @UseGuards(Jwt2faGuard)
+  @UseGuards(JwtGuard)
   @Put('/:id/update-photo')
   async updatePhoto(
     @Param() params: { id: string },
@@ -72,7 +72,7 @@ export class UsersController {
     });
   }
 
-  @UseGuards(Jwt2faGuard)
+  @UseGuards(JwtGuard)
   @Put('/:id/update-pseudo')
   async updatePseudo(
     @Param() params: { id: string },
@@ -89,7 +89,7 @@ export class UsersController {
     }
   }
 
-  @UseGuards(Jwt2faGuard)
+  @UseGuards(JwtGuard)
   @Get('/:id/update')
   async update(@Param() params: { id: string }) {
     await this.prismaService.user.update({
