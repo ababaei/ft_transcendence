@@ -659,6 +659,9 @@ export class ChatController {
   @Post('getMessageList')
   @UseGuards(JwtGuard)
   async getListMessage(@Req() req: Request, @Body() data: { channelID: number }) {
+    if (!req.user) {
+      return ;
+    }
     const fromUser = await this.chatService.findUserById((req.user as User).id);
     const channel = await this.chatService.findChannelById(data.channelID);
 
@@ -673,6 +676,9 @@ export class ChatController {
   @Post('getFriendsList')
   @UseGuards(JwtGuard)
   async getFriendsList(@Req() req: Request) {
+    if (!req.user) {
+      return ;
+    }
     const fromUser = await this.chatService.findUserById((req.user as User).id);
     if (fromUser) {
       const friendsList = await this.chatService.getFriendsList(fromUser);
@@ -684,6 +690,9 @@ export class ChatController {
   @Post('getBlockedList')
   @UseGuards(JwtGuard)
   async getBlockedList(@Req() req: Request) {
+    if (!req.user) {
+      return ;
+    }
     const fromUser = await this.chatService.findUserById((req.user as User).id);
     if (fromUser) {
       const blockedlist = await this.chatService.getBlockedList(fromUser);
@@ -695,6 +704,9 @@ export class ChatController {
   @Post('getNotifList')
   @UseGuards(JwtGuard)
   async getNotifList(@Req() req: Request) {
+    if (!req.user) {
+      return ;
+    }
     const fromUser = await this.chatService.findUserById((req.user as User).id);
     if (fromUser) {
       const notiflist = await this.chatService.getNotifList(fromUser.id);
@@ -743,6 +755,9 @@ export class ChatController {
     @Body() data: { notifID: number}
   ) {
     try {
+      if (!req.user) {
+        return ;
+      }
       const fromUser = await this.chatService.findUserById((req.user as User).id);
 
       await this.chatService.deleteNotificationForUser(fromUser.id, data.notifID);
@@ -760,7 +775,6 @@ export class ChatController {
     @Body() data: { challengedId}
   ) {
     try {
-      console.log('requete: challenge User')
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const toUser = await this.chatService.findUserById(data.challengedId);
   
@@ -782,6 +796,8 @@ export class ChatController {
       // setTimeout(async () => {
       //   this.gateway.server.emit('challengeRequest', {fromUser: fromUser, toID: toUser.id});
       // }, 100);
+
+      this.sendUploadedData(); 
 
       return 'backend: challenge sended';
     } catch {
