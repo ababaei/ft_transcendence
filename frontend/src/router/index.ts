@@ -42,10 +42,11 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuth = localStorage.getItem('isAuthenticated');
+  const user = localStorage.getItem('currentUser');
   // console.log('beforeeach isAuth: ', isAuth);
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (isAuth === 'false') {
+    if (isAuth === 'false' && !user) {
       next({
         path: '/login',
         // params: { nextUrl: to.fullPath }
