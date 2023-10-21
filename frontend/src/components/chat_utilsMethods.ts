@@ -15,6 +15,7 @@ export interface User {
     friends: User[];
     blocked: User[];
     name: string;
+    displayName: string;
     email: string;
     avatar: string;
     messages: Message[];
@@ -92,7 +93,7 @@ const channelBaned = channel.banID;
 export function getChannelName(channel: Channel, self: User): string {
   if (channel.isDirect) {
     const otherUser = channel.users.find(user => user.id !== self.id);
-    if (otherUser) { return otherUser.name }
+    if (otherUser) { return otherUser.displayName }
   }
   return channel.name
 }

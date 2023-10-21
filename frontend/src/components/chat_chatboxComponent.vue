@@ -46,7 +46,7 @@
                 :class="{ 'text-right': message.user.id === this.profileUser.id,
                 'text-left': message.user.id !== this.profileUser.id }"><v-list-item>
                     <v-list-item-title  style="white-space: pre-wrap;">{{ message.text }}</v-list-item-title>
-                    <v-list-item-subtitle>from  {{ message.user.name }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>from  {{ message.user.displayName }}</v-list-item-subtitle>
                 </v-list-item></v-col>
 
               <!-- avatar -->
@@ -95,7 +95,7 @@
             <template v-slot:default="{ item: user }">
                     <div id="userInChan"
                     @click="profilePopup = true; this.userSelected = user">
-                      <span>{{ user.name }}</span>
+                      <span>{{ user.displayName }}</span>
                       <div class="chip">
                         <v-chip v-if="user.id==this.channelInChatBox.ownerID && !this.channelInChatBox.isDirect"> owner </v-chip>
                         <v-chip v-if="this.isAdmin(user.id, this.channelInChatBox) && !this.channelInChatBox.isDirect"> admin </v-chip>
@@ -216,7 +216,7 @@
             <v-col><v-avatar size="40px">
               <v-img :src="friend.avatar" alt="Avatar" />
             </v-avatar></v-col>
-            <v-col><v-list-item-title>{{ friend.name }}</v-list-item-title></v-col>
+            <v-col><v-list-item-title>{{ friend.displayName }}</v-list-item-title></v-col>
           </v-row>
             </v-card>
         </v-list>

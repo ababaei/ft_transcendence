@@ -25,7 +25,7 @@ services:
       - "3000:3000"
     networks:
       - transcendence
-    command: sh -c "npx prisma migrate deploy && npm run start:dev"
+    command: sh -c "npx prisma migrate deploy && npx prisma migrate reset --force && npx prisma db push && npm run start:dev"
     expose:
       - 3000
     depends_on:

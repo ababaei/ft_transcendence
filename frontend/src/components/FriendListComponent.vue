@@ -30,7 +30,7 @@
             <v-avatar>
               <v-img :src="friend.avatar" alt="Avatar" />
             </v-avatar>
-            <v-list-item-title>{{ friend.name }}</v-list-item-title>
+            <v-list-item-title>{{ friend.displayName }}</v-list-item-title>
           </div>
 
             <!-- actions on friends -->
