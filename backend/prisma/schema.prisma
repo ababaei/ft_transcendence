@@ -27,6 +27,8 @@ model User {
   friendOf  User[]           @relation("friends")
   blocked   User[]           @relation("block")
   blockedBy User[]           @relation("block")
+  lastPing  DateTime         @default(now())
+  status    String           @default("offline")
   notification  Notification[] @relation("userNotification")
 
   @@map("users")
@@ -75,6 +77,7 @@ model Player {
 model Game {
   id        Int      @id @default(autoincrement())
   active    Boolean  @default(true)
+  status    Int?
   idWinner  Int?
   Players   Player[]   @relation("gamePlayers")
   users     User[]    @relation("UserGames")

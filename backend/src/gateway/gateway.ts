@@ -20,7 +20,7 @@ export class MyGateway {
     //     await client.emit('updateChannelList', await this.chatService.getChannelsList());
     // }
     async handleConnection(client: Socket) {
-        // console.log(`Client connected : ${client.id}`);
+        // console.log(`Chat Client connected : ${client.id}`);
         // this.server.to(`${client.id}`).emit('socketRef', `${client.id}`)
         // console.log('socket.io: emit updateChanList');
         const userList = await this.chatService.getUsersList();

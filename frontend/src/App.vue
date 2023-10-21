@@ -2,6 +2,7 @@
   import { defineComponent } from 'vue';
   import appHeader from '@/components/AppHeader.vue'
 import { io } from 'socket.io-client';
+  import axios from 'axios';
 
   export default defineComponent ({
     components: {
@@ -11,12 +12,13 @@ import { io } from 'socket.io-client';
     created() {
       localStorage.setItem('isAuthenticated', 'false')
     },
+
   });
 </script>
 
 <template>
   <v-app>
-    <appHeader v-show="$route.name == 'profil' || $route.name == 'chat' || $route.name == 'pong'"></appHeader>
+    <appHeader v-show="$route.name == 'profil' || $route.name == 'chat' || $route.name == 'pong' || $route.name == 'private'"></appHeader>
     <RouterView/>
   </v-app>
 </template>

@@ -60,8 +60,8 @@
         <v-card-title>{{ challengeFromUser.displayName }}</v-card-title>
 
         <v-card-actions>
-          <v-btn @click="">Accept</v-btn>
-          <v-btn @click="">Decline</v-btn>
+          <v-btn @click="acceptDuel">Accept</v-btn>
+          <v-btn @click="refuseDuel">Decline</v-btn>
         </v-card-actions>
       </v-card>
 </v-dialog>
@@ -86,8 +86,8 @@
             <!-- challenge notif -->
             <v-card v-if="notification.senderID != profileUser.id && notification.type=='challenge'">
               <v-card-title> {{ notification.content }}</v-card-title>
-              <v-btn @click="resolveNotification(notification)">Accept</v-btn>
-              <v-btn @click="resolveNotification(notification)">Decline</v-btn>
+              <v-btn @click="() => { resolveNotification(notification), acceptDuel()}">Accept</v-btn>
+              <v-btn @click="() => { resolveNotification(notification), refuseDuel()}">Decline</v-btn>
             </v-card>
           </div>
       </v-list>
@@ -131,7 +131,8 @@ export default {
             notifList: [] as Notification[],
             challengePopup: false,
             challengeFromUser: { id: 0, name: '', avatar: '' } as User,
-            notifPopup: false
+            notifPopup: false,
+            challengeId: 0
         }
     },
     computed: {
@@ -282,6 +283,26 @@ export default {
 
     if (directChannel) { this.selectChannel(directChannel) }
   },
+
+  async acceptDuel() {
+    await axios.put('/api/games/accept/' + this.challengeId);
+    this.$router.push('/private/' + this.challengeId);
+  },
+  async refuseDuel() {
+    await axios.put('/api/games/refuse/' + this.challengeId);
+    this.challengePopup = false
+  },
+  async sendPingToServer() {
+      try {
+        const reponse = await axios.post('/api/chat/ping', {
+        }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}});
+        return (reponse);
+      }
+      catch {
+        console.error();
+        return null;
+      }
+    },
 },
     mounted() {
 
@@ -348,12 +369,15 @@ export default {
         }
       })
       this.socket.on('challengeRequest', async (data) => {
-        console.log('challengeRequest', data);
+        console.log(data);
+        // console.log('challengeRequest', data.gameID);
         if (data.toID == this.profileUser.id) {
           this.challengePopup = true;
           this.challengeFromUser = data.fromUser;
+          this.challengeId = data.gameID
         }
       })
+      setInterval(this.sendPingToServer, 15000);
     },
   }
 

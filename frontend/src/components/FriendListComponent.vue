@@ -31,6 +31,7 @@
               <v-img :src="friend.avatar" alt="Avatar" />
             </v-avatar>
             <v-list-item-title>{{ friend.displayName }}</v-list-item-title>
+            <v-list-item-subtitle> {{ getStatusFromPing(friend) }}</v-list-item-subtitle>
           </div>
 
             <!-- actions on friends -->
@@ -45,11 +46,11 @@
                   Envoyer un message
                 </v-list-item>
                 <!-- Challenge user -->
-                <v-list-item @click="this.challengeUser(friend.id)">
+                <v-list-item @click="challengeUser(friend.id)">
                   Le défier au pong
                 </v-list-item>
                 <!-- Remove friend -->
-                <v-list-item @click="this.removeFriend(friend.id)">
+                <v-list-item @click="removeFriend(friend.id)">
                   Supprimer de la liste d'amis
                 </v-list-item>
               </div>
@@ -121,6 +122,7 @@ import axios from 'axios';
 import UserProfilePopUp from './UserProfilePopUp.vue';
 import { isUserInChannel, isBan } from './chat_utilsMethods';
 import type { Channel, User, Message } from './chat_utilsMethods';
+import { faGrinTongueSquint, faMedal } from '@fortawesome/free-solid-svg-icons';
 
     export default defineComponent ({
         name: "friendListComponent",
@@ -135,6 +137,7 @@ import type { Channel, User, Message } from './chat_utilsMethods';
             blockedName: '',
             profilePopup: false,
             userSelected: 0,
+            updateKey: 0,
           };
         },
         computed: {
@@ -153,8 +156,6 @@ import type { Channel, User, Message } from './chat_utilsMethods';
         },
         created() {
           const user: any = localStorage.getItem('currentUser');
-          // console.log("fe_user: ", user)
-          // console.log("CURRENT: ", localStorage.getItem('currentUser'))
         },
         props: {
           friendList: {
@@ -172,7 +173,6 @@ import type { Channel, User, Message } from './chat_utilsMethods';
         },
         methods: {
           async addFriend() {
-              // console.log('method: add friend')
               try {
                   const reponse = await axios.post('/api/chat/addFriendRequest', {
                   friendName: this.friendName
@@ -214,12 +214,49 @@ import type { Channel, User, Message } from './chat_utilsMethods';
 
           async challengeUser(userID: number) {
               try {
-                  const reponse = await axios.post('/api/chat/challengeRequest', {
-                  challengedId: userID,
-              }, { headers: { "Authorization": `Bearer ${this.jwt_token}` }})
+                const game = await axios.post('/api/games');
+                console.log('game', game);
+                const reponse = await axios.post('/api/chat/challengeRequest', {
+                challengedId: userID,
+                gameID: game.data.id
+            }, { headers: { "Authorization": `Bearer ${this.jwt_token}` }})
+                  // console.log(game.data)
+                  // const playerLEft = await axios.post('/api/player')
+                  const leftPlayer = await axios.post('/api/player', {
+                    gameID: game.data.id, 
+                    userID: parseInt(this.profileUser.id), 
+                    side: 'left'})
+                  const rightPlayer = await axios.post('/api/player', {
+                    gameID: game.data.id, 
+                    userID: userID, 
+                    side: 'right'})
+                  this.$router.push('/private/' + game.data.id);
             } catch { console.error(); }
-          }
+          },
+
+          getStatusFromPing(user: User): string {
+            if (!user.lastPing) {
+              return "Hors ligne";
+            }
+
+            const lastPingTime = new Date(user.lastPing);
+            const currentTime = new Date();
+            const timeDifference = (currentTime.getTime() - lastPingTime.getTime()) / 1000; // Différence en secondes
+
+            if (timeDifference <= 15) {
+              return "En ligne";
+            } else {
+              return "Hors ligne";
+            }
+          },
+          forceUpdate() {
+            this.updateKey += 1;
+          },
+
     },
+    mounted() {
+            setInterval(this.forceUpdate, 1200)
+          },
   })
 </script>
 
