@@ -16,7 +16,7 @@ import { io } from 'socket.io-client';
 
 <template>
   <v-app>
-    <appHeader v-show="$route.name == 'profil' || $route.name == 'chat' || $route.name == 'pong'"></appHeader>
+    <appHeader v-show="$route.name == 'profil' || $route.name == 'chat' || $route.name == 'pong' || $route.name == 'private'"></appHeader>
     <RouterView/>
   </v-app>
 </template>

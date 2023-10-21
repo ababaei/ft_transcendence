@@ -9,7 +9,7 @@ export class GameService {
     ){}
 
     // async findGame(id: number): Promise<Game[] | null> {
-    //     return this.prisma.game.findMany({
+    //     return this.prisma.game.find({
     //         where: {
     //             id: id
     //         },

@@ -772,7 +772,7 @@ export class ChatController {
   @UseGuards(JwtGuard)
   async sendChallengeRequest(
     @Req() req: Request,
-    @Body() data: { challengedId}
+    @Body() data: { challengedId, gameID}
   ) {
     try {
       const fromUser = await this.chatService.findUserById((req.user as User).id);
@@ -791,11 +791,12 @@ export class ChatController {
         fromUser.name + ' challenge you to pong !',
         fromUser.id,
         toUser.id
-      );
-
-      // setTimeout(async () => {
-      //   this.gateway.server.emit('challengeRequest', {fromUser: fromUser, toID: toUser.id});
-      // }, 100);
+        );
+        
+        setTimeout(async () => {
+          this.gateway.server.emit('challengeRequest', {fromUser: fromUser, toID: toUser.id, gameID: data.gameID});
+        }, 100);
+  
 
       this.sendUploadedData(); 
 

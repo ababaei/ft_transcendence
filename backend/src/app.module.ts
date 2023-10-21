@@ -26,7 +26,7 @@ import { TwoFactorAuthModule } from './twoFactorAuth/twoFactorAuth.module';
     PlayersModule,
     WaitingModule,
     GatewayPongModule,
-    TwoFactorAuthModule
+    TwoFactorAuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
