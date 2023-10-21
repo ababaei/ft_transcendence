@@ -20,6 +20,7 @@ export interface User {
     avatar: string;
     messages: Message[];
     channels: Channel[];
+    lastPing: Date;
     notifications: Notification[];
 }
 

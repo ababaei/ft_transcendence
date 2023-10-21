@@ -686,4 +686,16 @@ export class ChatService {
           throw error;
         }
       }
+
+      async updateLastPing(userId: number): Promise<void> {
+        try {
+          const user = await this.prismaService.user.update({
+            where: { id: userId },
+            data: { lastPing: new Date() }, // Met à jour lastPing avec l'heure actuelle
+          });
+        //   console.log(`Mise à jour de lastPing pour l'utilisateur ${user.name}`);
+        } catch (error) {
+          console.error('Erreur lors de la mise à jour de lastPing :', error);
+        }
+      }
 }

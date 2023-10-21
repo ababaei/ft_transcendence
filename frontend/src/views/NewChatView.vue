@@ -291,7 +291,18 @@ export default {
   async refuseDuel() {
     await axios.put('/api/games/refuse/' + this.challengeId);
     this.challengePopup = false
-  }
+  },
+  async sendPingToServer() {
+      try {
+        const reponse = await axios.post('/api/chat/ping', {
+        }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}});
+        return (reponse);
+      }
+      catch {
+        console.error();
+        return null;
+      }
+    },
 },
     mounted() {
 
@@ -366,6 +377,7 @@ export default {
           this.challengeId = data.gameID
         }
       })
+      setInterval(this.sendPingToServer, 15000);
     },
   }
 

@@ -27,6 +27,8 @@ model User {
   friendOf  User[]           @relation("friends")
   blocked   User[]           @relation("block")
   blockedBy User[]           @relation("block")
+  lastPing  DateTime         @default(now())
+  status    String           @default("offline")
   notification  Notification[] @relation("userNotification")
 
   @@map("users")

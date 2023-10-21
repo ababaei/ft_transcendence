@@ -31,6 +31,7 @@
               <v-img :src="friend.avatar" alt="Avatar" />
             </v-avatar>
             <v-list-item-title>{{ friend.displayName }}</v-list-item-title>
+            <v-list-item-subtitle> {{ getStatusFromPing(friend) }}</v-list-item-subtitle>
           </div>
 
             <!-- actions on friends -->
@@ -136,6 +137,7 @@ import { faGrinTongueSquint, faMedal } from '@fortawesome/free-solid-svg-icons';
             blockedName: '',
             profilePopup: false,
             userSelected: 0,
+            updateKey: 0,
           };
         },
         computed: {
@@ -230,8 +232,31 @@ import { faGrinTongueSquint, faMedal } from '@fortawesome/free-solid-svg-icons';
                     side: 'right'})
                   this.$router.push('/private/' + game.data.id);
             } catch { console.error(); }
-          }
+          },
+
+          getStatusFromPing(user: User): string {
+            if (!user.lastPing) {
+              return "Hors ligne";
+            }
+
+            const lastPingTime = new Date(user.lastPing);
+            const currentTime = new Date();
+            const timeDifference = (currentTime.getTime() - lastPingTime.getTime()) / 1000; // Différence en secondes
+
+            if (timeDifference <= 15) {
+              return "En ligne";
+            } else {
+              return "Hors ligne";
+            }
+          },
+          forceUpdate() {
+            this.updateKey += 1;
+          },
+
     },
+    mounted() {
+            setInterval(this.forceUpdate, 1200)
+          },
   })
 </script>
 

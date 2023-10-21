@@ -807,6 +807,21 @@ export class ChatController {
     }
   }
 
+  @Post('ping')
+  @UseGuards(JwtGuard)
+  async pingFromClient(
+    @Req() req: Request) {
+    try {
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+      await this.chatService.updateLastPing(fromUser.id)
+
+      this.sendUploadedData();
+    } catch {
+      // console.log('error: create channel');
+      return 'backend: error ping';
+    }
+  }
+
   sendUploadedData() {
     // console.log('socket.io: emit updateChanList');
 
