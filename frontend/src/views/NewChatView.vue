@@ -2,6 +2,9 @@
   <v-responsive>
     <v-container fluid>  
       <v-main>
+        <v-row class="d-flex flex-row-reverse w-100">
+        <v-btn @click="notifPopup=true"> notifications (+{{ notifList.length }}) </v-btn>
+      </v-row>
         <v-row class="d-flex justify-space-evenly w-100" flex-wrap>
           <!-- <p v-if="this.profileUser.id!=0"> {{ this.profileUser.name }}</p> -->
 
@@ -66,6 +69,34 @@
       </v-card>
 </v-dialog>
 
+    <!-- notif pop up -->
+    <v-dialog v-model="notifPopup" max-width="400">
+    <v-card max-width="400" max-height="400" >
+
+        <v-card-title> Notifications</v-card-title>
+        <v-card-text v-if="!notifList.length">Rien de nouveau !</v-card-text>
+        <v-list>
+          <div
+            v-for="notification in (notifList as Notification[])"
+            :key="notification.id">
+            <!-- message notif -->
+            <v-card @click="selectChannel(getChannelFromId(notification.challengedID));
+            resolveNotification(notification);
+            notifPopup = false"
+            v-if="notification.senderID != profileUser.id && notification.type=='message'">
+              <v-card-title> {{ notification.content }}</v-card-title>
+            </v-card>
+            <!-- challenge notif -->
+            <v-card v-if="notification.senderID != profileUser.id && notification.type=='challenge'">
+              <v-card-title> {{ notification.content }}</v-card-title>
+              <v-btn @click="resolveNotification(notification)">Accept</v-btn>
+              <v-btn @click="resolveNotification(notification)">Decline</v-btn>
+            </v-card>
+          </div>
+      </v-list>
+    </v-card>
+</v-dialog>
+
   </v-responsive>
 </template>
 
@@ -77,7 +108,8 @@ import Chat_channelCreationComponent from "@/components/chat_channelCreationComp
 import chat_channelList from "@/components/chat_channelList.vue";
 import chat_chatboxComponent from "@/components/chat_chatboxComponent.vue"
 import friendListComponent from '@/components/FriendListComponent.vue';
-import { type Channel, type User, type Message, isUserInChannel } from '@/components/chat_utilsMethods';
+import { type Channel, type User, type Message, isUserInChannel, type Notification } from '@/components/chat_utilsMethods';
+import { notDeepStrictEqual } from 'assert';
 
 
 
@@ -99,8 +131,10 @@ export default {
             messagesInChatbox: [] as Message[],
             friendsList: [] as User[],
             blockedList: [] as User[],
+            notifList: [] as Notification[],
             challengePopup: false,
-            challengeFromUser: { id: 0, name: '', avatar: '' } as User
+            challengeFromUser: { id: 0, name: '', avatar: '' } as User,
+            notifPopup: false
         }
     },
     computed: {
@@ -145,6 +179,22 @@ export default {
       // if (channel.isDirect || this.isUserInChannel(this.logedUser.id, this.chatboxOnChannel)) {this.chatboxWindow = 1}
       // console.log('methods: selectChannel:', this.channelInChatBox);
     },
+    async resolveNotification(notif: Notification) {
+      try {
+        // if (notif.resolved) {
+        //   return ;
+        // }
+        const reponse = await axios.post('/api/chat/resolveNotifRequest', {
+          notifID: notif.id,
+        }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}}) as Message[];
+        // console.log('messageList:', reponse);
+        return (reponse as Message[]);
+      }
+      catch {
+        console.error();
+        return null;
+      }
+    },
 
     getUserFromId(userID: number) {
       // console.log('Methods: getUserFromId')
@@ -155,6 +205,16 @@ export default {
       if (userFounded)
         return (userFounded);
       return {id: 0, name: ''} as User;
+    },
+    getChannelFromId(channelID: number) {
+      // console.log('Methods: getUserFromId')
+      // console.log('userlist: ', this.userList);
+      // console.log(userID);
+      const channelFounded = this.channelList.find(channel => channel.id == channelID) as Channel;
+      // console.log(userFounded);
+      if (channelFounded)
+        return (channelFounded);
+      return {id: 0, name: ''} as Channel;
     },
 
     async getMessageList(): Promise<Message[]> {
@@ -192,6 +252,20 @@ export default {
         }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}}) as User[];
         // console.log('blockedList:', reponse);
         return (reponse as User[]);
+      }
+      catch {
+        console.error();
+        return null;
+      }
+    },
+
+    async getNotifList(): Promise<Notification[]> {
+      // console.log('method: get blocked list');
+      try {
+        const reponse = await axios.post('/api/chat/getNotifList', {
+        }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}}) as Notification[];
+        // console.log('blockedList:', reponse);
+        return (reponse as Notification[]);
       }
       catch {
         console.error();
@@ -254,20 +328,30 @@ export default {
     })
 
     this.socket.on('updateUsersList', async (data) => {
-        // console.log('Socket.io: update userList from: ', data);
-        this.userList = [];
+        console.log('Socket.io: update userList from: ', data);
+        this.userList = [] as User[];
+        this.notifList = [] as Notification[];
+
         for (let i = 0; i < data.length; i++) {
-            let userInList = data[i];
+            let userInList = data[i] as User;
             this.userList.push(userInList);
         }
+
         const tmp = (await this.getFriendList()).data as User[];
         if (tmp) {
-          this.friendsList = tmp;
+          this.friendsList = await tmp;
         }
         const tmp2 = (await this.getBlockedList()).data as User[];
         if (tmp) {
-          this.blockedList = tmp2;
+          this.blockedList = await tmp2;
         }
+        const tmp3 = (await this.getNotifList()).data as Notification[];
+        if (tmp3) {
+          this.notifList = await tmp3;
+          this.notifList = this.notifList.filter((notification) => notification.senderID !== this.profileUser.id);
+        }
+        console.log('userlist: ', this.userList);
+        console.log('notifList', this.notifList);
       })
       this.socket.on('challengeRequest', async (data) => {
         console.log('challengeRequest', data);

@@ -9,6 +9,7 @@ import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { User } from '@prisma/client';
 import { Request } from 'express';
 import { from } from 'rxjs';
+import { channel } from 'diagnostics_channel';
 
 const argon2 = require('argon2');
 
@@ -124,6 +125,21 @@ export class ChatController {
         fromUser,
         data.text,
       );
+      let notifContent: string;
+      if (!inChannel.isDirect) {
+        notifContent = 'message from ' + fromUser.name + ' to ' + inChannel.name
+      }
+      else {
+        notifContent = 'new message from ' + fromUser.name;
+      }
+
+      const notif = await this.chatService.createNotification(
+        inChannel.users,
+        'message',
+        notifContent,
+        fromUser.id,
+        inChannel.id
+      );
 
       this.sendUploadedData();
       return 'backend: new message uploaded';
@@ -164,6 +180,16 @@ export class ChatController {
         fromUser,
         data.text,
       );
+
+      let notifContent = fromUser.name + ' sent you a message !'
+      const notif = await this.chatService.createNotification(
+        [toUser],
+        'message',
+        notifContent,
+        fromUser.id,
+        newChannel.id
+      );
+
       this.sendUploadedData();
       return (newChannel);
     } catch {
@@ -653,6 +679,17 @@ export class ChatController {
       return [];
     }
   }
+  @Post('getNotifList')
+  @UseGuards(JwtGuard)
+  async getNotifList(@Req() req: Request) {
+    const fromUser = await this.chatService.findUserById((req.user as User).id);
+    if (fromUser) {
+      const notiflist = await this.chatService.getNotifList(fromUser.id);
+      return notiflist;
+    } else {
+      return [];
+    }
+  }
   @Post('addFriendInChannelRequest')
   @UseGuards(JwtGuard)
   async addFriendInChannel(
@@ -686,6 +723,23 @@ export class ChatController {
       return 'backend: Error while adding friend to channel';
     }
   }
+  @Post('resolveNotifRequest')
+  @UseGuards(JwtGuard)
+  async resolveNotif(
+    @Req() req: Request,
+    @Body() data: { notifID: number}
+  ) {
+    try {
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+
+      await this.chatService.deleteNotificationForUser(fromUser.id, data.notifID);
+
+      this.sendUploadedData(); 
+    } catch {
+      // console.log('Error: Adding friend to channel');
+      return 'backend: Error while resolving notif';
+    }
+  }
   @Post('challengeRequest')
   @UseGuards(JwtGuard)
   async sendChallengeRequest(
@@ -693,7 +747,7 @@ export class ChatController {
     @Body() data: { challengedId}
   ) {
     try {
-      // console.log('requete: add friend in channel')
+      console.log('requete: challenge User')
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const toUser = await this.chatService.findUserById(data.challengedId);
   
@@ -704,9 +758,17 @@ export class ChatController {
         return 'backend: this user blocked you';
       }
 
-      setTimeout(async () => {
-        this.gateway.server.emit('challengeRequest', {fromUser: fromUser, toID: toUser.id});
-      }, 100);
+      const notif = await this.chatService.createNotification(
+        [toUser],
+        'challenge',
+        fromUser.name + ' challenge you to pong !',
+        fromUser.id,
+        toUser.id
+      );
+
+      // setTimeout(async () => {
+      //   this.gateway.server.emit('challengeRequest', {fromUser: fromUser, toID: toUser.id});
+      // }, 100);
 
       return 'backend: challenge sended';
     } catch {
