@@ -120,6 +120,9 @@ export class ChatController {
       ) {
         return 'backend: you are not allowed to speak in this channel';
       }
+      if (!data.text) {
+        return 'backend: empty message';
+      }
       const newMessage = await this.chatService.createMessage(
         inChannel,
         fromUser,
@@ -165,6 +168,9 @@ export class ChatController {
       }
       if (fromUser.id === toUser.id) {
         return 'backend: cant send a direct message to yourself';
+      }
+      if (!data.text) {
+        return 'backend: empty message';
       }
       let newChannel = await this.chatService.findDirectChannelByUserIds(fromUser.id, toUser.id);
       // console.log(newChannel);
@@ -268,11 +274,18 @@ export class ChatController {
       if (fromUser.id !== channelToEdit.ownerID) {
         return 'backend: you must be channel owner to edit this channel';
       }
+      let newPassword;
+      if (!data.newChannelPassword) {
+        newPassword = channelToEdit.password;
+      }
+      else {
+        newPassword = await argon2.hash(data.newChannelPassword);
+      }
       this.chatService.editChannel(
         channelToEdit,
         data.newChannelName,
         data.newChannelType,
-        data.newChannelPassword,
+        newPassword
       );
       this.sendUploadedData();
       return 'backend: channel edited';

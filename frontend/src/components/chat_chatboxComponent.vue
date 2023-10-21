@@ -343,7 +343,7 @@ import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsM
               this.editChannelDialog = true;
               this.channelEditForm.name = this.channelInChatBox.name;
               this.channelEditForm.type = this.channelInChatBox.mode;
-              this.channelEditForm.password = this.channelInChatBox.password;
+              this.channelEditForm.password = '';
             },
             closeEditChannelDialog() {
               this.editChannelDialog = false;

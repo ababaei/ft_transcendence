@@ -328,7 +328,6 @@ export default {
     })
 
     this.socket.on('updateUsersList', async (data) => {
-        console.log('Socket.io: update userList from: ', data);
         this.userList = [] as User[];
         this.notifList = [] as Notification[];
 
@@ -350,8 +349,6 @@ export default {
           this.notifList = await tmp3;
           this.notifList = this.notifList.filter((notification) => notification.senderID !== this.profileUser.id);
         }
-        console.log('userlist: ', this.userList);
-        console.log('notifList', this.notifList);
       })
       this.socket.on('challengeRequest', async (data) => {
         console.log('challengeRequest', data);
