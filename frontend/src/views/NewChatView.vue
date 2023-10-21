@@ -282,6 +282,17 @@ export default {
 
     if (directChannel) { this.selectChannel(directChannel) }
   },
+  async sendPingToServer() {
+      try {
+        const reponse = await axios.post('/api/chat/ping', {
+        }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}});
+        return (reponse);
+      }
+      catch {
+        console.error();
+        return null;
+      }
+    },
 },
     mounted() {
 
@@ -354,6 +365,7 @@ export default {
           this.challengeFromUser = data.fromUser;
         }
       })
+      setInterval(this.sendPingToServer, 15000);
     },
   }
 
