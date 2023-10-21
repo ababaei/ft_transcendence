@@ -620,4 +620,25 @@ export class ChatService {
             throw error;
         }
     }
+//     async createNotification(users: User[], type: string, content: string) {
+//         try {
+//           // Créer la notification
+//           const notification = await this.prismaService.notification.create({
+//             data: {
+//               type: type,
+//               content: content,
+//               user: {
+//                 connect: users.map((user) => ({
+//                   id: user.id,
+//                 })),
+//               },
+//             },
+//           });
+    
+//           return notification;
+//         } catch (error) {
+//           console.error('Error in createNotification:', error);
+//           throw error;
+//         }
+//       }
 }

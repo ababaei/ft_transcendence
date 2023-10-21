@@ -124,6 +124,19 @@ export class ChatController {
         fromUser,
         data.text,
       );
+      let notifContent: string;
+      if (!inChannel.isDirect) {
+        notifContent = 'message from ' + fromUser.name + ' to ' + inChannel.name
+      }
+      else {
+        notifContent = 'new message from ' + fromUser.name;
+      }
+
+      // const notif = await this.chatService.createNotification(
+      //   inChannel.users,
+      //   'message',
+      //   notifContent
+      // );
 
       this.sendUploadedData();
       return 'backend: new message uploaded';

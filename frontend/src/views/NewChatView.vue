@@ -254,7 +254,7 @@ export default {
     })
 
     this.socket.on('updateUsersList', async (data) => {
-        // console.log('Socket.io: update userList from: ', data);
+        console.log('Socket.io: update userList from: ', data);
         this.userList = [];
         for (let i = 0; i < data.length; i++) {
             let userInList = data[i];
