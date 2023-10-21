@@ -21,7 +21,7 @@ import { defineComponent } from 'vue';
     <v-app-bar app class="px-10" dark>
         <div class="d-flex align-center">
             <RouterLink to="/">
-                <h2>ginpgonp</h2>e .
+                <h2>ginpgonp</h2>
             </RouterLink>
         </div>
         <v-spacer></v-spacer>
