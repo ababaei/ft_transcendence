@@ -130,10 +130,10 @@ export class ChatController {
       );
       let notifContent: string;
       if (!inChannel.isDirect) {
-        notifContent = 'message from ' + fromUser.name + ' to ' + inChannel.name
+        notifContent = 'message from ' + fromUser.displayName + ' to ' + inChannel.name
       }
       else {
-        notifContent = 'new message from ' + fromUser.name;
+        notifContent = 'new message from ' + fromUser.displayName;
       }
 
       const notif = await this.chatService.createNotification(
@@ -187,7 +187,7 @@ export class ChatController {
         data.text,
       );
 
-      let notifContent = fromUser.name + ' sent you a message !'
+      let notifContent = fromUser.displayName + ' sent you a message !'
       const notif = await this.chatService.createNotification(
         [toUser],
         'message',

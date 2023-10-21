@@ -57,7 +57,7 @@
         <v-img :src="this.challengeFromUser.avatar" alt="Avatar" />
         </v-avatar></v-col>
 
-        <v-card-title>{{ challengeFromUser.name }}</v-card-title>
+        <v-card-title>{{ challengeFromUser.displayName }}</v-card-title>
 
         <v-card-actions>
           <v-btn @click="">Accept</v-btn>
