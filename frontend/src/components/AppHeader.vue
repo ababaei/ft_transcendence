@@ -11,7 +11,8 @@ import { defineComponent } from 'vue';
                     const objUser = JSON.parse(user)
                     return '/profil/' + objUser.id
                 }
-                return '/login'
+                console.log('APPHEADER nouser')
+                return '/profil'
             },
         }
     })

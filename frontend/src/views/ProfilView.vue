@@ -384,7 +384,7 @@ export default defineComponent({
           localStorage.setItem('currentUser', JSON.stringify(user))
         })
         .catch(() => {
-
+          
         })
       },
       async changePhoto(avatar: string){
