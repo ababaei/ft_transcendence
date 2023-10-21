@@ -1,3 +1,13 @@
+export interface Notification {
+  id: number;
+  type: string;
+  content: string;
+  user: User;
+  senderID: number;
+  challengedID: number;
+  resolved: boolean;
+}
+
 export interface User {
     id: number;
     createdAt: Date;
@@ -8,7 +18,8 @@ export interface User {
     email: string;
     avatar: string;
     messages: Message[];
-    channels: Channel[];  
+    channels: Channel[];
+    notifications: Notification[];
 }
 
 export interface Message {

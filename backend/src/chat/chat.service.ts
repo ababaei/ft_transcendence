@@ -120,7 +120,8 @@ export class ChatService {
         try {
             const userList = await this.prismaService.user.findMany({
                 include: {
-                    friends: true
+                    friends: true,
+                    notification: true
                 },                
             },)
             return userList;
@@ -166,6 +167,26 @@ export class ChatService {
           return blockedList;
         } catch (error) {
           console.error('Error in getBlockedList:', error);
+          throw error;
+        }
+      }
+      async getNotifList(userId: number) {
+        try {
+          const user = await this.prismaService.user.findUnique({
+            where: { id: userId },
+            include: {
+              notification: true,
+            },
+          });
+      
+          if (!user) {
+            throw new Error('User not found');
+          }
+      
+          const notifList = user.notification;
+          return notifList;
+        } catch (error) {
+          console.error('Error in getNotifList:', error);
           throw error;
         }
       }
@@ -620,25 +641,49 @@ export class ChatService {
             throw error;
         }
     }
-//     async createNotification(users: User[], type: string, content: string) {
-//         try {
-//           // Créer la notification
-//           const notification = await this.prismaService.notification.create({
-//             data: {
-//               type: type,
-//               content: content,
-//               user: {
-//                 connect: users.map((user) => ({
-//                   id: user.id,
-//                 })),
-//               },
-//             },
-//           });
+
+    async deleteNotificationForUser(userId: number, notificationId: number): Promise<void> {
+        try {
+          const user = await this.prismaService.user.update({
+            where: { id: userId },
+            data: {
+              notification: {
+                delete: { id: notificationId },
+              },
+            },
+          });
+
+          if (!user) {
+            console.log('Aucun utilisateur trouvé pour la suppression de la notification');
+            return;
+          }
+      
+        } catch (error) {
+          console.error('Erreur lors de la suppression de la notification :', error);
+          throw error; // Vous pouvez personnaliser cette partie si nécessaire
+        }
+      }
+    async createNotification(users: User[], type: string, content: string, senderID: number, challengedId: number) {
+        try {
+          // Créer la notification
+          const notification = await this.prismaService.notification.create({
+            data: {
+              type: type,
+              content: content,
+              user: {
+                connect: users.map((user) => ({
+                  id: user.id,
+                })),
+              },
+              senderID: senderID,
+              challengedID: challengedId
+            },
+          });
     
-//           return notification;
-//         } catch (error) {
-//           console.error('Error in createNotification:', error);
-//           throw error;
-//         }
-//       }
+          return notification;
+        } catch (error) {
+          console.error('Error in createNotification:', error);
+          throw error;
+        }
+      }
 }

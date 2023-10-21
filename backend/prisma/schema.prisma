@@ -27,7 +27,7 @@ model User {
   friendOf  User[]           @relation("friends")
   blocked   User[]           @relation("block")
   blockedBy User[]           @relation("block")
-  // notification  Notification[] @relation("userNotification")
+  notification  Notification[] @relation("userNotification")
 
   @@map("users")
 }
@@ -80,9 +80,12 @@ model Game {
   users     User[]    @relation("UserGames")
 }
 
-// model Notification {
-//   id        Int     @id @default(autoincrement())
-//   type      String  @default("")
-//   content   String  @default("")
-//   user      User[]  @relation("userNotification")
-// }
+model Notification {
+  id        Int     @id @default(autoincrement())
+  type      String  @default("")
+  content   String  @default("")
+  user      User[]  @relation("userNotification")
+  senderID  Int     @default(0)
+  challengedID Int  @default(0)
+  resolved   Boolean @default(false)
+}
