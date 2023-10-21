@@ -27,7 +27,7 @@ export class AuthService {
       },
     });
     if (user) {
-      console.log('User validated: ', user.id);
+      // console.log('User validated: ', user.id);
       const token = await this.signToken({
         id: user.id,
         twoFaAuthenticated: false,

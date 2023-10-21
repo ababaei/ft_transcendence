@@ -1,34 +1,35 @@
 <template>
 
+  <v-card class="mx-auto" width="35vw" height="80vh">
+
+
 <!-- HEADER DU CHANNEL AVEC EDIT LEAVE ET DESTROY -->
-      <v-card class="mx-auto" max-width="500">
-        <v-row>
-        <v-card-title> {{ this.getChannelName(this.channelInChatBox, this.profileUser) }} </v-card-title>
-        <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
-            </template>
-            <v-list>
-              <v-list-item @click="this.leaveChannel">Leave Channel</v-list-item>
-              <v-list-item v-if="this.profileUser.id == this.channelInChatBox.ownerID && !this.channelInChatBox.isDirect"
-              @click="this.openEditChannelDialog">Edit Channel</v-list-item>
-              <v-list-item v-if="this.profileUser.id == this.channelInChatBox.ownerID && !this.channelInChatBox.isDirect"
-              @click="this.destroyChannel">Destroy Channel</v-list-item>
-            </v-list>
-        </v-menu>
-        </v-row>
-      <v-tabs v-model="this.tab">
+          <div id="channelTitle">
+          <v-card-title>{{ getChannelName(channelInChatBox, profileUser) }} </v-card-title>
+          <v-menu id="menuChannelTitle">
+              <template v-slot:activator="{ props }">
+                <v-btn icon="mdi-dots-vertical" v-bind="props"></v-btn>
+              </template>
+              <v-list>
+                <v-list-item @click="leaveChannel">Leave Channel</v-list-item>
+                <v-list-item v-if="profileUser.id == channelInChatBox.ownerID && !channelInChatBox.isDirect"
+                @click="openEditChannelDialog">Edit Channel</v-list-item>
+                <v-list-item v-if="profileUser.id == channelInChatBox.ownerID && !channelInChatBox.isDirect"
+                @click="destroyChannel">Destroy Channel</v-list-item>
+              </v-list>
+          </v-menu>
+          </div>
+      <v-tabs class="title" v-model="this.tab">
         <v-tab value="one">Messages</v-tab>
         <v-tab value="two">Infos</v-tab>
       </v-tabs>
       <v-divider></v-divider>
-      <v-card height="520">
 
 <!-- ONGLETS DE LA CHATBOX -->
         <v-window v-model="this.tab">
   <!-- FENETRE DE MESSAGES DU CHANNEL -->
-          <v-window-item value="one">
-            <v-virtual-scroll :items="(this.channelInChatBox.messages as Message[])"  height="420" item-height="48" style="overflow-x: hidden;">
+          <v-window-item value="one" id="messages" >
+            <v-virtual-scroll :items="(channelInChatBox.messages as Message[])"  height="57vh" item-height="5vh" style="overflow-x: hidden;">
             <template v-slot:default="{ item: message }">
             <div id="messageCard" v-if="!this.isBlocked(message.user.id, this.blockedList)">
               <v-row class="w-100"
@@ -60,48 +61,48 @@
             <v-divider></v-divider>
 
     <!-- ENVOIE DE MESSAGES -->
-          <v-card height="100">
-            <v-card-actions>
-            <v-form class="w-100" @submit.prevent="this.sendMessage" method="POST"
-            v-if="!this.isMute(this.profileUser.id, this.channelInChatBox)">
-              <v-row class="align-center">
-              <v-col cols="9">
+            <!-- <v-card-actions> -->
+            <v-form @submit.prevent="sendMessage" method="POST"
+            v-if="!isMute(profileUser.id, channelInChatBox)" id="formSendMessage">
+              <div id="sendMessage">
                 <v-text-field
-                    v-model="this.messageToSend"
-                    name="message"
-                    label="Message"
-                    style="width: 100%;">
+                  v-model="this.messageToSend"
+                  name="message"
+                  label="Message"
+                  hide-details="auto"
+                  id="inputMessage">
                 </v-text-field>
-              </v-col>
-              <v-col cols="2">
-                <v-btn type="submit">send</v-btn>
-              </v-col>
-              </v-row>
+                <v-btn type="submit"><v-icon>mdi-send</v-icon></v-btn>
+              </div>
             </v-form>
-            </v-card-actions>
+            <!-- </v-card-actions> -->
             <v-card-text v-if="this.isMute(this.profileUser.id, this.channelInChatBox)">You are mute</v-card-text>
-          </v-card>
           </v-window-item>
 <!-- FENETRE D'INFO DU CHANNEL -->
-          <v-window-item value="two">
 
-      <!-- LISTE USERS -->
-          <v-card>
-            <v-row>
-            <v-card-title>Users in channel</v-card-title>
-            <v-btn v-if="!this.channelInChatBox.isDirect" @click="this.openInviteDialog()">+</v-btn>
-            </v-row>
+
+
+
+
+
+<!-- LISTE USERS -->
+    <v-window-item value="two" id="users">
+            <div id="userTitle">
+              <v-card-title>Liste des utilisateurs du channel</v-card-title>
+            </div>
             <v-divider></v-divider>
-          <v-virtual-scroll :items="(this.channelInChatBox.users as User[])"  height="420" item-height="48" style="overflow-x: hidden;">
+          <v-virtual-scroll :items="(this.channelInChatBox.users as User[])"  height="55vh" item-height="7vh">
             <template v-slot:default="{ item: user }">
-                    <v-list-item
+                    <div id="userInChan"
                     @click="profilePopup = true; userSelected = user">
-                    <v-row>
-                      <v-col><v-list-item-title>{{ user.name }}</v-list-item-title></v-col>
-                      <v-col>
+                      <span>{{ user.name }}</span>
+                      <div class="chip">
                         <v-chip v-if="user.id==this.channelInChatBox.ownerID && !this.channelInChatBox.isDirect"> owner </v-chip>
                         <v-chip v-if="this.isAdmin(user.id, this.channelInChatBox) && !this.channelInChatBox.isDirect"> admin </v-chip>
-                      </v-col>
+                      </div>
+                        
+                        
+                        
               <!-- ACTIONS SUR USER -->
                     <v-menu v-if="!this.channelInChatBox.isDirect">
                       <template v-slot:activator="{ props }">
@@ -123,27 +124,27 @@
                         @click="this.openTimerDialog('mute', user.id)">Mute</v-list-item>
                         <v-list-item v-if="this.isMute(user.id, this.channelInChatBox)"
                         @click="this.unmuteUser(user.id, this.channelInChatBox.id)">Unmute</v-list-item>
-                <!-- Mute user -->
+                        <!-- Mute user -->
                         <v-list-item v-if="!this.isBan(user.id, this.channelInChatBox) && user.id!==this.channelInChatBox.ownerID"
                         @click="this.openTimerDialog('ban', user.id)">Ban</v-list-item>
                         <v-list-item v-if="this.isBan(user.id, this.channelInChatBox)"
                         @click="this.unbanUser(user.id, this.channelInChatBox.id)">Unban</v-list-item>  
                       </div>
-                      </v-list>
-                    </v-menu>
-                    </v-row>
-                    </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
+                </template>
+                </v-virtual-scroll>                
+              </v-window-item>          
+            </v-window>
+            <div id="inviteUser">
+              <v-btn v-if="!this.channelInChatBox.isDirect" @click="this.openInviteDialog()"><v-icon>mdi-account-plus-outline</v-icon> Inviter un utilisateur </v-btn>
+            </div>
 
-            </template>
-          </v-virtual-scroll>
-          </v-card>
-
-          </v-window-item>
 
 
-        </v-window>
         </v-card>
-    </v-card>
+
 
       <!-- TOGGLES -->
 <!-- CHANNEL EDIT FORM TOGGLE -->
@@ -299,13 +300,13 @@ import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsM
         },
         methods: {
             async sendMessage() {
-                console.log('methods: sendMessage: ');
+                // console.log('methods: sendMessage: ');
                 try {
                     const reponse = await axios.post('/api/chat/messageRequest', {
                         text: this.messageToSend,
                         channel: this.channelInChatBox.id,
                     }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-                    console.log(reponse.data);
+                    // console.log(reponse.data);
                 }
                 catch { console.error(); }
                 this.messageToSend = ''
@@ -313,29 +314,29 @@ import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsM
 
             async leaveChannel() {
               try {
-                console.log('methods: LeaveChannel');
+                // console.log('methods: LeaveChannel');
                 if (this.channelInChatBox.users.length === 1) {
                   const reponse = await axios.post('/api/chat/destroyChannelRequest', {
                     channelID: this.channelInChatBox.id,
                   }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-                  console.log(reponse.data);
+                  // console.log(reponse.data);
                 }
                 else {
                   const reponse = await axios.post('/api/chat/leaveChannelRequest', {
                     channelID: this.channelInChatBox.id,
                   }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}});
-                  console.log(reponse.data);
+                  // console.log(reponse.data);
                 }
               }
               catch { console.error(); }
             },
             async destroyChannel() {
               try {
-                console.log('methods: Destroy channel');
+                // console.log('methods: Destroy channel');
                 const reponse = await axios.post('/api/chat/destroyChannelRequest', {
                   channelID: this.channelInChatBox.id,
                 }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-                console.log(reponse.data);
+                // console.log(reponse.data);
               } catch { console.error(); }
             },
             openEditChannelDialog() {
@@ -374,100 +375,100 @@ import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsM
                   newChannelType: this.channelEditForm.type,
                   newChannelPassword: this.channelEditForm.password,
                 }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-                console.log(reponse.data);
+                // console.log(reponse.data);
               } catch { console.error(); }
               this.closeEditChannelDialog();
             },
 // ACTIONS SUR LES USERS
             async makeUserAdmin(newAdminID: number, channelID: number) {
               try {
-                console.log('methosds: makeUserAdmin');
+                // console.log('methosds: makeUserAdmin');
                 const reponse = await axios.post('/api/chat/makeUserAdminRequest', {
                   channelID: channelID,
                   newAdminID: newAdminID,
                 }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-                console.log(reponse.data);
+                // console.log(reponse.data);
               } catch { console.error(); }
             },
             async removeUserAdmin(AdminID: number, channelID: number) {
               try {
-                console.log('methosds: removeUserAdmin');
+                // console.log('methosds: removeUserAdmin');
                 const reponse = await axios.post('/api/chat/removeUserAdminRequest', {
                 channelID: channelID,
                 removedAdminID: AdminID,
               }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-              console.log(reponse.data);
+              // console.log(reponse.data);
             } catch { console.error(); }
           },
 
 
     async kickUserFromChannel(userID: number, channelID: number) {
-      console.log('methods: LeaveChannel');
+      // console.log('methods: LeaveChannel');
       try {
         const reponse = await axios.post('/api/chat/kickUserRequest', {
           channelID: channelID,
           userID: userID,
         }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}});
-        console.log(reponse.data);
+        // console.log(reponse.data);
       } catch { console.error(); }
     },
 
     async muteUser(userID: number, channelID: number, time: number) {
       try {
-        console.log('methosds: mute user');
+        // console.log('methosds: mute user');
         const reponse = await axios.post('/api/chat/muteUserRequest', {
           channelID: channelID,
           userID: userID,
           timer: time,
         }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-        console.log(reponse.data);
+        // console.log(reponse.data);
       } catch { console.error(); }
     },
     async unmuteUser(userID: number, channelID: number) {
       try {
-        console.log('methosds: mute user');
+        // console.log('methosds: mute user');
           const reponse = await axios.post('/api/chat/unmuteUserRequest', {
             channelID: channelID,
             userID: userID,
           }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-          console.log(reponse.data);
+          // console.log(reponse.data);
       } catch { console.error(); }
     },
 
     async banUser(userID: number, channelID: number, time: number) {
       try {
-        console.log('methosds: ban user');
+        // console.log('methosds: ban user');
         const reponse = await axios.post('/api/chat/banUserRequest', {
           channelID: channelID,
           userID: userID,
           timer: time,
         })
-        console.log(reponse.data);
+        // console.log(reponse.data);
         await axios.post('/api/chat/leaveChannelRequest', {
             userID: userID,
             channelID: channelID,
         }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}});
-        console.log(reponse.data);
+        // console.log(reponse.data);
       } catch { console.error(); }
     },
     async unbanUser(userID: number, channelID: number) {
       try {
-        console.log('methosds: unban user');
+        // console.log('methosds: unban user');
           const reponse = await axios.post('/api/chat/unbanUserRequest', {
             channelID: channelID,
             userID: userID,
           }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-          console.log(reponse.data);
+          // console.log(reponse.data);
       } catch { console.error(); }
     },
     async addFriendInchannel() {
       try {
-        console.log('methosds: add user in channel');
+        // console.log('methosds: add user in channel');
           const reponse = await axios.post('/api/chat/addFriendInChannelRequest', {
             channelID: this.channelInChatBox.id,
             friendId: this.selectedFriend,
           }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-          console.log(reponse.data);
+          // console.log(reponse.data);
           this.closeInviteDialog();
       } catch { console.error(); }
     },
@@ -495,4 +496,68 @@ import { isAdmin, isMute, isBan, getChannelName, isBlocked } from './chat_utilsM
   background-color: #333;
   color: #fff;
 }
+
+#messages {
+  margin-top: 2vh;
+  padding: 0 1vw;
+}
+
+#channelTitle {
+  display: flex;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+}
+
+
+#channelTitle div {
+  padding-right: 2vw;
+  padding-left: 1vw;
+}
+
+#userTitle {
+  display: flex;
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+  justify-content: center;
+}
+
+#sendMessage {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+#formSendMessage {
+  height: 10vh;
+}
+
+#sendMessage div {
+  width: 98%;
+}
+
+#userInChan {
+  display: flex;
+  width: 100%;
+  padding: 1vh 1vw;
+  align-items: center;
+}
+
+#userInChan span {
+  min-width: 20%;
+  padding: 0 1vw;
+}
+
+#userInChan .chip {
+  width: 80%;
+}
+
+#userInChan .chip * {
+  margin-right: 1vw;
+}
+
+#inviteUser {
+  display: flex;
+  justify-content: center;
+}
+
 </style>

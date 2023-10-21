@@ -39,7 +39,7 @@ export class AuthController {
   @Get('42')
   @UseGuards(SchoolAuthGuard)
   async login() {
-    console.log('entry');
+    // console.log('entry');
     passport.authenticate('42', {
       failureRedirect: 'http://localhost:8080/login',
     });
@@ -51,7 +51,7 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    console.log('______________________callback__________________');
+    // console.log('______________________callback__________________');
     passport.authenticate('42', {
       failureRedirect: 'http://localhost:8080/login',
     });

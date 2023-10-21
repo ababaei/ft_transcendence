@@ -74,7 +74,7 @@ export class UsersController {
     @Param() params: { id: string },
     @Body() body: { pseudo: string },
   ) {
-    console.log('MAJPSEUDO', body.pseudo)
+    // console.log('MAJPSEUDO', body.pseudo)
     await this.prismaService.user.update({
       where: { id: parseInt(params.id) },
       data: { name: body.pseudo },

@@ -174,7 +174,7 @@ export class MyPonGateway {
     }
 
     handleConnection(client: Socket) {
-      console.log(`Client connected : ${client.id}`);
+      // console.log(`Client connected : ${client.id}`);
       this.server.to(`${client.id}`).emit('socketRef', `${client.id}`);
     }
 
@@ -296,7 +296,7 @@ export class MyPonGateway {
     }
 
     async handleDisconnect(client: Socket) {
-        console.log(`Client disconnected : ${client.id}`)
+        // console.log(`Client disconnected : ${client.id}`)
         const playerIndex = this.player.findIndex(item => {
           return (item.socket === client.id && (item.active == true || item.waiting == true))
         });

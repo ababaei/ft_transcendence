@@ -46,7 +46,7 @@ router.beforeEach((to, from, next) => {
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (isAuth === 'false') {
-      console.log('GET REDIREKTED BITCH')
+      // console.log('GET REDIREKTED BITCH')
       next({
         path: '/login',
         params: { nextUrl: to.fullPath }

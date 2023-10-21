@@ -274,7 +274,7 @@
           c.width = 600
           c.height = 300
         }
-        console.log(this.ratio)
+        // console.log(this.ratio)
         ctx.clearRect(0, 0, c.width, c.height);
         ctx.fillStyle = '#6d4db6';
         ctx.fillRect(this.left.x / this.ratio, this.left.y / this.ratio, this.paddleSize.width / this.ratio, this.paddleSize.height / this.ratio);

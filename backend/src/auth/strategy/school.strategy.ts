@@ -34,7 +34,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
   ): Promise<any> {
     // console.log('PROFILE: ', profile);
     const validUser = await this.authService.validateUser(profile);
-    console.log('TOKEN: ', validUser.user);
+    // console.log('TOKEN: ', validUser.user);
     if (!validUser) {
       throw new UnauthorizedException();
     }

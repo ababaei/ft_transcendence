@@ -26,16 +26,16 @@ export class ChatService {
                 ownerID: ownerId,
                 isDirect: chanOrDirect,
             },});
-            console.log('chatService: channel created: ', newChannel.name);
+            // console.log('chatService: channel created: ', newChannel.name);
             return newChannel;
         } catch {
-            console.log('chatService: error while creating channel')
+            // console.log('chatService: error while creating channel')
             throw error
         }
     }
 
     async addUserInChannel(selectedChannel: Channel, userToAdd: User) {
-        console.log('chatService: adding ', userToAdd.name, ' in ', selectedChannel.name);
+        // console.log('chatService: adding ', userToAdd.name, ' in ', selectedChannel.name);
         let newChannelOwner;
         if (selectedChannel.ownerID == 0)
             newChannelOwner = userToAdd.id;
@@ -53,9 +53,9 @@ export class ChatService {
                     ownerID: newChannelOwner,
                 },
             });
-            console.log('chatService:', userToAdd.name, ' added in channel ', selectedChannel.name)
+            // console.log('chatService:', userToAdd.name, ' added in channel ', selectedChannel.name)
         } catch {
-            console.log('failed to add user in channel')
+            // console.log('failed to add user in channel')
             throw error
         }
     }
@@ -88,14 +88,14 @@ export class ChatService {
             }
             return channelsWithAdminID;
         }   catch {
-                console.log('error while loading channels list');
+                // console.log('error while loading channels list');
                 throw error;
             }
     }
 
     async getMessagesInChannel(channel: Channel): Promise<Message[]> {
         try {
-            console.log('chatService: getMessagesInChannel');
+            // console.log('chatService: getMessagesInChannel');
             if (!channel) {return null}
             const messages = await this.prismaService.message.findMany({
                 where: {
@@ -111,7 +111,7 @@ export class ChatService {
             });
             return messages;
         } catch (error) {
-            console.log('error: getMessagesInChannel', error);
+            // console.log('error: getMessagesInChannel', error);
             throw error;
         }
     }   
@@ -126,7 +126,7 @@ export class ChatService {
             return userList;
         }
         catch {
-            console.log('error: loading userList')
+            // console.log('error: loading userList')
             throw error;
         }
     }
@@ -185,7 +185,7 @@ export class ChatService {
             });
         }
         catch {
-            console.log('error: destroy channel');
+            // console.log('error: destroy channel');
             throw error;
         }
     }
@@ -218,7 +218,7 @@ export class ChatService {
             }
         }
         catch {
-            console.log('error: removing user from channel');
+            // console.log('error: removing user from channel');
             throw error
         }
     }
@@ -235,14 +235,14 @@ export class ChatService {
             })
         }
         catch {
-            console.log('error: edit channel')
+            // console.log('error: edit channel')
             throw error
         }
     }
 
     async setUserAdmin(channel: Channel, userID: number) {
         try {
-            console.log('chatService: set User admin');
+            // console.log('chatService: set User admin');
             if (channel.adminID.includes(userID))
                 return;
             const updatedAdminArray = [...channel.adminID, userID];
@@ -254,13 +254,13 @@ export class ChatService {
             });
         }
         catch {
-            console.log('error: set user admin');
+            // console.log('error: set user admin');
             throw error
         }
     }
     async removeUserAdmin(channel: Channel, userID: number) {
         try {
-            console.log('chatService: remove User admin');
+            // console.log('chatService: remove User admin');
             const updatedAdminArray = channel.adminID.filter(id => id !== userID);
             await this.prismaService.channel.update({
                 where: { id: channel.id },
@@ -270,14 +270,14 @@ export class ChatService {
             });
         }
         catch {
-            console.log('error: set user admin');
+            // console.log('error: set user admin');
             throw error
         }
     }
 
     async setUserMute(channel: Channel, userID: number) {
         try {
-            console.log('chatService: set User mute');
+            // console.log('chatService: set User mute');
             const updatedMuteArray = [...channel.muteID, userID];
             await this.prismaService.channel.update({
                 where: { id: channel.id },
@@ -287,13 +287,13 @@ export class ChatService {
             });
         }
         catch {
-            console.log('error: set user admin');
+            // console.log('error: set user admin');
             throw error
         }  
     }
     async removeUserMute(channel: Channel, userID: number) {
         try {
-            console.log('chatService: remove User mute');
+            // console.log('chatService: remove User mute');
             const updatedMuteArray = channel.muteID.filter(id => id !== userID);
             await this.prismaService.channel.update({
                 where: { id: channel.id },
@@ -303,13 +303,13 @@ export class ChatService {
             });
         }
         catch {
-            console.log('error: set user admin');
+            // console.log('error: set user admin');
             throw error     
         }
     }
     async setUserBan(channel: Channel, userID: number) {
         try {
-            console.log('chatService: set User ban');
+            // console.log('chatService: set User ban');
             const updatedBanArray = [...channel.banID, userID];
             await this.prismaService.channel.update({
                 where: { id: channel.id },
@@ -319,13 +319,13 @@ export class ChatService {
             });
         }
         catch {
-            console.log('error: set user admin');
+            // console.log('error: set user admin');
             throw error 
         }
     }
     async removeUserBan(channel: Channel, userID: number) {
         try {
-            console.log('chatService: remove User ban');
+            // console.log('chatService: remove User ban');
             const updatedBanArray = channel.banID.filter(id => id !== userID);
             await this.prismaService.channel.update({
                 where: { id: channel.id },
@@ -335,7 +335,7 @@ export class ChatService {
             });
         }
         catch {
-            console.log('error: set user admin');
+            // console.log('error: set user admin');
             throw error 
         }
     }
@@ -355,7 +355,7 @@ export class ChatService {
                 }
             });
         } catch (error) {
-            console.log('Error: Adding friends', error);
+            // console.log('Error: Adding friends', error);
             throw error;
         }
     }
@@ -374,7 +374,7 @@ export class ChatService {
                 },
             });
     
-            console.log(`User ${userToAdd.name} has been added to the blocked list of ${userBlocking.name}`);
+            // console.log(`User ${userToAdd.name} has been added to the blocked list of ${userBlocking.name}`);
         } catch (error) {
             console.error('Error in addUserInBlockedList:', error);
             throw error;
@@ -383,7 +383,7 @@ export class ChatService {
 
     async findChannelById(channelId: number) {
         try {
-            console.log('chatService: findChannelByID')
+            // console.log('chatService: findChannelByID')
             const channel = await this.prismaService.channel.findUnique({
                 where: {
                     id: channelId,
@@ -396,7 +396,7 @@ export class ChatService {
             return channel;
         }
         catch {
-            console.log('error: findChannelById');
+            // console.log('error: findChannelById');
             throw error 
         }
     }
@@ -442,7 +442,7 @@ export class ChatService {
 
     async findUserById(userId: number) {
         try {
-            console.log('chatService: findUserByID')
+            // console.log('chatService: findUserByID')
             const user = await this.prismaService.user.findUnique({
                 where: {
                     id: userId,
@@ -451,14 +451,14 @@ export class ChatService {
             return user;
         }
         catch {
-            console.log('error: findUserById');
+            // console.log('error: findUserById');
             throw error 
         }
     }
 
     async findMessageById(messageId: number) {
         try {
-            console.log('chatService: findMessageByID')
+            // console.log('chatService: findMessageByID')
             const message = await this.prismaService.message.findUnique({
                 where: {
                     id: messageId,
@@ -471,7 +471,7 @@ export class ChatService {
             return message;
         }
         catch {
-            console.log('error: findMessageById');
+            // console.log('error: findMessageById');
             throw error        
         }
     }
@@ -537,7 +537,7 @@ export class ChatService {
     }
     async isFriend(user1: User, user2: User): Promise<boolean> {
         try {
-            console.log('isFriend');
+            // console.log('isFriend');
           if (!user1 || !user2) {
             return false; // L'un des utilisateurs n'existe pas
           }
@@ -614,7 +614,7 @@ export class ChatService {
                 },
             });
     
-            console.log(`User ${userToRemove.name} has been removed from the blocked list of ${userBlocking.name}`);
+            // console.log(`User ${userToRemove.name} has been removed from the blocked list of ${userBlocking.name}`);
         } catch (error) {
             console.error('Error in removeUserFromBlocked:', error);
             throw error;

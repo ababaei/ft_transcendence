@@ -33,7 +33,7 @@ export class Jwt2faGuard implements CanActivate {
         where: { id: payload['id'] },
       });
       
-      console.log('PAYLOAD: ', decodedTkn['twoFaAuthenticated']);
+      // console.log('PAYLOAD: ', decodedTkn['twoFaAuthenticated']);
       if (user.twoFaActivated && !decodedTkn['twoFaAuthenticated'])
         throw new UnauthorizedException();
       request['user'] = user;

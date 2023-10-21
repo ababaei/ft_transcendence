@@ -1,12 +1,12 @@
 <template>
     <v-container class="pt-10">
       <v-card class="mx-auto" max-width="500">
-        <v-card-title> New channel </v-card-title>
+        <v-card-title> Créer un nouveau channel </v-card-title>
       <v-form @submit.prevent="this.createNewChannel" method="POST">
         <v-text-field
           v-model="this.channelCreationForm.name"
           name="channelname"
-          label="Channel name"
+          label="Nom du channel"
           autocomplete="off"
         ></v-text-field>
         <div>
@@ -64,12 +64,12 @@ import type { Channel, User, Message } from './chat_utilsMethods';
         },
         created() {
           const user: any = localStorage.getItem('currentUser');
-          console.log("fe_user: ", user)
-          console.log("CURRENT: ", localStorage.getItem('currentUser'))
+          // console.log("fe_user: ", user)
+          // console.log("CURRENT: ", localStorage.getItem('currentUser'))
         },
         methods: {
             async createNewChannel() {
-                console.log('methods: createNewChannel');
+                // console.log('methods: createNewChannel');
                 try {
                     const reponse = await axios.post('/api/chat/createChannelRequest', 
                     {

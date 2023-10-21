@@ -46,16 +46,16 @@ export function isAdmin(userID: number, channel: Channel) {
   if (!channelAdmins)
     return 0;
   if (channelAdmins.find(user => user == userID)) {
-    console.log('isAdmin: ', userID, ' is administrator')
+    // console.log('isAdmin: ', userID, ' is administrator')
     return (1)
   }
   return 0;
 }
 
 export function isMute(userID: number, channel: Channel): boolean{
-console.log("methods: is ");
+// console.log("methods: is ");
 const channelMuted = channel.muteID;
-console.log(channel.muteID);
+// console.log(channel.muteID);
   if (!channelMuted) {
     return false;
   }
@@ -66,9 +66,9 @@ console.log(channel.muteID);
 }
 
 export function isBan(userID: number, channel: Channel): boolean {
-console.log("methods: is ban");
+// console.log("methods: is ban");
 const channelBaned = channel.banID;
-console.log(channel.banID);
+// console.log(channel.banID);
   if (!channelBaned) {
     return false;
   }
@@ -95,7 +95,7 @@ export function isFriend(userID: number, friendList: User[]): boolean {
 }
 
 export function isBlocked(userID: number, blockedList: User[]): boolean {
-  console.log('exported: isBlocked', userID, blockedList);
+  // console.log('exported: isBlocked', userID, blockedList);
   if (!blockedList || blockedList.length === 0) {
     return false;
   }

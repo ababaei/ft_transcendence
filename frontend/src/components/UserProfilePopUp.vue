@@ -61,43 +61,43 @@ import { channel } from 'diagnostics_channel';
         },
         methods: {
             async addFriend() {
-              console.log('method: add friend')
+              // console.log('method: add friend')
               try {
                   const reponse = await axios.post('/api/chat/addFriendRequest', {
                   friendName: this.userRequested.name,
               }, { headers: { "Authorization": `Bearer ${this.jwt_token}` }})
-              console.log(reponse);
+              // console.log(reponse);
               this.friendName = '';
             } catch { console.error(); }
           },
           async blockUser() {
-              console.log('method: blockUser')
+              // console.log('method: blockUser')
               try {
                   const reponse = await axios.post('/api/chat/blockUserRequest', {
                   blockedName: this.userRequested.name,
               }, { headers: { "Authorization": `Bearer ${this.jwt_token}` }})
-              console.log(reponse);
+              // console.log(reponse);
               this.blockedName = '';
             } catch { console.error(); }
           },
           async removeFriend(userID: number) {
-              console.log('method: removeFriend')
+              // console.log('method: removeFriend')
               try {
-                console.log(userID);
+                // console.log(userID);
                   const reponse = await axios.post('/api/chat/removeFriendRequest', {
                   removedFriendId: this.userRequested.id,
               }, { headers: { "Authorization": `Bearer ${this.jwt_token}` }})
-              console.log(reponse);
+              // console.log(reponse);
             } catch { console.error(); }
           },
           async unblockUser(userID: number) {
-              console.log('method: unblockUser')
+              // console.log('method: unblockUser')
               try {
-                console.log(userID);
+                // console.log(userID);
                   const reponse = await axios.post('/api/chat/unblockUserRequest', {
                   unblockedId: this.userRequested.id,
               }, { headers: { "Authorization": `Bearer ${this.jwt_token}` }})
-              console.log(reponse);
+              // console.log(reponse);
             } catch { console.error(); }
           },
             isBlocked(userID: number, blockedList: User[]): boolean { return isBlocked(userID, blockedList); },

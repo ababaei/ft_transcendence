@@ -20,7 +20,7 @@ export class SchoolAuthGuard extends AuthGuard('42') {
       }
     
       handleRequest(err: any, user: any, info: any, context: any, status: any) {
-        console.log('errorGuard', err);
+        // console.log('errorGuard', err);
         if (err || !user) {
           const res = context.switchToHttp().getResponse();
           throw new HttpException('Non autorisé', HttpStatus.UNAUTHORIZED);

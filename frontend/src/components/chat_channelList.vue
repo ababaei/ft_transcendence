@@ -1,57 +1,59 @@
 <template>
     <v-container>
       <v-card id="channelListCard"
-      class="mx-auto" max-width="500">
-      <v-col>
-          <v-card-title>Channel list</v-card-title>
-        </v-col>
-        <v-col>
-          <v-btn @click="this.openDirectMessageDialog" color="primary">Direct Message</v-btn>
-        </v-col>
+      class="mx-auto"  width="30vw">
+      
+      <div id="titleChannelBox">
+        <h2>Liste des channels</h2>
+      </div>
 
-    <v-divider></v-divider>
     <v-virtual-scroll
-    :items="(this.channelList as Channel[])"
-    height="320"
-    item-height="48">
+    :items="(channelList as Channel[])"
+    height="40vh"
+    item-height="8vh"
+    id="listChan">
     <template v-slot:default="{ item }">
-
+      
 <!-- CARTE DE DESCRIPTION D'UN CHANNEL -->
-    <v-card id="channelDescriptionBar"
+<div id="channelDescriptionBar"
     v-if="item.id !== -1 &&
-    !(item.isDirect && !this.isUserInChannel(this.profileUser.id, item)) &&
-    !(item.mode==='private' && !this.isUserInChannel(this.profileUser.id, item))"
-    @click="this.selectChannel(item)"
+    !(item.isDirect && !isUserInChannel(profileUser.id, item)) &&
+    !(item.mode==='private' && !isUserInChannel(profileUser.id, item))"
+    @click="selectChannel(item)"
     >
-    <v-row flex-wrap class="d-flex justify-center">
-        <v-col class="3"> <v-card-text> {{ this.getChannelName(item, this.profileUser) }}</v-card-text> </v-col>
-        <v-col class="3"> <v-chip> {{ item.mode }} </v-chip> </v-col>
-        <v-col class="3">
-        <v-card-actions  v-if="!this.isUserInChannel(this.profileUser.id, item) && !this.isBan(this.profileUser.id, item)">
-          <v-form @submit.prevent="this.joinChannel(item)">
-            <v-row flex-wrap>
-            <v-col><v-text-field v-if="item.mode=='protected'"
-            v-model="this.password"
-            name="joinPassword"
-            label="Password">
-            </v-text-field></v-col>
-            <v-col cols="2"><v-btn type="submit">+</v-btn></v-col>
-          </v-row>
+    <div class="d-flex justify-center">
+      <div class="infoChan">
+        <div> {{ getChannelName(item, profileUser) }}</div> 
+         <v-chip> {{ item.mode }}</v-chip>
+      </div>
+          <v-card-actions  v-if="!isUserInChannel(profileUser.id, item) && !isBan(profileUser.id, item)">
+            <v-form @submit.prevent="joinChannel(item)">
+              <h1>TEST</h1>
+            <div>
+              <v-text-field v-if="item.mode=='protected'"
+                v-model="password"
+                name="joinPassword"
+                label="Password">
+              </v-text-field>
+              <v-btn type="submit">+</v-btn>
+            </div>
           </v-form>
         </v-card-actions>
-        <v-card-text v-if="this.isBan(this.profileUser.id, item)">You  are ban from this channel</v-card-text>
-        </v-col>
-    </v-row>
-    </v-card>
-
-    </template>
-    </v-virtual-scroll>
-    </v-card>
+        <v-card-text v-if="isBan(profileUser.id, item)">You  are ban from this channel</v-card-text>
+    </div>
+  </div>
+  <v-divider></v-divider>
+</template>
+</v-virtual-scroll>
+<div id="privateMessage">
+  <v-btn @click="openDirectMessageDialog">Envoyer un message privé</v-btn>
+</div>
+</v-card>
     </v-container>
   <!-- Boîte de dialogue pour le message direct -->
   <v-dialog v-model="directMessageDialog" max-width="400">
     <v-card>
-      <v-card-title>Direct Message</v-card-title>
+      <v-card-title>Envoyer un message privé</v-card-title>
       <v-card-text>
         <v-form @submit.prevent="this.sendDirectMessage">
           <v-text-field v-model="directMessageTarget" label="user"></v-text-field>
@@ -101,8 +103,8 @@ import { channel } from 'diagnostics_channel';
         },
         created() {
           const user: any = localStorage.getItem('currentUser');
-          console.log("fe_user: ", user)
-          console.log("CURRENT: ", localStorage.getItem('currentUser'))
+          // console.log("fe_user: ", user)
+          // console.log("CURRENT: ", localStorage.getItem('currentUser'))
         },
         props: {
           channelList: {
@@ -113,20 +115,20 @@ import { channel } from 'diagnostics_channel';
         emits: ['channel-selected'],
         methods: {
             selectChannel(channel: Channel) {
-                console.log('methods: selectChannel', channel)
+                // console.log('methods: selectChannel', channel)
                 if (isUserInChannel(this.profileUser.id, channel)) {
                   this.$emit('channel-selected', channel);
                 }
             },
 
             async joinChannel(channel: Channel) {
-              console.log('methods: joinChannel');
+              // console.log('methods: joinChannel');
               try {
                 const reponse = await axios.post('/api/chat/joinChannelRequest', {
                   channelID: channel.id,
                   password: channel.mode === 'protected' ? this.password : '',
                 }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-                console.log(reponse.data);
+                // console.log(reponse.data);
                 this.password = ''
               }
               catch { console.error(); }
@@ -134,14 +136,14 @@ import { channel } from 'diagnostics_channel';
 
             async sendDirectMessage() {
               try {
-                console.log('method: send direct message')
+                // console.log('method: send direct message')
                 const reponse = await axios.post('/api/chat/directMessageRequest', {
                   target: this.directMessageTarget,
                   text: this.directMessageContent,
                 }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-                console.log(reponse.data);
+                // console.log(reponse.data);
                 this.closeDirectMessageDialog()
-                console.log(reponse.data);
+                // console.log(reponse.data);
               }
               catch { console.error(); }
             },
@@ -161,3 +163,43 @@ import { channel } from 'diagnostics_channel';
         }
     })
 </script>
+
+<style scoped>
+
+#titleChannelBox 
+{
+  display: flex;
+  height: 5vh;
+  justify-content: center;;
+  padding: 1vh 1vw 5vh 1vw;
+}
+
+#titleChannelBox h2 {
+  color: black;
+}
+
+#listChan {
+  overflow: hidden;
+}
+
+#privateMessage {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 2vh;
+}
+
+.infoChan {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5vh 2vw;
+}
+
+.infoChan span {
+  height: 100%;
+}
+
+#channelDescriptionBar {
+  margin: 1vh 0;
+}
+</style>

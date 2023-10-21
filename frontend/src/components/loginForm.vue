@@ -52,20 +52,20 @@ import axios from 'axios';
                 window.location.href = '/front/api/auth/42'
             },
             auth2fa() {
-                console.log('AUTHUSER', this.profileUser)
+                // console.log('AUTHUSER', this.profileUser)
                 axios.post('/api/2fa/authenticate',
                     {twoFaCode: this.googleAuthCode, user: this.profileUser },
                     { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
                     .then((res) => {
                         const cookies = this.$cookies.get('userData');
-                        console.log('2FAAUTH', cookies);
+                        // console.log('2FAAUTH', cookies);
                         localStorage.setItem('jwt_token', cookies.token);
                         localStorage.setItem('isAuthenticated', 'true');
                         router.push('/profil/' + cookies.user.id)
                     })
                     .catch((err) => {
                         this.wrongCode = true;
-                        console.log('ERROR', err.response);
+                        // console.log('ERROR', err.response);
                     })
             }
         }

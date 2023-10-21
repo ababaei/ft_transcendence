@@ -296,7 +296,7 @@ export default defineComponent({
                     this.gameData.push(res.data);
                   })
                 } catch (error) {
-                console.log(error);
+                // console.log(error);
               }
             }
           })

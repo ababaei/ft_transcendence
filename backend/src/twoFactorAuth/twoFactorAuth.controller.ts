@@ -32,7 +32,7 @@ export class TwoFactorAuthController {
     const { otpauthUrl } = await this.twoFactorService.generate2FAsecret(
       req.user as User,
     );
-    console.log('OTPURL', otpauthUrl);
+    // console.log('OTPURL', otpauthUrl);
     res.setHeader('content-type', 'image/png');
     return this.twoFactorService.pipeQrCodeStream(res, otpauthUrl);
   }
@@ -45,7 +45,7 @@ export class TwoFactorAuthController {
     @Res() res: Response,
     @Body() { twoFaCode }: TwoFaCodeDto,
   ) {
-    console.log('TURNON', twoFaCode);
+    // console.log('TURNON', twoFaCode);
     const isCodeValid = await this.twoFactorService.is2FAcodeValid(
       twoFaCode,
       req.user as User,
@@ -53,12 +53,12 @@ export class TwoFactorAuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException('wrong authentication code');
     }
-    console.log(req.cookies.userData);
+    // console.log(req.cookies.userData);
     const { token, user } = JSON.parse(req.cookies.userData);
-    console.log('TOKEN', token);
-    console.log('USER', user);
+    // console.log('TOKEN', token);
+    // console.log('USER', user);
     user.twoFaActivated = true;
-    console.log('USER2', user);
+    // console.log('USER2', user);
     await this.usersService.turnOn2FA(req.user['id']);
     res.cookie('userData', JSON.stringify({ token, user }), { secure: false });
     return res.status(200).json({ message: '2 fa turned on' });
@@ -72,7 +72,7 @@ export class TwoFactorAuthController {
     @Res() res: Response,
     @Body() { twoFaCode }: TwoFaCodeDto,
   ) {
-    console.log('AUTHBACKUSER', req.user);
+    // console.log('AUTHBACKUSER', req.user);
     const isCodeValid = await this.twoFactorService.is2FAcodeValid(
       twoFaCode,
       req.user as User,
@@ -80,7 +80,7 @@ export class TwoFactorAuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException('wrong authentication code');
     }
-    console.log('VALID', isCodeValid, twoFaCode);
+    // console.log('VALID', isCodeValid, twoFaCode);
     const token = await this.authService.signToken({
       id: req.user['id'],
       twoFaAuthenticated: true,
@@ -96,7 +96,7 @@ export class TwoFactorAuthController {
   @HttpCode(200)
   @UseGuards(Jwt2faGuard)
   async disable(@Req() req: Request, @Res() res: Response) {
-    console.log('----DISABLING 2FA----');
+    // console.log('----DISABLING 2FA----');
     await this.usersService.turnOff2FA(req.user['id']);
     const user = req.user as User;
     user.twoFaActivated = false;

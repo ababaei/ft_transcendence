@@ -6,7 +6,7 @@ import { defineComponent } from 'vue';
         computed: {
             currentUser() {
                 const user = localStorage.getItem('currentUser')
-                console.log('APPHEADER', user)
+                // console.log('APPHEADER', user)
                 if(user) {
                     const objUser = JSON.parse(user)
                     return '/profil/' + objUser.id

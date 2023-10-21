@@ -20,9 +20,9 @@ export class MyGateway {
     //     await client.emit('updateChannelList', await this.chatService.getChannelsList());
     // }
     async handleConnection(client: Socket) {
-        console.log(`Client connected : ${client.id}`);
+        // console.log(`Client connected : ${client.id}`);
         // this.server.to(`${client.id}`).emit('socketRef', `${client.id}`)
-        console.log('socket.io: emit updateChanList');
+        // console.log('socket.io: emit updateChanList');
         const userList = await this.chatService.getUsersList();
         const channelList = await this.chatService.getChannelsList();
         this.server.emit('updateUsersList', userList);
@@ -30,7 +30,7 @@ export class MyGateway {
     }
 
     handleDisconnect(client: Socket) {
-    //    console.log(`Client disconnected : ${client.id}`)
+    //    // console.log(`Client disconnected : ${client.id}`)
     }
 
 

@@ -61,7 +61,7 @@ import axios from 'axios';
                 { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
                 .then((res) => {
                     const cookies = this.$cookies.get('userData')
-                    console.log('FRONT', cookies)
+                    // console.log('FRONT', cookies)
                     localStorage.setItem('currentUser', JSON.stringify(cookies.user))
                     this.update2fa(true)
                     this.activation = false

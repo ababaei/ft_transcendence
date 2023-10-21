@@ -70,7 +70,7 @@ export class ChatController {
     @Req() req: Request,
     @Body() data: { channelID: number; userID: number; password: string },
   ) {
-    console.log('Join channel Request');
+    // console.log('Join channel Request');
     try {
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const joinedChannel = await this.chatService.findChannelById(
@@ -97,7 +97,7 @@ export class ChatController {
         return 'backend: channel joined';
       }
     } catch {
-      console.log('error: join channel');
+      // console.log('error: join channel');
       return 'backend: failed to join channel';
     }
   }
@@ -108,7 +108,7 @@ export class ChatController {
     @Req() req: Request,
     @Body() data: { text: string; channel: number },
   ) {
-    console.log('Message request');
+    // console.log('Message request');
     try {
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const inChannel = await this.chatService.findChannelById(data.channel);
@@ -128,7 +128,7 @@ export class ChatController {
       this.sendUploadedData();
       return 'backend: new message uploaded';
     } catch {
-      console.log('Error handling new message');
+      // console.log('Error handling new message');
       return 'backend: error with new message';
     }
   }
@@ -139,7 +139,7 @@ export class ChatController {
     @Req() req: Request,
     @Body() data: { target: string; text: string },
   ) {
-    console.log('Direct Message request');
+    // console.log('Direct Message request');
     try {
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const toUser = await this.chatService.findUserByName(data.target);
@@ -151,14 +151,14 @@ export class ChatController {
         return 'backend: cant send a direct message to yourself';
       }
       let newChannel = await this.chatService.findDirectChannelByUserIds(fromUser.id, toUser.id);
-      console.log(newChannel);
+      // console.log(newChannel);
       if (!newChannel) {
         newChannel = await this.chatService.createNewChannel('', 'direct', '', 0, true);
         await this.chatService.addUserInChannel(newChannel, fromUser);
         await this.chatService.addUserInChannel(newChannel, toUser);
-        console.log(newChannel);
+        // console.log(newChannel);
       }
-      console.log(newChannel);
+      // console.log(newChannel);
       const newMessage = await this.chatService.createMessage(
         newChannel,
         fromUser,
@@ -167,7 +167,7 @@ export class ChatController {
       this.sendUploadedData();
       return (newChannel);
     } catch {
-      console.log('Error handling new message');
+      // console.log('Error handling new message');
       return 'backend: error with new message';
     }
   }
@@ -175,7 +175,7 @@ export class ChatController {
   @Post('destroyChannelRequest')
   @UseGuards(JwtGuard)
   async destroyChannel( @Req() req: Request, @Body() data: { channelID: number }) {
-    console.log('requete: destroy channel');
+    // console.log('requete: destroy channel');
     try {
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channelToDestroy = await this.chatService.findChannelById(
@@ -189,7 +189,7 @@ export class ChatController {
       this.sendUploadedData();
       return 'backend: channel destroyed';
     } catch {
-      console.log('destroy channel : error');
+      // console.log('destroy channel : error');
       return 'backend: error while destroying channel';
     }
   }
@@ -198,7 +198,7 @@ export class ChatController {
   @UseGuards(JwtGuard)
   async leaveChannel(@Req() req: Request, @Body() data: { channelID: number }) {
     try {
-      console.log('requete: leave channel');
+      // console.log('requete: leave channel');
       const channelToLeave = await this.chatService.findChannelById(
         data.channelID,
       );
@@ -214,7 +214,7 @@ export class ChatController {
       this.sendUploadedData();
       return 'backend: channel leaved';
     } catch {
-      console.log('error: leave channel');
+      // console.log('error: leave channel');
       return 'backend: error while leaving channel';
     }
   }
@@ -231,7 +231,7 @@ export class ChatController {
     },
   ) {
     try {
-      console.log('requete: edit channel request');
+      // console.log('requete: edit channel request');
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channelToEdit = await this.chatService.findChannelById(
         data.channelID,
@@ -251,7 +251,7 @@ export class ChatController {
       this.sendUploadedData();
       return 'backend: channel edited';
     } catch {
-      console.log('error: edit channel');
+      // console.log('error: edit channel');
       return 'backend: error while editing channel';
     }
   }
@@ -263,7 +263,7 @@ export class ChatController {
     @Body() data: { channelID: number; newAdminID: number },
   ) {
     try {
-      console.log('requete: set user admin');
+      // console.log('requete: set user admin');
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channel = await this.chatService.findChannelById(data.channelID);
 
@@ -277,7 +277,7 @@ export class ChatController {
       this.sendUploadedData();
       return 'backend: user mode set to admin';
     } catch {
-      console.log('error: make user admin');
+      // console.log('error: make user admin');
       return 'backend: error while making user administrator';
     }
   }
@@ -285,7 +285,7 @@ export class ChatController {
   @UseGuards(JwtGuard)
   async removeUserAdmin(@Req() req: Request, @Body() data: { channelID: number; removedAdminID: number }) {
     try {
-      console.log('requete: remove user admin');
+      // console.log('requete: remove user admin');
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channel = await this.chatService.findChannelById(data.channelID);
 
@@ -299,7 +299,7 @@ export class ChatController {
       this.sendUploadedData();
       return 'backend: user removed from administrators';
     } catch {
-      console.log('error: removing administartor');
+      // console.log('error: removing administartor');
       return 'backend: error removing user administrator';
     }
   }
@@ -315,7 +315,7 @@ export class ChatController {
     },
   ) {
     try {
-      console.log('requete: kick User');
+      // console.log('requete: kick User');
       const channel = await this.chatService.findChannelById(data.channelID);
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const userKicked = await this.chatService.findUserById(data.userID);
@@ -333,7 +333,7 @@ export class ChatController {
       this.sendUploadedData();
       return 'backend: user kicked';
     } catch {
-      console.log('error: kick user');
+      // console.log('error: kick user');
       return 'backend: failed to kick user';
     }
   }
@@ -349,7 +349,7 @@ export class ChatController {
       timer: number;
     },
   ) {
-    console.log('requete: mute User');
+    // console.log('requete: mute User');
     const channel = await this.chatService.findChannelById(data.channelID);
     const fromUser = await this.chatService.findUserById((req.user as User).id);
 
@@ -394,7 +394,7 @@ export class ChatController {
     },
   ) {
     try {
-      console.log('requete: set user admin');
+      // console.log('requete: set user admin');
       const channel = await this.chatService.findChannelById(data.channelID);
       const fromUser = await this.chatService.findUserById((req.user as User).id);
 
@@ -408,7 +408,7 @@ export class ChatController {
       this.sendUploadedData();
       return 'backend: user unmuted';
     } catch {
-      console.log('error: unmuting user');
+      // console.log('error: unmuting user');
       return 'backend: error while unmuting user';
     }
   }
@@ -424,7 +424,7 @@ export class ChatController {
       timer: number;
     },
   ) {
-    console.log('requete: ban User');
+    // console.log('requete: ban User');
     const channel = await this.chatService.findChannelById(data.channelID);
     const fromUser = await this.chatService.findUserById((req.user as User).id);
 
@@ -470,7 +470,7 @@ export class ChatController {
     },
   ) {
     try {
-      console.log('requete: unban user');
+      // console.log('requete: unban user');
       const channel = await this.chatService.findChannelById(data.channelID);
       const fromUser = await this.chatService.findUserById((req.user as User).id);
 
@@ -484,7 +484,7 @@ export class ChatController {
       this.sendUploadedData();
       return 'backend: user unbaned';
     } catch {
-      console.log('error: unbaning user');
+      // console.log('error: unbaning user');
       return 'backend: error while unbaning user';
     }
   }
@@ -493,7 +493,7 @@ export class ChatController {
   @UseGuards(JwtGuard)
   async addFriend(@Req() req: Request, @Body() data: { friendName: string }) {
       try {
-          console.log('Request: Add friend');
+          // console.log('Request: Add friend');
           const fromUser = await this.chatService.findUserById((req.user as User).id);
           const user2 = await this.chatService.findUserByName(data.friendName);
           if (!user2) {
@@ -517,7 +517,7 @@ export class ChatController {
           this.sendUploadedData();
           return 'Backend: Friend added';
       } catch (error) {
-          console.log('Error: Adding friend', error);
+          // console.log('Error: Adding friend', error);
           return 'Backend: Error while adding friend';
       }
   }
@@ -526,7 +526,7 @@ export class ChatController {
   @UseGuards(JwtGuard)
   async blockUser(@Req() req: Request, @Body() data: { blockedName: string}) {
     try {
-      console.log('Method: blockUser');
+      // console.log('Method: blockUser');
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const userBlocked = await this.chatService.findUserByName(data.blockedName);
       const channelToDestroy = await this.chatService.findDirectChannelByUserIds(fromUser.id, userBlocked.id);
@@ -550,7 +550,7 @@ export class ChatController {
   
       return 'backend: user blocked';
     } catch (error) {
-      console.log('Error: blocking user', error);
+      // console.log('Error: blocking user', error);
       return 'backend: error while blocking user';
     }
   }
@@ -559,8 +559,8 @@ export class ChatController {
   @UseGuards(JwtGuard)
   async unblockUser(@Req() req: Request, @Body() data: { unblockedId: number }) {
     try {
-      console.log('Method: unblockUser');
-      console.log(data.unblockedId)
+      // console.log('Method: unblockUser');
+      // console.log(data.unblockedId)
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const userUnblocked = await this.chatService.findUserById(data.unblockedId);
   
@@ -580,7 +580,7 @@ export class ChatController {
   
       return 'backend: user unblocked';
     } catch (error) {
-      console.log('Error: unblocking user', error);
+      // console.log('Error: unblocking user', error);
       return 'backend: error while unblocking user';
     }
   }
@@ -589,7 +589,7 @@ export class ChatController {
   @UseGuards(JwtGuard)
   async rmoveFriendUser(@Req() req: Request, @Body() data: { removedFriendId: number }) {
     try {
-      console.log('Method: remove Friend');
+      // console.log('Method: remove Friend');
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const removedFriend = await this.chatService.findUserById(data.removedFriendId);
       const channelToDestroy = await this.chatService.findDirectChannelByUserIds(fromUser.id, removedFriend.id);
@@ -612,7 +612,7 @@ export class ChatController {
   
       return 'backend: user unfriended';
     } catch (error) {
-      console.log('Error: unblocking user', error);
+      // console.log('Error: unblocking user', error);
       return 'backend: error while unfriending user';
     }
   }
@@ -660,7 +660,7 @@ export class ChatController {
     @Body() data: { channelID: number, friendId: number }
   ) {
     try {
-      console.log('requete: add friend in channel')
+      // console.log('requete: add friend in channel')
       const fromUser = await this.chatService.findUserById((req.user as User).id);
       const channel = await this.chatService.findChannelById(data.channelID);
       const friend = await this.chatService.findUserById(data.friendId);
@@ -682,13 +682,13 @@ export class ChatController {
       this.sendUploadedData();
       return 'backend: Friend added to the channel';
     } catch {
-      console.log('Error: Adding friend to channel');
+      // console.log('Error: Adding friend to channel');
       return 'backend: Error while adding friend to channel';
     }
   }
 
   sendUploadedData() {
-    console.log('socket.io: emit updateChanList');
+    // console.log('socket.io: emit updateChanList');
 
     setTimeout(async () => {
       try {

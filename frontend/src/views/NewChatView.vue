@@ -3,21 +3,22 @@
     <v-container fluid>  
       <v-main>
         <v-row class="d-flex justify-space-evenly w-100" flex-wrap>
-          <p v-if="this.profileUser.id!=0"> {{ this.profileUser.name }}</p>
+          <!-- <p v-if="this.profileUser.id!=0"> {{ this.profileUser.name }}</p> -->
 
-          <v-col v-if="this.channelInChatBoxID!=0"> <!-- Colonne de la boîte de chat -->
+          <div v-if="channelInChatBoxID!=0" class="colonne chan">
+             <!-- Colonne de la boîte de chat -->
 <!-- CHATBOX                      @components/chat_chatboxComponent.vue -->
             <chat_chatboxComponent
             v-if="this.profileUser.id!=0 && this.channelInChatBoxID != 0"
             :channelInChatBox="this.channelInChatBox"
             :friendList="this.friendsList"
             :blockedList="this.blockedList"/>
-          </v-col>
+          </div>
 
 
-          <v-col> <!-- colonne de la liste channel -->
+          <div class="colonne chan"> <!-- colonne de la liste channel -->
             <v-row>
-              <v-col>
+              <div>
   <!-- LOGIN -->
                 <!-- <chat_BetaLoginForm v-if="this.fe_user.id==0"
                 @user-loged="this.userLoged"/> -->
@@ -32,18 +33,18 @@
 <!-- CHANNEL CREATION FORM        @component/channelCreationComponent.vue-->
                  <Chat_channelCreationComponent
                  v-if="this.profileUser.id!=0"/>
-              </v-col>
+              </div>
 
             </v-row>
-          </v-col>
+          </div>
 
-          <v-col
-            class="friend-list-column" v-if="profileUser.id !== 0">
+          <div
+            class="friend-list-column colonne friend" v-if="profileUser.id !== 0">
             <friendListComponent
             :friendList="this.friendsList"
             :blockedList="this.blockedList"
             :channelList="this.channelList" />
-          </v-col>
+          </div>
         </v-row>
       </v-main>
     </v-container>
@@ -98,14 +99,14 @@ export default {
     },
     created() {
       const user: any = localStorage.getItem('currentUser');
-      console.log("fe_user: ", user)
-      console.log("CURRENT: ", localStorage.getItem('currentUser'))
+      // console.log("fe_user: ", user)
+      // console.log("CURRENT: ", localStorage.getItem('currentUser'))
     },
 
 
     methods: {
       updateSelectedChannel(channelId: number) {
-        console.log('update: ',channelId)
+        // console.log('update: ',channelId)
       // Mettre à jour channelInChatBoxID avec l'ID du canal sélectionné
         this.channelInChatBoxID = channelId;
     },
@@ -120,24 +121,24 @@ export default {
       if (tmp) {
         this.channelInChatBox.messages = tmp;
       }
-      console.log('messageiNCHatBox: ',this.messagesInChatbox);
+      // console.log('messageiNCHatBox: ',this.messagesInChatbox);
       // if (channel.isDirect || this.isUserInChannel(this.logedUser.id, this.chatboxOnChannel)) {this.chatboxWindow = 1}
-      console.log('methods: selectChannel:', this.channelInChatBox);
+      // console.log('methods: selectChannel:', this.channelInChatBox);
     },
 
     getUserFromId(userID: number) {
-      console.log('Methods: getUserFromId')
-      console.log('userlist: ', this.userList);
-      console.log(userID);
+      // console.log('Methods: getUserFromId')
+      // console.log('userlist: ', this.userList);
+      // console.log(userID);
       const userFounded = this.userList.find(user => user.id == userID);
-      console.log(userFounded);
+      // console.log(userFounded);
       if (userFounded)
         return (userFounded);
       return {id: 0, name: ''} as User;
     },
 
     async getMessageList(): Promise<Message[]> {
-      console.log('method: get message in channel');
+      // console.log('method: get message in channel');
       try {
         const reponse = await axios.post('/api/chat/getMessageList', {
           channelID: this.channelInChatBoxID,
@@ -152,7 +153,7 @@ export default {
     },
 
     async getFriendList(): Promise<User[]> {
-      console.log('method: get friend in channel');
+      // console.log('method: get friend in channel');
       try {
         const reponse = await axios.post('/api/chat/getFriendsList', {
         }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}}) as User[];
@@ -165,11 +166,11 @@ export default {
       }
     },
     async getBlockedList(): Promise<User[]> {
-      console.log('method: get blocked list');
+      // console.log('method: get blocked list');
       try {
         const reponse = await axios.post('/api/chat/getBlockedList', {
         }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}}) as User[];
-        console.log('blockedList:', reponse);
+        // console.log('blockedList:', reponse);
         return (reponse as User[]);
       }
       catch {
@@ -194,8 +195,8 @@ export default {
     mounted() {
 
     this.socket.on('updateChannelList', async (data) => {
-        console.log('Socket.io: updateChanList: chatboxOnChannelID: ', this.channelInChatBoxID);
-        console.log('data:', data);
+        // console.log('Socket.io: updateChanList: chatboxOnChannelID: ', this.channelInChatBoxID);
+        // console.log('data:', data);
 
         //init
         data.sort((a: Channel, b: Channel) => a.id - b.id);
@@ -228,12 +229,12 @@ export default {
           this.channelInChatBox = {id: 0 } as Channel;
           this.channelInChatBoxID = 0;
         }
-        console.log('listChannel at the end of updateListChannel: ', this.channelList);
-        console.log('chatBoxOnChannel: ', this.channelInChatBox)
+        // console.log('listChannel at the end of updateListChannel: ', this.channelList);
+        // console.log('chatBoxOnChannel: ', this.channelInChatBox)
     })
 
     this.socket.on('updateUsersList', async (data) => {
-        console.log('Socket.io: update userList from: ', data);
+        // console.log('Socket.io: update userList from: ', data);
         this.userList = [];
         for (let i = 0; i < data.length; i++) {
             let userInList = data[i];
@@ -256,10 +257,20 @@ export default {
 <style scoped>
 .friend-list-column {
   flex: 0 0 auto;
-  width: 300px;
-  background-color: #f0f0f0;
+  background-color: #f0f0f074;
   padding: 10px;
+  width: 25vw;
   overflow-y: auto;
   height: 100vh;
 }
+
+.colonne {
+  height: 90vh;
+  display: flex;
+  align-items: center;
+}
+
+
+
+
 </style>
