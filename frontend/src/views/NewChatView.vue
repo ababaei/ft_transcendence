@@ -3,12 +3,12 @@
     <v-container fluid>  
       <v-main>
         <v-row class="d-flex flex-row-reverse w-100">
-        <v-btn @click="notifPopup=true"> notifications (+{{ notifList.length }}) </v-btn>
+        <v-btn :class="{'color': notifList.length !== 0, 'green': notifList.length !== 0}"
+        @click="notifPopup=true"> notifications (+{{ notifList.length }}) </v-btn>
       </v-row>
         <v-row class="d-flex justify-space-evenly w-100" flex-wrap>
-          <!-- <p v-if="this.profileUser.id!=0"> {{ this.profileUser.name }}</p> -->
-
           <div v-if="channelInChatBoxID!=0" class="colonne chan">
+            
              <!-- Colonne de la boîte de chat -->
 <!-- CHATBOX                      @components/chat_chatboxComponent.vue -->
             <chat_chatboxComponent
@@ -22,9 +22,6 @@
           <div class="colonne chan"> <!-- colonne de la liste channel -->
             <v-row>
               <div>
-  <!-- LOGIN -->
-                <!-- <chat_BetaLoginForm v-if="this.fe_user.id==0"
-                @user-loged="this.userLoged"/> -->
 
 <!-- CHANNEL LIST                 @component/channelList.vue -->
                 <chat_channelList
@@ -70,7 +67,7 @@
 </v-dialog>
 
     <!-- notif pop up -->
-    <v-dialog v-model="notifPopup" max-width="400">
+<v-dialog v-model="notifPopup" max-width="400">
     <v-card max-width="400" max-height="400" >
 
         <v-card-title> Notifications</v-card-title>
@@ -378,6 +375,11 @@ export default {
   align-items: center;
 }
 
+.green {
+  background-color: lightgreen;
+  color: white;
+  /* Autres styles spécifiques à la classe "green" */
+}
 
 
 
