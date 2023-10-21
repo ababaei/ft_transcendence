@@ -373,7 +373,13 @@ export default defineComponent({
           return;
         }
         await this.changePhoto(this.newAvatar)
+        .catch(() => {
+          return;
+        })
         await this.changePseudo(this.newPseudo)
+        .catch(() => {
+          return;
+        })
         await axios.get('/api/users/' + this.profileUser.id + '/update',
         { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
         .then(() => {
@@ -382,8 +388,8 @@ export default defineComponent({
           this.newUser = false;
           localStorage.setItem('currentUser', JSON.stringify(user))
         })
-        .catch(() => {
-
+        .catch((e) => {
+          console.error(e);
         })
       },
       async changePhoto(avatar: string){
