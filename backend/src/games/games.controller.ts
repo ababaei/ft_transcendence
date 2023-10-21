@@ -35,16 +35,21 @@ export class GamesController {
 
     @Put('refuse/:id')
     async refuseDuel(@Param() params: { id: string }) {
-        await this.prismaService.game.update({
-            where: {id:parseInt(params.id)},
-            data: {
-                status: 2,
-            }
-        })
+        try {
+            let game = await this.prismaService.game.findUnique({where : { id: parseInt(params.id)}})
+            await this.prismaService.game.update({
+                where: {id:game.id},
+                data: {
+                    status: 2,
+                }
+            })
+        }
+        catch {}
     }
     
     @Get('/:id')
     async getGames(@Param() params: { id: string }) {
+        // console.log('id = ', params.id);
         const game = await this.prismaService.game.findUnique({
             where: {id: parseInt(params.id)},
             include: {Players: true}

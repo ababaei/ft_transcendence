@@ -215,7 +215,6 @@ import { faGrinTongueSquint, faMedal } from '@fortawesome/free-solid-svg-icons';
           async challengeUser(userID: number) {
               try {
                 const game = await axios.post('/api/games');
-                console.log('game', game);
                 const reponse = await axios.post('/api/chat/challengeRequest', {
                 challengedId: userID,
                 gameID: game.data.id

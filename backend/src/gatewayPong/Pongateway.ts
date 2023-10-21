@@ -452,6 +452,16 @@ export class MyPonGateway {
         {
           var looserID:number
           var winnerID:number
+          const ball = this.ball.find(item => {
+            return (item.roomNo === this.privatePlayer[playerIndex].roomNo)
+          })
+          const game = this.prisma.game.findUnique({where: {id:ball.gameNo}});
+          if ((await game).status == 0)
+          {
+            await this.prisma.game.update({where: {id:ball.gameNo}, data: {status: 3}})
+            client.disconnect(true);
+            return;
+          } 
           this.privatePlayer.forEach(element => {
             if (element.roomNo == this.privatePlayer[playerIndex].roomNo)
             element.active = false;
@@ -460,9 +470,6 @@ export class MyPonGateway {
             else
               winnerID = parseInt(element.id)
             });
-          const ball = this.ball.find(item => {
-            return (item.roomNo === this.privatePlayer[playerIndex].roomNo)
-          })
           await this.playerService.updateUnfinished(ball.gameNo, winnerID, 3);
           await this.playerService.updateUnfinished(ball.gameNo, looserID, 0);
           await this.gameService.updateGame(ball.gameNo, winnerID);
@@ -537,6 +544,16 @@ export class MyPonGateway {
           {
             var looserID:number
             var winnerID:number
+            const ball = this.ball.find(item => {
+              return (item.roomNo === this.privatePlayer[playerIndex].roomNo)
+            })
+            const game = this.prisma.game.findUnique({where: {id:ball.gameNo}});
+            if ((await game).status == 0)
+            {
+              await this.prisma.game.update({where: {id:ball.gameNo}, data: {status: 3}})
+              client.disconnect(true);
+              return;
+            }   
             this.privatePlayer.forEach(element => {
               if (element.roomNo == this.privatePlayer[privateIndex].roomNo)
                 element.active = false;
@@ -544,10 +561,7 @@ export class MyPonGateway {
                 looserID = parseInt(element.id)
               else
                 winnerID = parseInt(element.id)
-              });
-            const ball = this.ball.find(item => {
-              return (item.roomNo === this.privatePlayer[privateIndex].roomNo)
-            })
+            });
             await this.playerService.updateUnfinished(ball.gameNo, winnerID, 3);
             await this.playerService.updateUnfinished(ball.gameNo, looserID, 0);
             await this.gameService.updateGame(ball.gameNo, winnerID);

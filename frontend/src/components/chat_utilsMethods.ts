@@ -6,6 +6,7 @@ export interface Notification {
   senderID: number;
   challengedID: number;
   resolved: boolean;
+  gameID: number;
 }
 
 export interface User {
