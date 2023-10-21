@@ -119,7 +119,7 @@
     </v-dialog>
 
     <v-dialog
-      v-model=profileUser.newUser
+      v-model=newUser
       width="auto"
       persistent
     >
@@ -313,8 +313,8 @@ export default defineComponent({
     async mounted() {
       if (this.profileUser)
       {
-        if (this.profileUser.newUser) {
-          // this.newUser = true;
+        if (this.profileUser.newUser && !this.profileUser.twoFaActivated) {
+          this.newUser = true;
           this.name = this.profileUser.name
         }
         else

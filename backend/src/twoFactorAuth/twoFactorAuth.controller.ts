@@ -94,7 +94,7 @@ export class TwoFactorAuthController {
 
   @Get('disable')
   @HttpCode(200)
-  @UseGuards(Jwt2faGuard)
+  @UseGuards(JwtGuard)
   async disable(@Req() req: Request, @Res() res: Response) {
     // console.log('----DISABLING 2FA----');
     await this.usersService.turnOff2FA(req.user['id']);

@@ -46,7 +46,7 @@ router.beforeEach((to, from, next) => {
   // console.log('beforeeach isAuth: ', isAuth);
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (isAuth === 'false' && !user) {
+    if (isAuth == 'false' && !user) {
       next({
         path: '/login',
         // params: { nextUrl: to.fullPath }

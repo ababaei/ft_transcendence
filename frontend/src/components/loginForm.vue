@@ -35,6 +35,7 @@ import axios from 'axios';
                 localStorage.setItem('currentUser', tmpUser)
                 localStorage.setItem('jwt_token', cookies.token)
                 if (twoFaActivated) {
+                    localStorage.setItem('isAuthenticated', 'true')
                     this.promptTwoFaCode = true;
                     return;
                 } else {
@@ -43,9 +44,9 @@ import axios from 'axios';
                 }
                 router.push('/profil/' + cookies.user.id)
             }
-            if (localStorage.getItem('isAuthenticated') == 'true') {
-                router.push('/profil/' + cookies.user.id)
-            }
+            // if (localStorage.getItem('isAuthenticated') == 'true') {
+            //     router.push('/profil/' + cookies.user.id)
+            // }
         },
         methods: {
             schoolLogin() {        

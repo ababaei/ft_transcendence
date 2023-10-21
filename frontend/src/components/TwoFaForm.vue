@@ -71,14 +71,7 @@ import axios from 'axios';
                     console.error(e);
                 })
             },
-            async disable2fa() {
-                //steps for 2fa to be disabled:
-                //-send a GET request to /api/2fa/disable
-                //-then get the cookie from the response
-                //-update currentUser with the one in the cookie
-                //-pass this.twoFaActivated to false
-                //-set localstorage jwt_token to the new 2fa disabled token.
-                
+            async disable2fa() {                
                 await axios.get('/api/2fa/disable',
                 { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
                 .then(() => {
