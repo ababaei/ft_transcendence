@@ -264,10 +264,10 @@
       renderGame() {
         var c = <HTMLCanvasElement>document.querySelector('canvas');
         if (!c)
-          throw new Error('failed to get canvas');
+          return;
         var ctx = c.getContext("2d");
         if (!ctx)
-          throw new Error('failed to get 2D context');
+          return;
         if (window.innerWidth < 700)
         {
           this.ratio = 600 / (window.innerWidth - 100)

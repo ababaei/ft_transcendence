@@ -89,4 +89,5 @@ model Notification {
   senderID  Int     @default(0)
   challengedID Int  @default(0)
   resolved   Boolean @default(false)
+  gameID    Int     @default(0)
 }

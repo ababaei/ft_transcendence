@@ -141,7 +141,8 @@ export class ChatController {
         'message',
         notifContent,
         fromUser.id,
-        inChannel.id
+        inChannel.id,
+        0
       );
 
       this.sendUploadedData();
@@ -193,7 +194,8 @@ export class ChatController {
         'message',
         notifContent,
         fromUser.id,
-        newChannel.id
+        newChannel.id,
+        0
       );
 
       this.sendUploadedData();
@@ -790,12 +792,10 @@ export class ChatController {
         'challenge',
         fromUser.name + ' challenge you to pong !',
         fromUser.id,
-        toUser.id
+        toUser.id,
+        data.gameID
         );
-        
-        setTimeout(async () => {
-          this.gateway.server.emit('challengeRequest', {fromUser: fromUser, toID: toUser.id, gameID: data.gameID});
-        }, 100);
+  
   
 
       this.sendUploadedData(); 

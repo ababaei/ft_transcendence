@@ -23,6 +23,24 @@
           </v-card>
         </v-dialog>
 
+        <v-dialog v-model="refused">
+          <v-card>
+            <v-card-text>
+              Votre adversaire a refusé la partie.
+            </v-card-text>
+
+              <v-card-actions>
+                <v-spacer></v-spacer>
+        
+                <v-btn
+                  text="Fermer"
+                  @click="refusedBtn">
+                </v-btn>
+              </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+
 
         <v-dialog v-model="endGame">
           <v-card title="VICTOIRE">
@@ -137,8 +155,13 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
         defeat: false,
         alreadyWaiting: false,
         // privateID: '' as string,
-        side: ''
+        side: '',
+        refused: false,
+        interval: 0
       }
+    },
+    beforeMount() {
+      this.privateID = this.$route.params.gameID
     },
     computed: {
       profileUser() {
@@ -152,6 +175,7 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
       }
     },
     async mounted() {
+      this.interval = setInterval(this.gameStatus, 50);
       const player = await axios.get('/api/player/' + this.privateID + '/' + this.profileUser.id)
       this.socket.emit('privateGame', this.privateID, this.profileUser.id, player.data)
       window.addEventListener('keydown', this.KeyDownEvt);
@@ -209,8 +233,14 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
     },
     methods: {
       async gameStatus() {
-        const status = await axios.get('/api/games/' + this.privateID)
-        console.log('status', status);
+        // console.log('privateid = ',this.privateID)
+        const gameInfo = await axios.get('/api/games/' + this.privateID)
+        const status = gameInfo.data.status;
+        if (status == 2)
+        {
+          this.refused = true
+          clearInterval(this.interval);
+        }
       },
       KeyDownEvt(e: KeyboardEvent) {
         if(e.key === 'ArrowUp'){
@@ -250,10 +280,10 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
       renderGame() {
         var c = <HTMLCanvasElement>document.querySelector('canvas');
         if (!c)
-          throw new Error('failed to get canvas');
+          return;
         var ctx = c.getContext("2d");
         if (!ctx)
-          throw new Error('failed to get 2D context');
+          return;
         if (window.innerWidth < 700)
         {
           this.ratio = 600 / (window.innerWidth - 100)
@@ -293,6 +323,10 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
       },
       endGameBtn() {
         this.endGame = false;
+        this.$router.push('/chat')
+      },
+      refusedBtn() {
+        this.refused = false
         this.$router.push('/chat')
       }
     }
