@@ -360,19 +360,6 @@ export default {
           this.notifList = this.notifList.filter((notification) => notification.senderID !== this.profileUser.id);
         }
       })
-<<<<<<< HEAD
-      this.socket.on('challengeRequest', async (data) => {
-        console.log(data);
-        // console.log('challengeRequest', data.gameID);
-        if (data.toID == this.profileUser.id) {
-          this.challengePopup = true;
-          this.challengeFromUser = data.fromUser;
-          this.challengeId = data.gameID
-        }
-      })
-      setInterval(this.sendPingToServer, 15000);
-=======
->>>>>>> finitionDuel
     },
   }
 
