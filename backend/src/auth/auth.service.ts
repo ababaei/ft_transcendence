@@ -5,6 +5,7 @@ import * as argon from 'argon2';
 import { UsersService } from 'src/users/users.service';
 import { Profile } from 'passport-42';
 import { JwtService } from '@nestjs/jwt';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,7 @@ export class AuthService {
       update: {},
       create: {
         name: profile.username,
+        displayName: randomUUID(),
         email: profile.emails[0].value,
         avatar: profile._json.image.link,
       },

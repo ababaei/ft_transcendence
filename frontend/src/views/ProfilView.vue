@@ -123,6 +123,7 @@
       width="auto"
       persistent
     >
+    <v-form @submit.prevent="updateProfil">      
       <v-card>
         <v-card-title primary-title>
           <span class="text-h5">Premiere Connexion</span>
@@ -137,14 +138,46 @@
           </v-text-field>
           <v-text-field
             name="pseudo "
-            label="pseudo"
+            label="pseudo*"
             id="pseudo"
             v-model="newPseudo"
+            required
           ></v-text-field>
           Tu peux laisser les informations par defaut et changer plus tard.
         </v-card-text>
         <v-card-actions>
-          <v-btn color="success" @click="updateProfil">Enregistrer</v-btn>
+          <v-btn color="success" type="submit">Enregistrer</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-form>
+    </v-dialog>
+
+    <v-dialog
+      v-model="pseudoRequired"
+      width="auto"
+      transition="dialog-transition"
+    >
+      <v-card>
+        <v-card-text>
+          Le pseudo est obligatoire pour la premiere connexion, merci !
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="success" @click="pseudoRequired = !pseudoRequired">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-model="pseudoTaken"
+      width="auto"
+      transition="dialog-transition"
+    >
+      <v-card>
+        <v-card-text>
+          Ce pseudo est deja pris ! 😱
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="success" @click="pseudoTaken = !pseudoTaken">Ok</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -235,7 +268,9 @@ export default defineComponent({
         togglePseudo: false as boolean,
         toggleAvatar: false as boolean,
         name: '',
-        avatar: ''
+        avatar: '',
+        pseudoRequired: false,
+        pseudoTaken: false
       };
     },
     components: {
@@ -333,6 +368,10 @@ export default defineComponent({
         })
       },
       async updateProfil() {
+        if (this.newPseudo == '') {
+          this.pseudoRequired = true
+          return;
+        }
         await this.changePhoto(this.newAvatar)
         await this.changePseudo(this.newPseudo)
         await axios.get('/api/users/' + this.profileUser.id + '/update',
@@ -342,6 +381,9 @@ export default defineComponent({
           user.newUser = false
           this.newUser = false;
           localStorage.setItem('currentUser', JSON.stringify(user))
+        })
+        .catch(() => {
+
         })
       },
       async changePhoto(avatar: string){
@@ -368,6 +410,9 @@ export default defineComponent({
           this.name = pseudo;
           localStorage.setItem('currentUser', JSON.stringify(user))
           this.togglePseudo = false;
+        })
+        .catch(() => {
+          this.pseudoTaken = true;
         })
       },
       showHistoryBtn() {

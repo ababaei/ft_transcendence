@@ -11,6 +11,7 @@ datasource db {
 model User {
   id        Int              @id @default(autoincrement())
   name      String           @unique
+  displayName String         @unique
   newUser   Boolean          @default(true)
   twoFaActivated  Boolean    @default(false)
   twoFaSecret     String     @default("")
