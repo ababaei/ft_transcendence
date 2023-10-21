@@ -11,6 +11,7 @@ import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from './users.service';
 import { Jwt2faGuard } from 'src/auth/guards/jwt2fa.guard';
+import photoUrlDto from './dto/photoUrl.dto';
 // import { User } from '@prisma/client';
 
 @Controller('users')
@@ -60,11 +61,13 @@ export class UsersController {
   @Put('/:id/update-photo')
   async updatePhoto(
     @Param() params: { id: string },
-    @Body() body: { avatar: string },
+    @Body() { avatar }: photoUrlDto,
   ) {
+    console.log(avatar);
+    const url:any = avatar;
     await this.prismaService.user.update({
       where: { id: parseInt(params.id) },
-      data: { avatar: body.avatar },
+      data: { avatar: url },
     });
   }
 

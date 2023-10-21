@@ -181,6 +181,22 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog
+      v-model="badUrl"
+      width="auto"
+      transition="dialog-transition"
+    >
+      <v-card>
+        <v-card-text>
+          Il semblerait que l'URL ne soi pas dans le bon format.
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="success" @click="badUrl = !badUrl">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </main>
 </template>
 
@@ -270,7 +286,8 @@ export default defineComponent({
         name: '',
         avatar: '',
         pseudoRequired: false,
-        pseudoTaken: false
+        pseudoTaken: false,
+        badUrl: false
       };
     },
     components: {
@@ -404,6 +421,10 @@ export default defineComponent({
           this.avatar = avatar
           localStorage.setItem('currentUser', JSON.stringify(user))
           this.toggleAvatar = false
+        })
+        .catch((e) => {
+          console.error(e)
+          this.badUrl = true;
         })
       },
       async changePseudo(pseudo: string){
