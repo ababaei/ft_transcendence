@@ -94,7 +94,7 @@
           <v-virtual-scroll :items="(this.channelInChatBox.users as User[])"  height="55vh" item-height="7vh">
             <template v-slot:default="{ item: user }">
                     <div id="userInChan"
-                    @click="profilePopup = true; userSelected = user">
+                    @click="profilePopup = true; this.userSelected = user">
                       <span>{{ user.name }}</span>
                       <div class="chip">
                         <v-chip v-if="user.id==this.channelInChatBox.ownerID && !this.channelInChatBox.isDirect"> owner </v-chip>

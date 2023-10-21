@@ -45,7 +45,7 @@
                   Envoyer un message
                 </v-list-item>
                 <!-- Challenge user -->
-                <v-list-item @click="">
+                <v-list-item @click="this.challengeUser(friend.id)">
                   Le défier au pong
                 </v-list-item>
                 <!-- Remove friend -->
@@ -211,6 +211,14 @@ import type { Channel, User, Message } from './chat_utilsMethods';
               // console.log(reponse);
             } catch { console.error(); }
           },
+
+          async challengeUser(userID: number) {
+              try {
+                  const reponse = await axios.post('/api/chat/challengeRequest', {
+                  challengedId: userID,
+              }, { headers: { "Authorization": `Bearer ${this.jwt_token}` }})
+            } catch { console.error(); }
+          }
     },
   })
 </script>

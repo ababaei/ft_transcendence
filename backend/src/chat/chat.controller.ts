@@ -686,6 +686,34 @@ export class ChatController {
       return 'backend: Error while adding friend to channel';
     }
   }
+  @Post('challengeRequest')
+  @UseGuards(JwtGuard)
+  async sendChallengeRequest(
+    @Req() req: Request,
+    @Body() data: { challengedId}
+  ) {
+    try {
+      // console.log('requete: add friend in channel')
+      const fromUser = await this.chatService.findUserById((req.user as User).id);
+      const toUser = await this.chatService.findUserById(data.challengedId);
+  
+      if (!fromUser || !toUser) {
+        return 'backend:  user not found';
+      }
+      if (await this.chatService.isBlocked(toUser, fromUser)) {
+        return 'backend: this user blocked you';
+      }
+
+      setTimeout(async () => {
+        this.gateway.server.emit('challengeRequest', {fromUser: fromUser, toID: toUser.id});
+      }, 100);
+
+      return 'backend: challenge sended';
+    } catch {
+      // console.log('Error: Adding friend to channel');
+      return 'backend: Error while adding friend to channel';
+    }
+  }
 
   sendUploadedData() {
     // console.log('socket.io: emit updateChanList');

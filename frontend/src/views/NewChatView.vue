@@ -48,6 +48,24 @@
         </v-row>
       </v-main>
     </v-container>
+
+    <!-- challenge pop up -->
+    <v-dialog v-model="challengePopup" max-width="400">
+    <v-card max-width="400" max-height="400" >
+
+        <v-col><v-avatar size="200px">
+        <v-img :src="this.challengeFromUser.avatar" alt="Avatar" />
+        </v-avatar></v-col>
+
+        <v-card-title>{{ challengeFromUser.name }}</v-card-title>
+
+        <v-card-actions>
+          <v-btn @click="">Accept</v-btn>
+          <v-btn @click="">Decline</v-btn>
+        </v-card-actions>
+      </v-card>
+</v-dialog>
+
   </v-responsive>
 </template>
 
@@ -80,7 +98,9 @@ export default {
             channelInChatBoxID: 0 as number,
             messagesInChatbox: [] as Message[],
             friendsList: [] as User[],
-            blockedList: [] as User[]
+            blockedList: [] as User[],
+            challengePopup: false,
+            challengeFromUser: { id: 0, name: '', avatar: '' } as User
         }
     },
     computed: {
@@ -247,6 +267,13 @@ export default {
         const tmp2 = (await this.getBlockedList()).data as User[];
         if (tmp) {
           this.blockedList = tmp2;
+        }
+      })
+      this.socket.on('challengeRequest', async (data) => {
+        console.log('challengeRequest', data);
+        if (data.toID == this.profileUser.id) {
+          this.challengePopup = true;
+          this.challengeFromUser = data.fromUser;
         }
       })
     },
