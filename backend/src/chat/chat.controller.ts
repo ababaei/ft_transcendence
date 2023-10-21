@@ -690,7 +690,7 @@ export class ChatController {
   @UseGuards(JwtGuard)
   async sendChallengeRequest(
     @Req() req: Request,
-    @Body() data: { challengedId}
+    @Body() data: { challengedId, gameID}
   ) {
     try {
       // console.log('requete: add friend in channel')
@@ -705,7 +705,7 @@ export class ChatController {
       }
 
       setTimeout(async () => {
-        this.gateway.server.emit('challengeRequest', {fromUser: fromUser, toID: toUser.id});
+        this.gateway.server.emit('challengeRequest', {fromUser: fromUser, toID: toUser.id, gameID: data.gameID});
       }, 100);
 
       return 'backend: challenge sended';

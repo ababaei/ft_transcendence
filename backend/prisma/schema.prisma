@@ -74,6 +74,7 @@ model Player {
 model Game {
   id        Int      @id @default(autoincrement())
   active    Boolean  @default(true)
+  status    Int?
   idWinner  Int?
   Players   Player[]   @relation("gamePlayers")
   users     User[]    @relation("UserGames")

@@ -3,6 +3,7 @@ import Login from '@/views/LoginView.vue'
 import Profil from '@/views/ProfilView.vue'
 import Chat from '@/views/NewChatView.vue'
 import Pong from '@/views/PongView.vue'
+import Private from '@/views/PrivateGame.vue'
 import NotFound from '@/views/NotFound.vue'
 // import Pong from '../views/PongView.vue'
 
@@ -34,9 +35,15 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/private/:gameID',
+      name: 'private',
+      component: Private,
+      meta: { requiresAuth: true}
+    },
+    {
       path: '/:pathMatch(.*)*',
       component: NotFound
-    }
+    },
   ]
 });
 

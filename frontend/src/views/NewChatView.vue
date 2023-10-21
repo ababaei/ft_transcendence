@@ -60,8 +60,8 @@
         <v-card-title>{{ challengeFromUser.name }}</v-card-title>
 
         <v-card-actions>
-          <v-btn @click="">Accept</v-btn>
-          <v-btn @click="">Decline</v-btn>
+          <v-btn @click="acceptDuel">Accept</v-btn>
+          <v-btn @click="refuseDuel">Decline</v-btn>
         </v-card-actions>
       </v-card>
 </v-dialog>
@@ -100,7 +100,8 @@ export default {
             friendsList: [] as User[],
             blockedList: [] as User[],
             challengePopup: false,
-            challengeFromUser: { id: 0, name: '', avatar: '' } as User
+            challengeFromUser: { id: 0, name: '', avatar: '' } as User,
+            challengeId: 0
         }
     },
     computed: {
@@ -211,6 +212,15 @@ export default {
 
     if (directChannel) { this.selectChannel(directChannel) }
   },
+
+  async acceptDuel() {
+    await axios.put('/api/games/accept/' + this.challengeId);
+    this.$router.push('/private/' + this.challengeId);
+  },
+  async refuseDuel() {
+    await axios.put('/api/games/refuse/' + this.challengeId);
+    this.challengePopup = false
+  }
 },
     mounted() {
 
@@ -270,10 +280,11 @@ export default {
         }
       })
       this.socket.on('challengeRequest', async (data) => {
-        console.log('challengeRequest', data);
+        console.log('challengeRequest', data.gameID);
         if (data.toID == this.profileUser.id) {
           this.challengePopup = true;
           this.challengeFromUser = data.fromUser;
+          this.challengeId = data.gameID
         }
       })
     },
