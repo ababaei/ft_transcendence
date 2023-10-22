@@ -56,7 +56,6 @@ router.beforeEach((to, from, next) => {
     if (isAuth == 'false' && !user) {
       next({
         path: '/login',
-        // params: { nextUrl: to.fullPath }
       });
     } else {
       next();

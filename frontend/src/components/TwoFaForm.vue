@@ -59,19 +59,21 @@ import axios from 'axios';
                 await axios.post('/api/2fa/turn-on',
                 {twoFaCode: this.googleAuthCode, user: this.profileUser },
                 { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
-                .then((res) => {
+                .then(() => {
                     const cookies = this.$cookies.get('userData')
-                    // console.log('FRONT', cookies)
+                    console.log('FRONT', cookies)
                     localStorage.setItem('currentUser', JSON.stringify(cookies.user))
                     this.update2fa(true)
                     this.activation = false
+                    window.location.reload()
                 })
                 .catch((e) => {
                     this.wrongCode = true;
                     console.error(e);
                 })
             },
-            async disable2fa() {                
+            async disable2fa() {    
+                            
                 await axios.get('/api/2fa/disable',
                 { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}})
                 .then(() => {
