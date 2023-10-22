@@ -10,7 +10,10 @@ import { io } from 'socket.io-client';
     },
     name: "app",
     created() {
-      localStorage.setItem('isAuthenticated', 'false')
+      const isAuth = localStorage.getItem('isAuthenticated');
+      if (!isAuth) {
+        localStorage.setItem('isAuthenticated', 'false')
+      }
     },
   });
 </script>

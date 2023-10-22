@@ -97,18 +97,17 @@ export class MyPonGateway {
 
       if (b_left < p_right && b_right > p_left && b_top < p_bottom && b_bottom > p_top)
         coll = true;
-      if (b_bottom > p_top)
       return (coll);
     }
 
     score(element: any, leftPlayer: any, rightPlayer: any)
     {
-      if (element.x < 0)
+      if (element.x < 12)
       {
         rightPlayer.score++;
         return (true);
       }
-      else if (element.x > this.canvas.width)
+      else if (element.x > this.canvas.width - 12)
       {
         leftPlayer.score++;
         return (true);
@@ -146,22 +145,6 @@ export class MyPonGateway {
             if (element.y + element.size > this.canvas.height
               || element.y - element.size <= 0)
                 element.velY *= -1;
-            if (this.collision(element, rightPlayer) || this.collision(element, leftPlayer))
-            {
-              element.velX *= -1;
-              let collidePoint = 0;
-              if (this.collision(element, rightPlayer))
-                collidePoint = element.y - (rightPlayer.y + this.paddle.height/2) / (this.paddle.height / 2);
-              else
-                collidePoint = element.y - (leftPlayer.y + this.paddle.height/2) / (this.paddle.height / 2);
-              const angle = collidePoint * Math.PI / 4;
-              const newVelY = element.speed * Math.sin(angle);
-              if ((newVelY > 0 && element.velY < 0)
-                || (newVelY < 0 && element.velY > 0))
-                element.velY = -newVelY;
-              else
-                element.velY = newVelY;
-            }
             if (this.score(element, leftPlayer, rightPlayer))
             {
               this.server.to(element.roomNo).emit('goal', leftPlayer, rightPlayer);
@@ -178,6 +161,22 @@ export class MyPonGateway {
                 rightPlayer.active = false;
                 return;
               }
+            }
+            if (this.collision(element, rightPlayer) || this.collision(element, leftPlayer))
+            {
+              element.velX *= -1;
+              let collidePoint = 0;
+              if (this.collision(element, rightPlayer))
+                collidePoint = element.y - (rightPlayer.y + this.paddle.height/2) / (this.paddle.height / 2);
+              else
+                collidePoint = element.y - (leftPlayer.y + this.paddle.height/2) / (this.paddle.height / 2);
+              const angle = collidePoint * Math.PI / 4;
+              const newVelY = element.speed * Math.sin(angle);
+              if ((newVelY > 0 && element.velY < 0)
+                || (newVelY < 0 && element.velY > 0))
+                element.velY = -newVelY;
+              else
+                element.velY = newVelY;
             }
             element.y += element.velY;
             element.x += element.velX;
@@ -452,6 +451,16 @@ export class MyPonGateway {
         {
           var looserID:number
           var winnerID:number
+          const ball = this.ball.find(item => {
+            return (item.roomNo === this.privatePlayer[playerIndex].roomNo)
+          })
+          const game = this.prisma.game.findUnique({where: {id:ball.gameNo}});
+          if ((await game).status == 0)
+          {
+            await this.prisma.game.update({where: {id:ball.gameNo}, data: {status: 3}})
+            client.disconnect(true);
+            return;
+          } 
           this.privatePlayer.forEach(element => {
             if (element.roomNo == this.privatePlayer[playerIndex].roomNo)
             element.active = false;
@@ -460,9 +469,6 @@ export class MyPonGateway {
             else
               winnerID = parseInt(element.id)
             });
-          const ball = this.ball.find(item => {
-            return (item.roomNo === this.privatePlayer[playerIndex].roomNo)
-          })
           await this.playerService.updateUnfinished(ball.gameNo, winnerID, 3);
           await this.playerService.updateUnfinished(ball.gameNo, looserID, 0);
           await this.gameService.updateGame(ball.gameNo, winnerID);
@@ -537,6 +543,16 @@ export class MyPonGateway {
           {
             var looserID:number
             var winnerID:number
+            const ball = this.ball.find(item => {
+              return (item.roomNo === this.privatePlayer[playerIndex].roomNo)
+            })
+            const game = this.prisma.game.findUnique({where: {id:ball.gameNo}});
+            if ((await game).status == 0)
+            {
+              await this.prisma.game.update({where: {id:ball.gameNo}, data: {status: 3}})
+              client.disconnect(true);
+              return;
+            }   
             this.privatePlayer.forEach(element => {
               if (element.roomNo == this.privatePlayer[privateIndex].roomNo)
                 element.active = false;
@@ -545,9 +561,6 @@ export class MyPonGateway {
               else
                 winnerID = parseInt(element.id)
               });
-            const ball = this.ball.find(item => {
-              return (item.roomNo === this.privatePlayer[privateIndex].roomNo)
-            })
             await this.playerService.updateUnfinished(ball.gameNo, winnerID, 3);
             await this.playerService.updateUnfinished(ball.gameNo, looserID, 0);
             await this.gameService.updateGame(ball.gameNo, winnerID);

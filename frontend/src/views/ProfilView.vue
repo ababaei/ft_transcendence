@@ -287,7 +287,8 @@ export default defineComponent({
         avatar: '',
         pseudoRequired: false,
         pseudoTaken: false,
-        badUrl: false
+        badUrl: false,
+        forceUpdateKey: 0
       };
     },
     components: {
@@ -307,9 +308,6 @@ export default defineComponent({
         return null
       },
     },
-    // async created() {
-    //   const user: any = localStorage.getItem('currentUser');
-    // },
     async mounted() {
       if (this.profileUser)
       {
@@ -317,8 +315,8 @@ export default defineComponent({
           this.newUser = true;
           this.name = this.profileUser.name
         }
-        else
-          this.name = this.profileUser.displayName
+        else if (!this.profileUser.newUser)
+          this.name = this.profileUser.displayName;
         this.twoFaActivated = this.profileUser.twoFaActivated;
         this.avatar = this.profileUser.avatar;
         const profilePic = document.getElementsByTagName('img')[0];
@@ -328,11 +326,15 @@ export default defineComponent({
         .then((res) => {
           this.FActivated = res.data.twoFaActivated
         })
+        this.$forceUpdate
       } 
       await this.logData()
       setInterval(this.sendPingToServer, 15000);
     },
     methods: {
+      forceUpdate() {
+        this.forceUpdateKey += 1;
+      },
       async logData() {
         await this.getGames();
         await this.getUsers();
