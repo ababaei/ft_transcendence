@@ -663,9 +663,10 @@ export class ChatService {
           throw error; // Vous pouvez personnaliser cette partie si nécessaire
         }
       }
-    async createNotification(users: User[], type: string, content: string, senderID: number, challengedId: number) {
+    async createNotification(users: User[], type: string, content: string, senderID: number, challengedId: number, gameID: number) {
         try {
           // Créer la notification
+
           const notification = await this.prismaService.notification.create({
             data: {
               type: type,
@@ -676,7 +677,8 @@ export class ChatService {
                 })),
               },
               senderID: senderID,
-              challengedID: challengedId
+              challengedID: challengedId,
+              gameID: gameID
             },
           });
     

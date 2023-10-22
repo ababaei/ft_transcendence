@@ -86,8 +86,8 @@
             <!-- challenge notif -->
             <v-card v-if="notification.senderID != profileUser.id && notification.type=='challenge'">
               <v-card-title> {{ notification.content }}</v-card-title>
-              <v-btn @click="() => { resolveNotification(notification), acceptDuel()}">Accept</v-btn>
-              <v-btn @click="() => { resolveNotification(notification), refuseDuel()}">Decline</v-btn>
+              <v-btn @click="() => { acceptDuel(notification), resolveNotification(notification)}">Accept</v-btn>
+              <v-btn @click="() => { refuseDuel(notification), resolveNotification(notification)}">Decline</v-btn>
             </v-card>
           </div>
       </v-list>
@@ -284,25 +284,17 @@ export default {
     if (directChannel) { this.selectChannel(directChannel) }
   },
 
-  async acceptDuel() {
+  async acceptDuel(notification:Notification) {
+    this.challengeId = notification.gameID
     await axios.put('/api/games/accept/' + this.challengeId);
     this.$router.push('/private/' + this.challengeId);
   },
-  async refuseDuel() {
+  async refuseDuel(notification:Notification) {
+    this.challengeId = notification.gameID
     await axios.put('/api/games/refuse/' + this.challengeId);
-    this.challengePopup = false
-  },
-  async sendPingToServer() {
-      try {
-        const reponse = await axios.post('/api/chat/ping', {
-        }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}});
-        return (reponse);
-      }
-      catch {
-        console.error();
-        return null;
-      }
-    },
+    this.challengePopup = false;
+
+  }
 },
     mounted() {
 
@@ -368,16 +360,6 @@ export default {
           this.notifList = this.notifList.filter((notification) => notification.senderID !== this.profileUser.id);
         }
       })
-      this.socket.on('challengeRequest', async (data) => {
-        console.log(data);
-        // console.log('challengeRequest', data.gameID);
-        if (data.toID == this.profileUser.id) {
-          this.challengePopup = true;
-          this.challengeFromUser = data.fromUser;
-          this.challengeId = data.gameID
-        }
-      })
-      setInterval(this.sendPingToServer, 15000);
     },
   }
 
