@@ -330,6 +330,7 @@ export default defineComponent({
         })
       } 
       await this.logData()
+      setInterval(this.sendPingToServer, 15000);
     },
     methods: {
       async logData() {
@@ -455,7 +456,19 @@ export default defineComponent({
         const game = await axios.get('/api/games/' + id);
         return (game.data.id)
       }
-    }
+    },
+    async sendPingToServer() {
+      try {
+        const reponse = await axios.post('/api/chat/ping', {
+        }, { headers: {"Authorization" : `Bearer ${ this.jwt_token }`}});
+        return (reponse);
+      }
+      catch {
+        console.error();
+        return null;
+      }
+    },
+
   })
 </script>
 

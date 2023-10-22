@@ -12,7 +12,6 @@ import { io } from 'socket.io-client';
     created() {
       localStorage.setItem('isAuthenticated', 'false')
     },
-
   });
 </script>
 

@@ -35,6 +35,7 @@ export class GamesController {
 
     @Put('refuse/:id')
     async refuseDuel(@Param() params: { id: string }) {
+        
         await this.prismaService.game.update({
             where: {id:parseInt(params.id)},
             data: {
